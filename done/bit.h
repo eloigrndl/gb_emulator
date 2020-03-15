@@ -15,6 +15,7 @@ extern "C" {
 #endif
 
 typedef uint8_t bit_t;
+typedef enum {LEFT,RIGHT}rot_dir_t;
 
 /**
  * @brief clamp a value to be a bit index between 0 and 7

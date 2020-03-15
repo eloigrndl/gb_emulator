@@ -1,4 +1,4 @@
-## ======================================================================
+ ## ======================================================================
 ## partial Makefile provided to students
 ##
 
@@ -82,3 +82,23 @@ libsid_demo.o: CFLAGS += $(GTK_INCLUDE)
 libsid_demo: LDFLAGS += -L.
 libsid_demo: LDLIBS += $(GTK_LIBS) -lsid
 libsid_demo: libsid_demo.o libsid.so
+
+
+unit-test-bit: unit-test-bit.o bit.o
+unit-test-alu: unit-test-alu.o bit.o alu.o 
+
+
+alu.o: alu.c alu.h bit.h error.h
+bit.o: bit.c bit.h
+error.o: error.c
+libsid_demo.o: libsid_demo.c sidlib.h
+sidlib.o: sidlib.c sidlib.h
+unit-test-alu.o: unit-test-alu.c tests.h error.h alu.h bit.h
+unit-test-bit.o: unit-test-bit.c tests.h error.h bit.h
+unit-test-bus.o: unit-test-bus.c tests.h error.h bus.h memory.h \
+ component.h util.h
+unit-test-component.o: unit-test-component.c tests.h error.h bus.h \
+ memory.h component.h
+unit-test-memory.o: unit-test-memory.c tests.h error.h bus.h memory.h \
+ component.h
+util.o: util.c

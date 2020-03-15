@@ -12,6 +12,7 @@
 #include <stdlib.h>
 
 #include "bit.h"
+#include "error.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,6 +22,10 @@ extern "C" {
  * @brief type flags_t , a uint8_t whose bits hold the value of various flags
  */
 typedef uint8_t flags_t;
+typedef struct{
+    uint16_t value;
+    flags_t flags;
+} alu_output_t;
 
 /**
  * @brief Enum for the various flag values
