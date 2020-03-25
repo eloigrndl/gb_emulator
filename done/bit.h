@@ -15,7 +15,6 @@ extern "C" {
 #endif
 
 typedef uint8_t bit_t;
-typedef enum {LEFT,RIGHT}rot_dir_t;
 
 /**
  * @brief clamp a value to be a bit index between 0 and 7
@@ -25,10 +24,7 @@ typedef enum {LEFT,RIGHT}rot_dir_t;
 /**
  * @brief Enumeration type of rotation directions: either LEFT or RIGHT
  */
-/* TODO WEEK 04:
- * Définir ici le type rot_dir_t
- * (et supprimer ces quatre lignes de commentaire).
- */
+typedef enum {LEFT,RIGHT}rot_dir_t;
 
 
 /**

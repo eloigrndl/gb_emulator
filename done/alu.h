@@ -22,10 +22,6 @@ extern "C" {
  * @brief type flags_t , a uint8_t whose bits hold the value of various flags
  */
 typedef uint8_t flags_t;
-typedef struct{
-    uint16_t value;
-    flags_t flags;
-} alu_output_t;
 
 /**
  * @brief Enum for the various flag values
@@ -46,6 +42,10 @@ typedef enum {
  * Définir ici le type alu_output_t
  * (et supprimer ces quatre lignes de commentaire).
  */
+typedef struct{
+    uint16_t value;
+    flags_t flags;
+} alu_output_t;
 
 
 /**

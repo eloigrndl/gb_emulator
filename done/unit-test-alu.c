@@ -98,7 +98,7 @@ START_TEST(flags_set_exec)
 
     LOOP_ON(input) {
         flags_t flags = 0x0;
-
+        
         if (get_Z(input[i_]))
             set_Z(&flags);
 

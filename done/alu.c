@@ -4,7 +4,7 @@
 
 //TODO BEWARE OF ARGUMENT VERIFICATION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1!
 //TODO INCLUDE ERRORCODES!!!!!
-
+//TODO replace all  bit_edit with set_flag
 int alu_add8(alu_output_t* result, uint8_t x, uint8_t y, bit_t c0){
     if(result == NULL)
         return ERR_BAD_PARAMETER;
@@ -33,9 +33,9 @@ int alu_sub8(alu_output_t* result, uint8_t x, uint8_t y, bit_t b0){
     flags_t generatedFlags = 0x40;
 
     uint8_t lsb = lsb4(x) - lsb4(y) - b0;
-    bit_edit(&(generatedFlags), 5,  bit_get(lsb, 4) || b0);         // TODO: b0?
+    bit_edit(&(generatedFlags), 5,  bit_get(lsb, 4) || b0);         // TODO: implementation of b0 needs to be CORRECTED
     
-    uint8_t msb = msb4(x) - msb4(y) + msb4(lsb);
+    uint8_t msb = msb4(x) - msb4(y) + msb4(lsb);                    
     bit_edit(&(generatedFlags), 4,  bit_get(msb, 4) || b0);
     
     uint16_t total = merge4(lsb, msb);
@@ -56,7 +56,7 @@ int alu_add16_low(alu_output_t* result, uint16_t x, uint16_t y){
     uint8_t lsb = result->value;
 
     if(i != 0)
-        return i;
+        return i;           //TODO: WHY? NEED TO COMMENT CODE 
 
     i = alu_add8(result, msb8(x), msb8(y), bit_get(result->flags, 4));
     if(i != 0)
@@ -89,7 +89,7 @@ int alu_add16_high(alu_output_t* result, uint16_t x, uint16_t y){
 }
 
 int alu_shift(alu_output_t* result, uint8_t x, rot_dir_t dir){
-    if(result == NULL || dir < LEFT || dir > RIGHT)
+    if(result == NULL || dir < LEFT || dir > RIGHT)     // TODO: are enums unsigned?
         return ERR_BAD_PARAMETER;
 
     uint8_t left = 0;
