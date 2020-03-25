@@ -1,4 +1,4 @@
-#pragma once
+#pragma once //FIXME: why warning?
 
 /**
  * 
@@ -13,7 +13,7 @@
 #include "bus.h"
 #include "error.h"
 #include "bit.h"
-
+#include <stdio.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -27,12 +27,15 @@ extern "C" {
  * @return error code
  */
 int bus_remap(bus_t bus, component_t* c, addr_t offset){
-    //TODO: verify also other arguments
+    //TODO: find out if necessary to verify the bus (maybe external method)
 
-    if(c->end - c->start + offset < c->mem.size){
+    if(c == NULL)
+        return ERR_BAD_PARAMETER;
+
+
+    if(c->end - c->start + offset >= c->mem.size)
         return ERR_ADDRESS;
-    }
-
+    
 
     for(int i = 0; i < c->mem.size - offset; i++){
         bus[c-> start+i] = &c->mem.memory[offset+i];
@@ -54,18 +57,14 @@ int bus_remap(bus_t bus, component_t* c, addr_t offset){
  * @return error code
  */
 int bus_forced_plug(bus_t bus, component_t* c, addr_t start, addr_t end, addr_t offset){
-    if(c == NULL){
+    if(c == NULL || end < start || end - start >= BUS_SIZE )
         return ERR_BAD_PARAMETER;
-    }
-
-    if(end < start){
-        return ERR_ADDRESS;
-    }
-    //TODO: verify args as before
-
+    
+    
     error_code e = bus_remap(bus, c, offset);
 
-    //FIXME please
+    //TODO write TestsZ
+
     if(e == ERR_NONE){
         c->start = start;
         c->end = end;
@@ -87,9 +86,17 @@ int bus_forced_plug(bus_t bus, component_t* c, addr_t start, addr_t end, addr_t 
  * @return error code
  */
 int bus_plug(bus_t bus, component_t* c, addr_t start, addr_t end){
-    if(c == NULL){
+    if(c == NULL || end < start || end - start >= BUS_SIZE){
         return ERR_BAD_PARAMETER;
     }
+
+
+
+    if(end - start >= c->mem.size) 
+        return ERR_ADDRESS;
+
+
+
     //TODO: check for other possible errors
     //checks whether bus is free for this space
     for(int i = start; i <= end; i++){
@@ -97,10 +104,8 @@ int bus_plug(bus_t bus, component_t* c, addr_t start, addr_t end){
             return ERR_ADDRESS;
     }
 
-    error_code e = bus_remap(bus, c, 0);
+    return bus_forced_plug(bus, c, start, end, 0);
 
-    //TODO: react upon e != 0
-    return e;
 }
 
 
@@ -115,11 +120,12 @@ int bus_unplug(bus_t bus, component_t* c){
     if(c == NULL){
         return ERR_BAD_PARAMETER;
     }
-    //TODO: check for arg validity
 
-
-    for(int i = c-> start; i <= c->end; i++)
+    for(int i = c->start; i <= c->end; i++)
         bus[i] = NULL;
+    
+    c->start = 0;
+    c->end = 0;
 
     return ERR_NONE;
 }
@@ -133,17 +139,11 @@ int bus_unplug(bus_t bus, component_t* c){
  * @return error code
  */
 int bus_read(const bus_t bus, addr_t address, data_t* data){
-    //TODO verify args
+    if(data == NULL)
+        return ERR_BAD_PARAMETER;
 
-    if(bus[address] == NULL){
-        *data = 0xFF;
-        return ERR_NONE;
-    }else{
-        *data = *bus[address];
-        //TODO treat other errors
-        return ERR_NONE;
-    }
-
+    *data = bus[address] == NULL ? 0xFF : *bus[address];
+    return ERR_NONE;
 }
 
 /**
@@ -155,13 +155,19 @@ int bus_read(const bus_t bus, addr_t address, data_t* data){
  * @return error code
  */
 int bus_read16(const bus_t bus, addr_t address, addr_t* data16){
-    //TODO: verify args
+    if(data16 == NULL)
+        return ERR_BAD_PARAMETER;
 
     data_t lsb = 0;
     data_t msb = 0;
 
-    bus_read(bus, address, &lsb);
-    bus_read(bus, address+1, &msb);
+    error_code e1 = bus_read(bus, address, &lsb);
+    error_code e2 = bus_read(bus, address+1, &msb);
+
+    if(e1 != ERR_NONE)
+        return e1;
+    if(e2 != ERR_NONE)
+        return e2;
 
     *data16 = merge8(lsb, msb); 
 
@@ -177,7 +183,9 @@ int bus_read16(const bus_t bus, addr_t address, addr_t* data16){
  * @return error code
  */
 int bus_write(bus_t bus, addr_t address, data_t data){
-    //TODO verify args
+    if(bus[address] == NULL)
+        return ERR_BAD_PARAMETER;
+    
     *bus[address] = data;
     return ERR_NONE;
 }
@@ -191,10 +199,11 @@ int bus_write(bus_t bus, addr_t address, data_t data){
  * @return error code
  */
 int bus_write16(bus_t bus, addr_t address, addr_t data16){
-    //TODO verify args
+    if(bus[address] == NULL || bus[address+1] == NULL)
+        return ERR_BAD_PARAMETER;
 
-    *bus[address] = lsb8(data16);
-    *bus[address] = msb8(data16);
+    bus_write(bus, address,  lsb8(data16));         
+    bus_write(bus, address+1, msb8(data16));
     return ERR_NONE;
 }
 

@@ -16,14 +16,14 @@
 extern "C" {
 #endif
 
-//TODO: comment whole code week 4-6
+//TODO: comment whole code week 5-6
 #define MAX_MEM_SIZE 256
 
 /**
  * @brief types for Game Boy data (8 bits) and addresses (16 bits)
  */
-typedef uint16_t addr_t;
 typedef uint8_t data_t;
+typedef uint16_t addr_t;
 
 /**
  * @brief Structure for memory,

@@ -29,11 +29,12 @@ int component_create(component_t* c, size_t mem_size){
         return ERR_BAD_PARAMETER;
     }
     
-    memset(c->mem.memory, 0, mem_size);
-    c->mem.size = 0;
-    c->start = 0 ;
+    memset(c->mem.memory, 0, mem_size);             //TODO will memset really reset everything?
+    
+    c->mem.size = mem_size;
+    c->start = 0;
     c->end = 0;
-
+        
 
     return ERR_NONE;
 }

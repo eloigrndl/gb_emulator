@@ -23,7 +23,7 @@ extern "C" {
 /**
  * @ brief Bus Type, a table of memory pointer pointing to the various component memories
  */
-typedef data_t* bus_t[BUS_SIZE]; //TODO: really a table of memory_t pointers??
+typedef data_t* bus_t[BUS_SIZE];
 
 /**
  * @brief Plug a component into the bus

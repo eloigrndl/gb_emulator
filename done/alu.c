@@ -2,6 +2,8 @@
 #include "error.h"
 
 
+
+//TODO: add method header documentation, align comment lines
 int alu_add8(alu_output_t* result, uint8_t x, uint8_t y, bit_t c0){
     if(result == NULL)                                  // cannot work with a NULL pointer
         return ERR_BAD_PARAMETER;
@@ -153,6 +155,7 @@ int alu_shiftR_A(alu_output_t* result, uint8_t x){
 
     if(x == 0)                                              // checks whether result after shift is 0, sets Z flag accordingly
         set_Z(&result->flags);
+
 
     if(left == 1)                                           // checks whether lost bit was a 1, sets C flag accordingly
         set_C(&result->flags);
