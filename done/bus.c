@@ -61,7 +61,6 @@ int bus_forced_plug(bus_t bus, component_t* c, addr_t start, addr_t end, addr_t 
     if(end < start){
         return ERR_ADDRESS;
     }
-
     //TODO: verify args as before
 
     error_code e = bus_remap(bus, c, offset);

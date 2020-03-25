@@ -319,12 +319,12 @@ START_TEST(alu_sub8_exec)
         ck_assert_int_eq(alu_sub8(&result, input_x[i_], input_y[i_], input_c[i_]), ERR_NONE);
 
         ck_assert_msg(result.value == expected_v[i_],
-                      "alu_sub8() failed on 0x%" PRIX8 " + 0x%" PRIX8 " (c=%d):got value 0x%"
+                      "alu_sub8() failed on 0x%" PRIX8 " - 0x%" PRIX8 " (b=%d):got value 0x%"
                       PRIX8 " instead of 0x%" PRIX8,
                       input_x[i_], input_y[i_], input_c[i_], result.value, expected_v[i_]);
 
         ck_assert_msg(result.flags == expected_f[i_],
-                      "alu_sub8() failed on 0x%" PRIX8 " + 0x%" PRIX8 " (c=%d): got flag 0x%"
+                      "alu_sub8() failed on 0x%" PRIX8 " - 0x%" PRIX8 " (b=%d): got flag 0x%"
                       PRIX8 " instead of 0x%" PRIX8,
                       input_x[i_], input_y[i_], input_c[i_], result.flags, expected_f[i_]);
     }
@@ -344,6 +344,8 @@ START_TEST(alu_shift_err)
     ck_assert_int_eq(alu_shift(NULL, 0, LEFT), ERR_BAD_PARAMETER);
     alu_output_t result = {0, 0};
     ck_assert_int_eq(alu_shift(&result, 0, (LEFT | RIGHT) + 1), ERR_BAD_PARAMETER);
+
+
 #ifdef WITH_PRINT
     printf("=== END of %s\n", __func__);
 #endif

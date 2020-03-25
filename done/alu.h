@@ -38,10 +38,6 @@ typedef enum {
  * @brief type alu_output_t holds a structure with a 16bit value field (usualy using only the 8 lsb),
  *        and a flags_t flag field holding the various flags
  */
-/* TODO WEEK 04:
- * Définir ici le type alu_output_t
- * (et supprimer ces quatre lignes de commentaire).
- */
 typedef struct{
     uint16_t value;
     flags_t flags;
