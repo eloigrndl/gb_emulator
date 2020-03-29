@@ -16,9 +16,6 @@
 extern "C" {
 #endif
 
-//TODO: comment whole code week 5-6
-#define MAX_MEM_SIZE 256
-
 /**
  * @brief types for Game Boy data (8 bits) and addresses (16 bits)
  */
@@ -30,7 +27,7 @@ typedef uint16_t addr_t;
  *        Holds a pointer to the memory, its size and if it is writable
  */
 typedef struct{
-    data_t memory[MAX_MEM_SIZE];
+    data_t* memory;
     size_t size;
 }memory_t;
 

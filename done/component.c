@@ -1,5 +1,3 @@
-#pragma once
-
 /**
  * 
  * //TODO: edit description
@@ -25,18 +23,39 @@ extern "C" {
  * @return error code
  */
 int component_create(component_t* c, size_t mem_size){
-    if(mem_size > MAX_MEM_SIZE || c == NULL){
+    if(c == NULL){
         return ERR_BAD_PARAMETER;
     }
-    
-    memset(c->mem.memory, 0, mem_size);             //TODO will memset really reset everything?
-    
-    c->mem.size = mem_size;
+
+
+    if(mem_size == 0){
+        c -> mem = NULL;
+    } else {
+        c -> mem = calloc(mem_size, sizeof(memory_t));
+        if(c -> mem == NULL)
+            //if calloc fails
+            return ERR_ADDRESS;
+    }
+        
+    (c->mem) -> size = mem_size;
     c->start = 0;
     c->end = 0;
-        
 
     return ERR_NONE;
+}
+
+/**
+ * @brief Shares memory between two components
+ *
+ * @param c component pointer to share to
+ * @param c_old component to share from
+ * @return error code
+ */
+int component_shared(component_t* c, component_t* c_old){
+    //TODO: check if correct ?
+    c -> mem = c_old -> mem;
+    c_old -> start = 0;
+    c_old -> end = 0;
 }
 
 
@@ -46,6 +65,8 @@ int component_create(component_t* c, size_t mem_size){
  * @param c component pointer to destroy
  */
 void component_free(component_t* c){
+    free(c -> mem)
+    c -> mem = NULL;
     c->start = 0;
     c-> end = 0;
 }

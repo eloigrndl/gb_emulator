@@ -1,5 +1,3 @@
-#pragma once //FIXME: why warning?
-
 /**
  * 
  * //TODO: edit description
@@ -29,16 +27,16 @@ extern "C" {
 int bus_remap(bus_t bus, component_t* c, addr_t offset){
     //TODO: find out if necessary to verify the bus (maybe external method)
 
-    if(c == NULL)
+    if(c == NULL || c -> mem -> memory == NULL)
         return ERR_BAD_PARAMETER;
 
 
-    if(c->end - c->start + offset >= c->mem.size)
+    if(c->end - c->start + offset >= c->mem -> size)
         return ERR_ADDRESS;
     
 
-    for(int i = 0; i < c->mem.size - offset; i++){
-        bus[c-> start+i] = &c->mem.memory[offset+i];
+    for(int i = 0; i < c->mem -> size - offset; i++){
+        bus[c-> start+i] = &c->mem -> memory[offset+i];
         
     }
 
@@ -92,7 +90,7 @@ int bus_plug(bus_t bus, component_t* c, addr_t start, addr_t end){
 
 
 
-    if(end - start >= c->mem.size) 
+    if(end - start >= c-> mem -> size) 
         return ERR_ADDRESS;
 
 
