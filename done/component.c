@@ -57,6 +57,10 @@ int component_create(component_t* c, size_t mem_size){
  */
 int component_shared(component_t* c, component_t* c_old){
     //TODO: check if correct c_old vs c?
+    if(c == NULL && c_old == NULL){
+        return ERR_BAD_PARAMETER;
+    }
+    
     c -> mem = c_old -> mem;
     c -> start = 0;
     c -> end = 0;
