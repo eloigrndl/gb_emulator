@@ -84,7 +84,6 @@ int bus_forced_plug(bus_t bus, component_t* c, addr_t start, addr_t end, addr_t 
  * @return error code
  */
 int bus_plug(bus_t bus, component_t* c, addr_t start, addr_t end){
-    if(c == NULL) printf("OHNO\n");
     if(c == NULL || end < start || end - start >= BUS_SIZE || c->mem == NULL){
         return ERR_BAD_PARAMETER;
     }
@@ -92,7 +91,6 @@ int bus_plug(bus_t bus, component_t* c, addr_t start, addr_t end){
 
     if(end - start >= c-> mem->size) 
         return ERR_ADDRESS;
-    puts("AHA");
 
 
 

@@ -11,6 +11,7 @@
 #include "error.h"
 #include "component.h"
 #include "memory.h"
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,25 +25,28 @@ extern "C" {
  * @return error code
  */
 int component_create(component_t* c, size_t mem_size){
-    component_t* c_new  = calloc(1, sizeof(component_t)); //TODO use new pointer or reject null values? 
-    if(c_new == NULL)
-        return ERR_MEM;
+    if(c == NULL)
+        return ERR_BAD_PARAMETER;
 
     if(mem_size == 0){
-        c_new->mem = NULL;
+        c->mem = NULL;
     }else{
-        c_new->mem = calloc(1, sizeof(memory_t)); //FIXME: with or without *
-        error_code e = mem_create(c_new->mem, mem_size);
+        c->mem = calloc(1, sizeof(memory_t)); //FIXME: with or without *
+        if(c->mem == NULL) 
+            return ERR_MEM;
+        
+        error_code e = mem_create(c->mem, mem_size);
         if(e != ERR_NONE){
-            printf("VOILA LE BUG\n");
              return e;
         }
     }
-    c_new->start = 0;
-    c_new->end = 0;
-    c = c_new;
+    c->start = 0;
+    c->end = 0;
+
+
+    
     return ERR_NONE;
-}
+} 
 
 /**
  * @brief Shares memory between two components
@@ -67,13 +71,13 @@ int component_shared(component_t* c, component_t* c_old){
  */
 void component_free(component_t* c){
     mem_free(c->mem);
+    free(c->mem);
+    c->mem = NULL;
 
     c-> start = 0;
     c-> end = 0;
 
-    free(c);
-    c = NULL;    
-
+    //FIXME: need to add TODO and FIXME?
     return;
 }
 

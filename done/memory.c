@@ -24,21 +24,16 @@ extern "C" {
  * @return error code
  */
 int mem_create(memory_t* mem, size_t size){
-    if(size == 0){
+    if(mem == NULL || size == 0){
         return ERR_BAD_PARAMETER;
     }
 
-    memory_t* mem_new = calloc(1, sizeof(memory_t));
-    if(mem_new == NULL)
-        return ERR_MEM;
-
-    mem_new -> memory = calloc(size, sizeof(data_t));
-    if(mem_new-> memory == NULL){
+    mem->memory = calloc(size, sizeof(data_t));
+    if(mem-> memory == NULL){
         return ERR_MEM;
     }
 
-    mem_new -> size = size;
-    mem = mem_new;
+    mem->size = size;
     return ERR_NONE;
 }
 
@@ -48,11 +43,9 @@ int mem_create(memory_t* mem, size_t size){
  * @param mem memory structure pointer to destroy
  */
 void mem_free(memory_t* mem){
-    free(mem -> memory);
+    free(mem->memory);
     mem -> memory = NULL;   //TODO : is = NULL necessary ?
     mem -> size = 0;
-    free(mem);
-    mem = NULL;
 }
 
 #ifdef __cplusplus

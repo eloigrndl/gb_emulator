@@ -45,17 +45,14 @@ START_TEST(bus_plug_err)
     ck_assert_int_eq(bus_plug(bus, NULL, 0, 0), ERR_BAD_PARAMETER);
     const int err = bus_plug(bus, &c, 0, 0);
     ck_assert((err == ERR_BAD_PARAMETER) || (err == ERR_ADDRESS));
-
-    if(&c != NULL) 
-        printf("OHO! \n");
     ck_assert_int_eq(component_create(&c, 2), ERR_NONE);
-
     ck_assert_int_eq(bus_plug(bus, &c, 0, 5), ERR_ADDRESS); // range too large
     ck_assert_int_eq(bus_plug(bus, &c, 0, 1), ERR_NONE);
     ck_assert_int_eq(bus_plug(bus, &c, 0, 1), ERR_ADDRESS); // since we plugged already
 
     ck_assert_int_eq(bus_unplug(bus, NULL), ERR_BAD_PARAMETER);
     component_free(&c);
+    printf("test\n");
 
 #ifdef WITH_PRINT
     printf("=== END of %s\n", __func__);

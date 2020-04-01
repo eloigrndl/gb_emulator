@@ -26,7 +26,7 @@ LDLIBS += -lcheck -lm -lrt -pthread -lsubunit
 all:: 
 
 TARGETS := 
-CHECK_TARGETS := unit-test-bit unit-test-alu unit-test-bus
+CHECK_TARGETS := unit-test-bit unit-test-alu unit-test-bus unit-test-memory
 OBJS = 
 OBJS_NO_STATIC_TESTS =
 OBJS_STATIC_TESTS = 
@@ -87,6 +87,8 @@ libsid_demo: libsid_demo.o libsid.so
 unit-test-bit: unit-test-bit.o bit.o
 unit-test-alu: unit-test-alu.o bit.o alu.o 
 unit-test-bus: unit-test-bus.o bit.o component.o bus.o memory.o
+unit-test-memory: unit-test-memory.o bit.o component.o bus.o memory.o
+
 
 
 alu.o: alu.c alu.h bit.h error.h
