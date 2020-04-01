@@ -11,7 +11,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "error.h"
-
 #include "memory.h"
 
 #ifdef __cplusplus

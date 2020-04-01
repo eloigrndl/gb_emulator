@@ -26,8 +26,7 @@ extern "C" {
  */
 int bus_remap(bus_t bus, component_t* c, addr_t offset){
     //TODO: find out if necessary to verify the bus (maybe external method)
-
-    if(c == NULL || c -> mem -> memory == NULL)
+    if(c == NULL || c->mem == NULL || c->mem->memory == NULL)
         return ERR_BAD_PARAMETER;
 
 
@@ -55,7 +54,8 @@ int bus_remap(bus_t bus, component_t* c, addr_t offset){
  * @return error code
  */
 int bus_forced_plug(bus_t bus, component_t* c, addr_t start, addr_t end, addr_t offset){
-    if(c == NULL || end < start || end - start >= BUS_SIZE )
+
+    if(c == NULL || end < start || end - start >= BUS_SIZE || c->mem == NULL )
         return ERR_BAD_PARAMETER;
     
     
@@ -84,14 +84,15 @@ int bus_forced_plug(bus_t bus, component_t* c, addr_t start, addr_t end, addr_t 
  * @return error code
  */
 int bus_plug(bus_t bus, component_t* c, addr_t start, addr_t end){
-    if(c == NULL || end < start || end - start >= BUS_SIZE){
+    if(c == NULL) printf("OHNO\n");
+    if(c == NULL || end < start || end - start >= BUS_SIZE || c->mem == NULL){
         return ERR_BAD_PARAMETER;
     }
 
 
-
-    if(end - start >= c-> mem -> size) 
+    if(end - start >= c-> mem->size) 
         return ERR_ADDRESS;
+    puts("AHA");
 
 
 

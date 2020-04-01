@@ -10,6 +10,7 @@
 
 #include "error.h"
 #include "component.h"
+#include "memory.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,24 +24,23 @@ extern "C" {
  * @return error code
  */
 int component_create(component_t* c, size_t mem_size){
-    if(c == NULL){
-        return ERR_BAD_PARAMETER;
-    }
-
+    component_t* c_new  = calloc(1, sizeof(component_t)); //TODO use new pointer or reject null values? 
+    if(c_new == NULL)
+        return ERR_MEM;
 
     if(mem_size == 0){
-        c -> mem = NULL;
-    } else {
-        c -> mem = calloc(mem_size, sizeof(memory_t));
-        if(c -> mem == NULL)
-            //if calloc fails
-            return ERR_ADDRESS;
+        c_new->mem = NULL;
+    }else{
+        c_new->mem = calloc(1, sizeof(memory_t)); //FIXME: with or without *
+        error_code e = mem_create(c_new->mem, mem_size);
+        if(e != ERR_NONE){
+            printf("VOILA LE BUG\n");
+             return e;
+        }
     }
-        
-    (c->mem) -> size = mem_size;
-    c->start = 0;
-    c->end = 0;
-
+    c_new->start = 0;
+    c_new->end = 0;
+    c = c_new;
     return ERR_NONE;
 }
 
@@ -52,10 +52,11 @@ int component_create(component_t* c, size_t mem_size){
  * @return error code
  */
 int component_shared(component_t* c, component_t* c_old){
-    //TODO: check if correct ?
+    //TODO: check if correct c_old vs c?
     c -> mem = c_old -> mem;
-    c_old -> start = 0;
-    c_old -> end = 0;
+    c -> start = 0;
+    c -> end = 0;
+    return ERR_NONE; 
 }
 
 
@@ -65,10 +66,15 @@ int component_shared(component_t* c, component_t* c_old){
  * @param c component pointer to destroy
  */
 void component_free(component_t* c){
-    free(c -> mem)
-    c -> mem = NULL;
-    c->start = 0;
+    mem_free(c->mem);
+
+    c-> start = 0;
     c-> end = 0;
+
+    free(c);
+    c = NULL;    
+
+    return;
 }
 
 

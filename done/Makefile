@@ -86,15 +86,17 @@ libsid_demo: libsid_demo.o libsid.so
 
 unit-test-bit: unit-test-bit.o bit.o
 unit-test-alu: unit-test-alu.o bit.o alu.o 
-unit-test-bus: unit-test-bus.o bit.o component.o bus.o
+unit-test-bus: unit-test-bus.o bit.o component.o bus.o memory.o
 
 
 alu.o: alu.c alu.h bit.h error.h
 bit.o: bit.c bit.h
-bus.o: bus.c
-component.o: component.c
+bus.o: bus.c bus.h memory.h component.h error.h bit.h
+component.o: component.c error.h component.h memory.h
 error.o: error.c
+gameboy.o: gameboy.c error.h gameboy.h bus.h memory.h component.h
 libsid_demo.o: libsid_demo.c sidlib.h
+memory.o: memory.c memory.h error.h
 sidlib.o: sidlib.c sidlib.h
 unit-test-alu.o: unit-test-alu.c tests.h error.h alu.h bit.h
 unit-test-bit.o: unit-test-bit.c tests.h error.h bit.h

@@ -1,5 +1,3 @@
-#pragma once
-
 /**
  * @file memory.h
  * @brief Memory for Gamemu
@@ -26,16 +24,21 @@ extern "C" {
  * @return error code
  */
 int mem_create(memory_t* mem, size_t size){
-    if(mem == NULL || size == 0){
+    if(size == 0){
         return ERR_BAD_PARAMETER;
     }
 
-    mem -> memory = calloc(size, sizeof(data_t));
-    //if calloc failed
-    if(mem -> memory == NULL){
-        return ERR_ADDRESS;
+    memory_t* mem_new = calloc(1, sizeof(memory_t));
+    if(mem_new == NULL)
+        return ERR_MEM;
+
+    mem_new -> memory = calloc(size, sizeof(data_t));
+    if(mem_new-> memory == NULL){
+        return ERR_MEM;
     }
-    mem -> size = size;
+
+    mem_new -> size = size;
+    mem = mem_new;
     return ERR_NONE;
 }
 
@@ -48,6 +51,8 @@ void mem_free(memory_t* mem){
     free(mem -> memory);
     mem -> memory = NULL;   //TODO : is = NULL necessary ?
     mem -> size = 0;
+    free(mem);
+    mem = NULL;
 }
 
 #ifdef __cplusplus
