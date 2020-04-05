@@ -12,6 +12,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <stdio.h>
 #ifdef WITH_PRINT
 #include <stdio.h>
 #endif
@@ -39,18 +40,19 @@ START_TEST(bus_plug_err)
     printf("=== %s:\n", __func__);
 #endif
     INIT;
+
+
     ck_assert_int_eq(bus_plug(bus, NULL, 0, 0), ERR_BAD_PARAMETER);
     const int err = bus_plug(bus, &c, 0, 0);
     ck_assert((err == ERR_BAD_PARAMETER) || (err == ERR_ADDRESS));
-
     ck_assert_int_eq(component_create(&c, 2), ERR_NONE);
-
     ck_assert_int_eq(bus_plug(bus, &c, 0, 5), ERR_ADDRESS); // range too large
     ck_assert_int_eq(bus_plug(bus, &c, 0, 1), ERR_NONE);
     ck_assert_int_eq(bus_plug(bus, &c, 0, 1), ERR_ADDRESS); // since we plugged already
 
     ck_assert_int_eq(bus_unplug(bus, NULL), ERR_BAD_PARAMETER);
     component_free(&c);
+    printf("test\n");
 
 #ifdef WITH_PRINT
     printf("=== END of %s\n", __func__);
@@ -74,10 +76,10 @@ START_TEST(bus_plug_exec)
     ck_assert(c.end == c_size);
 
     for (size_t i = 0; i < c_size; ++i) {
-        ck_assert(bus[i] == c.mem.memory + i);
+        ck_assert(bus[i] == c.mem->memory + i);
         ck_assert(*bus[i] == 0);
         *bus[i] = data;
-        ck_assert(c.mem.memory[i] == data);
+        ck_assert(c.mem->memory[i] == data);
     }
 
     ck_assert_int_eq(bus_unplug(bus, &c), ERR_NONE);

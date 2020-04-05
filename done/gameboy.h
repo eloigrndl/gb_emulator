@@ -24,10 +24,10 @@ extern "C" {
  * @brief Game Boy data structure.
  *        Regroups everything needed to simulate the Game Boy.
  */
-/* TODO WEEK 06:
- * Définir ici le type gameboy_t
- * (et supprimer ces quatre lignes de commentaire).
- */
+ typedef struct{
+    bus_t bus;
+    component_t components[GB_NB_COMPONENTS]; //FIXME: memory or component?? O.o
+ } gameboy_t; 
 
 // Number of Game Boy cycles per second (= 2^20)
 #define GB_CYCLES_PER_S  (((uint64_t) 1) << 20)

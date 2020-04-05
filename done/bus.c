@@ -1,4 +1,3 @@
-
 /**
  * @file bus.c
  * @brief Game Boy Bus Emulator
@@ -23,17 +22,16 @@
  */
 int bus_remap(bus_t bus, component_t* c, addr_t offset){
     //TODO: find out if necessary to verify the bus (maybe external method)
-
-    if(c == NULL)
+    if(c == NULL || c->mem == NULL || c->mem->memory == NULL)
         return ERR_BAD_PARAMETER;
 
 
-    if(c->end - c->start + offset >= c->mem.size)
+    if(c->end - c->start + offset >= c->mem -> size)
         return ERR_ADDRESS;
     
 
-    for(int i = 0; i < c->mem.size - offset; i++){
-        bus[c-> start+i] = &c->mem.memory[offset+i];
+    for(int i = 0; i < c->mem -> size - offset; i++){
+        bus[c-> start+i] = &c->mem -> memory[offset+i];
         
     }
 
@@ -52,7 +50,8 @@ int bus_remap(bus_t bus, component_t* c, addr_t offset){
  * @return error code
  */
 int bus_forced_plug(bus_t bus, component_t* c, addr_t start, addr_t end, addr_t offset){
-    if(c == NULL || end < start || end - start >= BUS_SIZE )
+
+    if(c == NULL || end < start || end - start >= BUS_SIZE || c->mem == NULL )
         return ERR_BAD_PARAMETER;
     
     
@@ -83,13 +82,12 @@ int bus_forced_plug(bus_t bus, component_t* c, addr_t start, addr_t end, addr_t 
  * @return error code
  */
 int bus_plug(bus_t bus, component_t* c, addr_t start, addr_t end){
-    if(c == NULL || end < start || end - start >= BUS_SIZE){
+    if(c == NULL || end < start || end - start >= BUS_SIZE || c->mem == NULL){
         return ERR_BAD_PARAMETER;
     }
 
 
-
-    if(end - start >= c->mem.size) 
+    if(end - start >= c-> mem->size) 
         return ERR_ADDRESS;
 
 
