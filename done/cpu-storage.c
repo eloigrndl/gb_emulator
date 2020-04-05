@@ -16,21 +16,21 @@
 // ==== see cpu-storage.h ========================================
 data_t cpu_read_at_idx(const cpu_t* cpu, addr_t addr)
 {
-    if(cpu == NULL || cpu -> bus == NULL)
+    if(cpu == NULL || cpu->bus == NULL)
         return  ERR_BAD_PARAMETER;   /// TODO wrong type : error_code  != addr_t
 
     data_t data = 0;
-    error_code e = bus_read(cpu -> bus, addr, &data);                         
+    bus_read(*(cpu->bus), addr, &data);                         
     return data;
 }
 
 // ==== see cpu-storage.h ========================================
 addr_t cpu_read16_at_idx(const cpu_t* cpu, addr_t addr)
 {
-     if(cpu == NULL || cpu -> bus == NULL)
+     if(cpu == NULL || cpu->bus == NULL)
         return  ERR_BAD_PARAMETER;   /// TODO wrong type : error_code  != addr_t
     addr_t data = 0;
-    error_code e = bus_read16(cpu -> bus, addr, &data);  
+    bus_read16(*cpu->bus, addr, &data);  
                 
     return data;
 }
@@ -38,44 +38,44 @@ addr_t cpu_read16_at_idx(const cpu_t* cpu, addr_t addr)
 // ==== see cpu-storage.h ========================================
 int cpu_write_at_idx(cpu_t* cpu, addr_t addr, data_t data)
 {
-    if(cpu == NULL || cpu -> bus == NULL)
+    if(cpu == NULL || cpu->bus == NULL)
         return  ERR_BAD_PARAMETER;
 
-    error_code e = bus_write(cpu -> bus, addr, data);
+    error_code e = bus_write(*(cpu->bus), addr, data);
     return e;
 }
 
 // ==== see cpu-storage.h ========================================
 int cpu_write16_at_idx(cpu_t* cpu, addr_t addr, addr_t data16)
 {
-   if(cpu == NULL || cpu -> bus == NULL)
+   if(cpu == NULL || cpu->bus == NULL)
         return  ERR_BAD_PARAMETER;
 
-    error_code e = bus_write16(cpu -> bus, addr, data16);
+    error_code e = bus_write16(*(cpu->bus), addr, data16);
     return e;
 }
 
 // ==== see cpu-storage.h ========================================
 int cpu_SP_push(cpu_t* cpu, addr_t data16)
 {
-    if(cpu == NULL || cpu -> bus == NULL) 
+    if(cpu == NULL || cpu->bus == NULL) 
         return ERR_BAD_PARAMETER;
     
-    cpu -> SP -= 2;
+    cpu->SP -= 2;
 
-    error_code e = cpu_write16_at_idx(cpu -> bus, cpu -> SP, data16);
+    error_code e = cpu_write16_at_idx(cpu, cpu->SP, data16);
     return e;
 }
 
 // ==== see cpu-storage.h ========================================
 addr_t cpu_SP_pop(cpu_t* cpu)
 {
-     if(cpu == NULL || cpu -> bus == NULL) 
+     if(cpu == NULL || cpu->bus == NULL) 
         return ERR_BAD_PARAMETER;               //FIXME: do we have to return an error_code in case of nullPointer
     
     addr_t data = 0;
-    data = cpu_read16_at_idx(cpu -> bus, cpu -> SP)
-    cpu -> SP +=2;
+    data = cpu_read16_at_idx(cpu, cpu->SP);
+    cpu->SP +=2;
     return data;
 }
 

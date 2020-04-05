@@ -26,7 +26,7 @@ LDLIBS += -lcheck -lm -lrt -pthread -lsubunit
 all:: 
 
 TARGETS := 
-CHECK_TARGETS := unit-test-bit unit-test-alu unit-test-bus unit-test-memory
+CHECK_TARGETS := unit-test-bit unit-test-alu unit-test-bus unit-test-memory unit-test-cpu
 OBJS = 
 OBJS_NO_STATIC_TESTS =
 OBJS_STATIC_TESTS = 
@@ -88,6 +88,7 @@ unit-test-bit: unit-test-bit.o bit.o
 unit-test-alu: unit-test-alu.o bit.o alu.o 
 unit-test-bus: unit-test-bus.o bit.o component.o bus.o memory.o
 unit-test-memory: unit-test-memory.o bit.o component.o bus.o memory.o
+unit-test-cpu: unit-test-cpu.o cpu.o cpu-registers.o cpu-storage.o alu.o bit.o bus.o component.o memory.o cpu-alu.o
 
 
 
@@ -95,10 +96,19 @@ alu.o: alu.c alu.h bit.h error.h
 bit.o: bit.c bit.h
 bus.o: bus.c bus.h memory.h component.h error.h bit.h
 component.o: component.c error.h component.h memory.h
+cpu-alu.o: cpu-alu.c error.h bit.h alu.h cpu-alu.h opcode.h cpu.h bus.h \
+ memory.h component.h cpu-storage.h cpu-registers.h
+cpu-registers.o: cpu-registers.c cpu-registers.h cpu.h alu.h bit.h \
+ error.h bus.h memory.h component.h
+cpu-storage.o: cpu-storage.c error.h cpu-storage.h memory.h opcode.h \
+ bit.h cpu.h alu.h bus.h component.h cpu-registers.h gameboy.h util.h
+cpu.o: cpu.c error.h opcode.h bit.h cpu.h alu.h bus.h memory.h \
+ component.h cpu-alu.h cpu-registers.h cpu-storage.h util.h
 error.o: error.c
 gameboy.o: gameboy.c error.h gameboy.h bus.h memory.h component.h
 libsid_demo.o: libsid_demo.c sidlib.h
 memory.o: memory.c memory.h error.h
+opcode.o: opcode.c opcode.h bit.h
 sidlib.o: sidlib.c sidlib.h
 unit-test-alu.o: unit-test-alu.c tests.h error.h alu.h bit.h
 unit-test-bit.o: unit-test-bit.c tests.h error.h bit.h
@@ -106,6 +116,16 @@ unit-test-bus.o: unit-test-bus.c tests.h error.h bus.h memory.h \
  component.h util.h
 unit-test-component.o: unit-test-component.c tests.h error.h bus.h \
  memory.h component.h
+unit-test-cpu-dispatch-week08.o: unit-test-cpu-dispatch-week08.c tests.h \
+ error.h alu.h bit.h cpu.h bus.h memory.h component.h opcode.h gameboy.h \
+ util.h unit-test-cpu-dispatch.h cpu.c cpu-alu.h cpu-registers.h \
+ cpu-storage.h
+unit-test-cpu-dispatch-week09.o: unit-test-cpu-dispatch-week09.c tests.h \
+ error.h alu.h bit.h cpu.h bus.h memory.h component.h opcode.h util.h \
+ unit-test-cpu-dispatch.h cpu.c cpu-alu.h cpu-registers.h cpu-storage.h
+unit-test-cpu.o: unit-test-cpu.c tests.h error.h alu.h bit.h opcode.h \
+ util.h cpu.h bus.h memory.h component.h cpu-registers.h cpu-storage.h \
+ cpu-alu.h
 unit-test-memory.o: unit-test-memory.c tests.h error.h bus.h memory.h \
  component.h
 util.o: util.c

@@ -52,8 +52,7 @@ int cpu_plug(cpu_t* cpu, bus_t* bus)
 // ======================================================================
 void cpu_free(cpu_t* cpu)
 {
-    if(cpu == NULL)
-        return ERR_BAD_PARAMETER; //FIXME can't return error code in void method
+     //FIXME can't return error code in void method
     
     cpu -> bus = NULL;
     return;
