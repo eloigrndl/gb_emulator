@@ -1,3 +1,6 @@
+//TODO COMMENT!!!
+
+
 #include "bit.h"
 
 
