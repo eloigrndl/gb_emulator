@@ -36,6 +36,8 @@ typedef enum {
  */
 typedef struct{
     alu_output_t alu;
+    bus_t* bus;
+    uint8_t idle_time;
 
     union {
         struct{

@@ -26,7 +26,8 @@ extern "C" {
  */
  typedef struct{
     bus_t bus;
-    component_t components[GB_NB_COMPONENTS]; //FIXME: memory or component?? O.o
+    component_t components[GB_NB_COMPONENTS];
+    cpu_t cpu;
  } gameboy_t; 
 
 // Number of Game Boy cycles per second (= 2^20)

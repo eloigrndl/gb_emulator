@@ -41,7 +41,7 @@ typedef enum {
 /**
  * @brief returns a register given the register value
  *
- * @params cpu pointer to the cpu
+ * @param cpu pointer to the cpu
  * @param reg register type
  *
  * @return value of the desired register
@@ -64,7 +64,7 @@ uint8_t cpu_reg_get(const cpu_t* cpu, reg_kind reg);
 /**
  * @brief writes to a register given the register value
  *
- * @params cpu pointer to the cpu
+ * @param cpu pointer to the cpu
  * @param reg register type
  * @param value value to write to desired register
  */

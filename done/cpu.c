@@ -35,19 +35,29 @@ int cpu_init(cpu_t* cpu)
     //TODO: alu init?
     cpu->alu.flags = 0;
     cpu->alu.value = 0;    
+    cpu -> idle_time = 0;
     return ERR_NONE;
 }
 
 // ======================================================================
 int cpu_plug(cpu_t* cpu, bus_t* bus)
 {
+    if(bus == NULL || cpu == NULL)
+        return ERR_BAD_PARAMETER;
 
+    cpu -> bus = bus;
     return ERR_NONE;
 }
 
 // ======================================================================
 void cpu_free(cpu_t* cpu)
 {
+    if(cpu == NULL)
+        return ERR_BAD_PARAMETER; //FIXME can't return error code in void method
+    
+    cpu -> bus = NULL;
+    return;
+    
 }
 
 //=========================================================================
@@ -222,5 +232,8 @@ int cpu_cycle(cpu_t* cpu)
     M_REQUIRE_NON_NULL(cpu);
     M_REQUIRE_NON_NULL(cpu->bus);
 
-        return ERR_NONE;
+    if(cpu -> idle_time > 0){
+        cpu -> idle_time -=1;
+    }
+    return ERR_NONE;
 }
