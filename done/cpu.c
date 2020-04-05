@@ -19,7 +19,22 @@
 // ======================================================================
 int cpu_init(cpu_t* cpu)
 {
+    if(cpu == NULL)
+        return ERR_BAD_PARAMETER;
 
+
+    //TODO: use memset or not??
+    cpu_AF_set(cpu, 0);
+    cpu_BC_set(cpu, 0);
+    cpu_DE_set(cpu, 0);
+    cpu_HL_set(cpu, 0);
+    
+    cpu->SP = 0;
+    cpu->PC = 0;
+
+    //TODO: alu init?
+    cpu->alu.flags = 0;
+    cpu->alu.value = 0;    
     return ERR_NONE;
 }
 
