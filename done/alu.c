@@ -1,9 +1,63 @@
+/**
+ * @file alu.c
+ * @brief ALU Body for GameBoy Emulator
+ *
+ * @author E. Wengle, E. Garandel, EPFL
+ * @date 2020
+ */
+
 #include "alu.h"
 #include "error.h"
 
 
+/**
+ * @brief get flag value
+ *
+ * @param flags flag set to get flag from
+ * @param flag flag value to get
+ * @return flag value
+ */
+bit_t get_flag(flags_t flags, flag_bit_t flag){
+    switch(flag){                                                                      // returns bit value of the demanded flag, shifted to the right format
+        case FLAG_Z: return bit_get(flags, 7) << 7;
+        case FLAG_N: return bit_get(flags, 6) << 6;
+        case FLAG_H: return bit_get(flags, 5) << 5;
+        case FLAG_C: return bit_get(flags, 4) << 4;
+        default: return ERR_NONE;
+    }
+}
 
-//TODO: add method header documentation, align comment lines
+
+/**
+ * @brief set flag
+ *
+ * @param flags (modified) set of flags
+ * @param flag flag to be set
+ */
+void set_flag(flags_t* flags, flag_bit_t flag){
+    switch(flag){                                                                     // sets the bit of the demanded flag
+        case FLAG_Z: bit_set(flags, 7);
+                     break;
+        case FLAG_N: bit_set(flags, 6);
+                     break;
+        case FLAG_H: bit_set(flags, 5);
+                     break;
+        case FLAG_C: bit_set(flags, 4);
+                     break;
+        default: return;
+    }
+}
+
+
+/**
+ * @brief adds two uint8 and writes the results and flags into an alu_output_t structure
+ *
+ * @param result alu_output_t pointer to write into
+ * @param x value to sum
+ * @param y value to sum
+ * @param c0 carry in
+ * @return error code
+ */
 int alu_add8(alu_output_t* result, uint8_t x, uint8_t y, bit_t c0){
     if(result == NULL)                                  // cannot work with a NULL pointer
         return ERR_BAD_PARAMETER;
@@ -28,6 +82,16 @@ int alu_add8(alu_output_t* result, uint8_t x, uint8_t y, bit_t c0){
     return ERR_NONE;                                   
 }
 
+
+/**
+ * @brief subtract two uint8 and writes the results and flags into an alu_output_t structure
+ *
+ * @param result alu_output_t pointer to write into
+ * @param x value to subtract from
+ * @param y value to subtract
+ * @param b0 initial borrow bit
+ * @return error code
+ */
 int alu_sub8(alu_output_t* result, uint8_t x, uint8_t y, bit_t b0){
     if(result == NULL)                                                  // cannot work with a NULL pointer
         return ERR_BAD_PARAMETER;
@@ -52,6 +116,16 @@ int alu_sub8(alu_output_t* result, uint8_t x, uint8_t y, bit_t b0){
     return ERR_NONE;
 }
 
+
+/**
+ * @brief sum two uint16 and writes the results and flags into an alu_output_t structure,
+ *        the H & C flags are being placed according to the 8 lsb
+ *
+ * @param result alu_output_t pointer to write into
+ * @param x value to sum
+ * @param y value to sum
+ * @return error code
+ */
 int alu_add16_low(alu_output_t* result, uint16_t x, uint16_t y){
     if(result == NULL)                                                  // cannot work with Nullpointer
         return ERR_BAD_PARAMETER;
@@ -83,6 +157,16 @@ int alu_add16_low(alu_output_t* result, uint16_t x, uint16_t y){
     return ERR_NONE;
 }
 
+
+/**
+ * @brief sum two uint16 and writes the results and flags into an alu_output_t structure,
+ *        the H & C flags are being placed according to the 8 msb
+ *
+ * @param result alu_output_t pointer to write into
+ * @param x value to sum
+ * @param y value to sum
+ * @return error code
+ */
 int alu_add16_high(alu_output_t* result, uint16_t x, uint16_t y){
         if(result == NULL)                                              // cannot work with Nullpointer
         return ERR_BAD_PARAMETER;
@@ -114,6 +198,15 @@ int alu_add16_high(alu_output_t* result, uint16_t x, uint16_t y){
     return ERR_NONE;
 }
 
+
+/**
+ * @brief logic shift
+ *
+ * @param result alu_output_t pointer to write into
+ * @param x value to shift
+ * @param dir shift direction
+ * @return error code
+ */
 int alu_shift(alu_output_t* result, uint8_t x, rot_dir_t dir){
     if(result == NULL || dir < LEFT || dir > RIGHT)                     // Cannot work with Nullpointer, or direction which is out of bounds
         return ERR_BAD_PARAMETER;
@@ -140,6 +233,14 @@ int alu_shift(alu_output_t* result, uint8_t x, rot_dir_t dir){
     return ERR_NONE;
 }
 
+
+/**
+ * @brief arithmetic shift
+ *
+ * @param result alu_output_t pointer to write into
+ * @param x value to shift
+ * @return error code
+ */
 int alu_shiftR_A(alu_output_t* result, uint8_t x){
     if(result == NULL)                                      // cannot work with Nullpointer
         return ERR_BAD_PARAMETER;
@@ -163,6 +264,15 @@ int alu_shiftR_A(alu_output_t* result, uint8_t x){
     return ERR_NONE;
 }
 
+
+/**
+ * @brief logic rotate
+ *
+ * @param result alu_output_t pointer to write into
+ * @param x value to rotate
+ * @param dir rotation direction
+ * @return error code
+ */
 int alu_rotate(alu_output_t* result, uint8_t x, rot_dir_t dir){
     if(result == NULL || dir < LEFT || dir > RIGHT)                     // Cannot work with Nullpointer, or direction which is out of bounds
         return ERR_BAD_PARAMETER;
@@ -184,6 +294,16 @@ int alu_rotate(alu_output_t* result, uint8_t x, rot_dir_t dir){
 
 }
 
+
+/**
+ * @brief logic rotate with carry taken into account
+ *
+ * @param result alu_output_t pointer to write into
+ * @param x value to rotate
+ * @param dir rotation direction
+ * @param flags carry flag
+ * @return error code
+ */
 int alu_carry_rotate(alu_output_t* result, uint8_t x, rot_dir_t dir, flags_t flags){
     if(result == NULL || dir < LEFT || dir > RIGHT)
         return ERR_BAD_PARAMETER;
@@ -204,28 +324,4 @@ int alu_carry_rotate(alu_output_t* result, uint8_t x, rot_dir_t dir, flags_t fla
         set_C(&result->flags);
 
     return ERR_NONE;
-}
-
-bit_t get_flag(flags_t flags, flag_bit_t flag){
-    switch(flag){                                                                      // returns bit value of the demanded flag, shifted to the right format
-        case FLAG_Z: return bit_get(flags, 7) << 7;
-        case FLAG_N: return bit_get(flags, 6) << 6;
-        case FLAG_H: return bit_get(flags, 5) << 5;
-        case FLAG_C: return bit_get(flags, 4) << 4;
-        default: return ERR_NONE;
-    }
-}
-
-void set_flag(flags_t* flags, flag_bit_t flag){
-    switch(flag){                                                                     // sets the bit of the demanded flag
-        case FLAG_Z: bit_set(flags, 7);
-                     break;
-        case FLAG_N: bit_set(flags, 6);
-                     break;
-        case FLAG_H: bit_set(flags, 5);
-                     break;
-        case FLAG_C: bit_set(flags, 4);
-                     break;
-        default: return;
-    }
 }

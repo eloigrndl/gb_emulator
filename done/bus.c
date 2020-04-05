@@ -1,10 +1,7 @@
-#pragma once //FIXME: why warning?
 
 /**
- * 
- * //TODO: edit description
- * @file component.c
- * @brief Bit operations for GameBoy Emulator
+ * @file bus.c
+ * @brief Game Boy Bus Emulator
  *
  * @author E. Wengle, E. Garandel, EPFL
  * @date 2020
@@ -14,9 +11,7 @@
 #include "error.h"
 #include "bit.h"
 #include <stdio.h>
-#ifdef __cplusplus
-extern "C" {
-#endif
+
 
 /**
  * @brief Remap the memory of a component to the bus
@@ -61,10 +56,12 @@ int bus_forced_plug(bus_t bus, component_t* c, addr_t start, addr_t end, addr_t 
         return ERR_BAD_PARAMETER;
     
     
+
+    //FIXME: verification for end, start and offset!!
     error_code e = bus_remap(bus, c, offset);
 
-    //TODO write TestsZ
-
+    //TODO write Tests
+    
     if(e == ERR_NONE){
         c->start = start;
         c->end = end;
@@ -208,6 +205,4 @@ int bus_write16(bus_t bus, addr_t address, addr_t data16){
 }
 
 
-#ifdef __cplusplus
-}
-#endif
+
