@@ -35,7 +35,6 @@ START_TEST(mem_create_free_err)
     ck_assert(mem.size == 0);
 
     mem_free(&mem);
-    printf("guguseli\n");
 
     ck_assert_int_eq(mem_create(NULL, 1), ERR_BAD_PARAMETER);
     ck_assert(mem.memory == NULL);

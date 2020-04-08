@@ -13,7 +13,7 @@
 
 /**
  * @brief returns a register given the register value
- *
+ *#
  * @params cpu pointer to the cpu
  * @param reg register type
  *

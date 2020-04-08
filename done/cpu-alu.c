@@ -103,7 +103,7 @@ static void do_set_or_res(const instruction_t* lu, data_t* data)
 #pragma GCC diagnostic ignored "-Wconversion"
 
     if (extract_sr_bit(lu->opcode)) {
-        *data |=   (data_t) (1 << extract_n3(lu->opcode)) ;
+        *data |=  (data_t) (1 << extract_n3(lu->opcode)) ;
     } else {
         *data &= ~((data_t) (1 << extract_n3(lu->opcode)));
     }

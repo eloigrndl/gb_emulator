@@ -88,7 +88,7 @@ unit-test-bit: unit-test-bit.o bit.o
 unit-test-alu: unit-test-alu.o bit.o alu.o 
 unit-test-bus: unit-test-bus.o bit.o component.o bus.o memory.o
 unit-test-memory: unit-test-memory.o bit.o component.o bus.o memory.o
-unit-test-cpu: unit-test-cpu.o cpu.o cpu-registers.o cpu-storage.o alu.o bit.o bus.o component.o memory.o cpu-alu.o
+unit-test-cpu: unit-test-cpu.o cpu.o cpu-registers.o cpu-storage.o alu.o bit.o bus.o component.o memory.o cpu-alu.o opcode.o
 
 
 

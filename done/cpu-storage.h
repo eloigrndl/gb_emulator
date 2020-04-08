@@ -39,6 +39,12 @@ data_t cpu_read_at_idx(const cpu_t* cpu, addr_t addr);
     cpu_read_at_idx(cpu,(addr_t)((cpu)->PC + 1))
 
 /**
+ * @brief Reads 16-bit data after opcode from bus
+ */
+#define cpu_read_data16_after_opcode(cpu)\
+    cpu_read16_at_idx(cpu,(addr_t)((cpu)->PC + 1))
+
+/**
  * @brief Reads 16bit data from the bus at a given adress
  *
  * @param cpu cpu to read from
@@ -109,6 +115,7 @@ int cpu_SP_push(cpu_t* cpu, addr_t data16);
  * @return 16bit poped data
  */
 addr_t cpu_SP_pop(cpu_t* cpu);
+
 
 
 #ifdef __cplusplus

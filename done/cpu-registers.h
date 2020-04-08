@@ -41,7 +41,7 @@ typedef enum {
 /**
  * @brief returns a register given the register value
  *
- * @params cpu pointer to the cpu
+ * @param cpu pointer to the cpu
  * @param reg register type
  *
  * @return value of the desired register
@@ -60,11 +60,32 @@ uint8_t cpu_reg_get(const cpu_t* cpu, reg_kind reg);
 #define cpu_HL_get(cpu) \
     cpu_reg_pair_get(cpu, REG_HL_CODE)
 
+#define cpu_A_get(cpu) \
+    cpu_reg_get(cpu, REG_A_CODE)
+
+#define cpu_B_get(cpu) \
+    cpu_reg_get(cpu, REG_B_CODE)
+
+#define cpu_C_get(cpu) \
+    cpu_reg_get(cpu, REG_C_CODE)
+
+#define cpu_D_get(cpu) \
+    cpu_reg_get(cpu, REG_D_CODE)
+
+#define cpu_E_get(cpu) \
+    cpu_reg_get(cpu, REG_E_CODE)
+
+#define cpu_H_get(cpu) \
+    cpu_reg_get(cpu, REG_H_CODE)
+
+#define cpu_L_get(cpu) \
+    cpu_reg_get(cpu, REG_L_CODE)
+
 
 /**
  * @brief writes to a register given the register value
  *
- * @params cpu pointer to the cpu
+ * @param cpu pointer to the cpu
  * @param reg register type
  * @param value value to write to desired register
  */
@@ -81,6 +102,27 @@ void cpu_reg_set(cpu_t* cpu, reg_kind reg, uint8_t value);
 
 #define cpu_HL_set(cpu, value) \
     cpu_reg_pair_set(cpu, REG_HL_CODE, value)
+
+#define cpu_A_set(cpu, value) \
+    cpu_reg_set(cpu, REG_A_CODE, value)
+
+#define cpu_B_set(cpu, value) \
+    cpu_reg_set(cpu, REG_B_CODE, value)
+
+#define cpu_C_set(cpu, value) \
+    cpu_reg_set(cpu, REG_C_CODE, value)
+
+#define cpu_D_set(cpu, value) \
+    cpu_reg_set(cpu, REG_D_CODE, value)
+
+#define cpu_E_set(cpu, value) \
+    cpu_reg_set(cpu, REG_E_CODE, value)
+
+#define cpu_H_set(cpu, value) \
+    cpu_reg_set(cpu, REG_H_CODE, value)
+
+#define cpu_L_set(cpu, value) \
+    cpu_reg_set(cpu, REG_L_CODE, value)
 
 /**
  * @brief writes to a register the 8 LSB from ALU

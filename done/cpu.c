@@ -10,8 +10,8 @@
 #include "cpu.h"
 #include "cpu-alu.h"
 #include "cpu-registers.h"
-#include "cpu-storage.h"
 #include "util.h"
+#include "cpu-storage.h"
 
 #include <inttypes.h> // PRIX8
 #include <stdio.h> // fprintf
@@ -71,12 +71,15 @@ void cpu_free(cpu_t* cpu)
 static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
 {
     M_REQUIRE_NON_NULL(lu);
-    M_REQUIRE_NON_NULL(cpu);
+    M_REQUIRE_NON_NULL(cpu);    //TODO: make usage of this macro for args
+
+    cpu->alu.value = 0;
+    cpu->alu.flags = 0;
 
     switch (lu->family) {
 
     // ALU
-    case ADD_A_HLR:
+    case ADD_A_HLR: 
     case ADD_A_N8:
     case ADD_A_R8:
     case INC_HLR:
@@ -211,6 +214,11 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
 
     } // switch
 
+
+    //TODO: update PC, etc.
+    cpu->idle_time -= lu->cycles;
+    cpu->PC += lu->bytes;
+
     return ERR_NONE;
 }
 
@@ -218,9 +226,13 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
 static int cpu_do_cycle(cpu_t* cpu)
 {
     M_REQUIRE_NON_NULL(cpu);
-
-    return ERR_NONE;
+    data_t bin = cpu_read_at_idx(cpu, cpu -> PC);
+    const instruction_t* instr = &instruction_direct[bin];
+    
+    error_code e = cpu_dispatch(instr, cpu);
+    return e;
 }
+
 
 // ======================================================================
 /**

@@ -11,8 +11,7 @@
 #include "bit.h"
 #include <stdio.h>
 
-
-/**
+/** 
  * @brief Remap the memory of a component to the bus
  *
  * @param bus bus to remap to

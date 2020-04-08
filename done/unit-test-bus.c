@@ -52,7 +52,6 @@ START_TEST(bus_plug_err)
 
     ck_assert_int_eq(bus_unplug(bus, NULL), ERR_BAD_PARAMETER);
     component_free(&c);
-    printf("test\n");
 
 #ifdef WITH_PRINT
     printf("=== END of %s\n", __func__);
