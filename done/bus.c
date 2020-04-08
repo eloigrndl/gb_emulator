@@ -21,6 +21,7 @@
  * @return error code
  */
 int bus_remap(bus_t bus, component_t* c, addr_t offset){
+    //TODO: free on which level??'
     //TODO: find out if necessary to verify the bus (maybe external method)
     if(c == NULL || c->mem == NULL || c->mem->memory == NULL)
         return ERR_BAD_PARAMETER;
