@@ -140,20 +140,18 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
     } break;
 
     case INC_R8: {
-        M_EXIT_IF_ERR(alu_add8(&(cpu -> alu), cpu_reg_get(cpu, extract_n3(lu->opcode)), 1, extract_carry(cpu, lu->opcode)));
-        cpu_reg_set(cpu, extract_reg(lu->opcode, 0), cpu -> alu.value);
+        M_EXIT_IF_ERR(alu_add8(&(cpu -> alu), cpu_reg_get(cpu, extract_reg(lu->opcode, 3)), 1, 0));
+        cpu_reg_set(cpu, extract_reg(lu->opcode, 3), cpu -> alu.value);
         cpu_combine_alu_flags(cpu, INC_FLAGS_SRC);
     } break;
 
     case ADD_HL_R16SP: {
-        M_EXIT_IF_ERR(alu_add16_high(&cpu->alu, cpu_HL_get(cpu), cpu_reg_pair_get(cpu, extract_reg_pair(lu->opcode)))); \
+        M_EXIT_IF_ERR(alu_add16_high(&cpu->alu, cpu_HL_get(cpu), cpu_reg_pair_SP_get(cpu, extract_reg_pair(lu->opcode)))); \
         combine_flags_set_pair(cpu, REG_HL_CODE, R16SP_FLAGS); 
     } break;
-    
     case INC_R16SP: {
-        M_EXIT_IF_ERR(alu_add16_high(&cpu->alu, cpu_reg_pair_get(cpu, extract_reg_pair(lu->opcode)), 1)); \
-         M_EXIT_IF_ERR(alu_add16_low(&cpu->alu, cpu_reg_pair_get(cpu, extract_reg_pair(lu->opcode)), 1)); \
-        combine_flags_set_pair(cpu, cpu_reg_pair_get(lu->opcode, 4), UNCHANGED_FLAGS); 
+        M_EXIT_IF_ERR(alu_add16_high(&cpu->alu, cpu_reg_pair_SP_get(cpu, extract_reg_pair(lu->opcode)), 1)); \
+        combine_flags_set_pair(cpu, extract_reg_pair(lu->opcode), UNCHANGED_FLAGS); 
         
     } break;
 
@@ -173,9 +171,10 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
     } break;
 
     case ROT_R8: {
-        M_EXIT_IF_ERR(alu_carry_rotate(&(cpu->alu), cpu_reg_get(cpu, extract_reg(lu->opcode, 0)), LEFT, cpu->alu.flags));
+        printf("Opcode: %d \n", lu->opcode);
+        M_EXIT_IF_ERR(alu_carry_rotate(&(cpu->alu), cpu_reg_get(cpu, extract_reg(lu->opcode, 0)), LEFT, cpu->F));
         cpu_reg_set(cpu, extract_reg(lu->opcode, 0), cpu -> alu.value);
-        cpu_combine_alu_flags(cpu, ROT_FLAGS_SRC);
+        cpu_combine_alu_flags(cpu, SHIFT_FLAGS_SRC);
     } break;
 
 

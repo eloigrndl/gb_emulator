@@ -154,8 +154,6 @@ int alu_add16_low(alu_output_t* result, uint16_t x, uint16_t y){
     if(result->value == 0)                                              // checks whether total is zero, sets flag accordingly
         set_Z(&result->flags);
     
-    printf("LOW  : X: %d, Y: %d, RESULT: %d\n", x, y, result->value);
-
     return ERR_NONE;
 }
 
@@ -197,7 +195,6 @@ int alu_add16_high(alu_output_t* result, uint16_t x, uint16_t y){
     if(result->value == 0)                                              // checks whether total is zero, sets flag accordingly
         set_Z(&result->flags);
 
-    printf("HIGH: X: %d, Y: %d, RESULT: %d\n", x, y, result->value);
 
     return ERR_NONE;
 }
@@ -313,10 +310,12 @@ int alu_carry_rotate(alu_output_t* result, uint8_t x, rot_dir_t dir, flags_t fla
         return ERR_BAD_PARAMETER;
 
     bit_t left = dir == LEFT ? bit_get(x, 7) : bit_get(x, 0);                          // bit to be wrapped around depends on direction
-    uint8_t carry = dir == LEFT ? bit_get(flags, 4) : get_C(flags);                    // format of carry to be added depends on direction, the carry itself is defined by the added flag
-
-
+    
+    bit_t carry = bit_get(flags, 4);
     alu_shift(result, x, dir);                                                         // performs the shift itself
+
+    if(dir == RIGHT)                                                                    // format of carry to be added depends on direction, the carry itself is defined by the added flag
+        carry <<= 7;
 
     result->value |= carry;                                                            // FIXME: avoid copy paste by adding another method? // Appends the previously saved carry
     result->flags = 0;
@@ -326,6 +325,6 @@ int alu_carry_rotate(alu_output_t* result, uint8_t x, rot_dir_t dir, flags_t fla
 
     if(left != 0)                                                                      // checks whether wrapped bit was a 1, sets C flag accordingly
         set_C(&result->flags);
-
+    printf("X: %d, Carry: %d resullt: %d\n", x, carry, result->value);
     return ERR_NONE;
 }
