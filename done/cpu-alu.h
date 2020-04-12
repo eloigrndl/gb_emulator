@@ -43,6 +43,11 @@ typedef enum {
 #define ALL_ALU_FLAGS_SRC ALU,   ALU,   ALU,   ALU
 
 
+#define R16SP_FLAGS       CPU,   CLEAR, ALU,   ALU
+#define UNCHANGED_FLAGS   CPU,   CPU,   CPU,   CPU
+#define BIT_TEST_SRC      ALU,   CLEAR, SET,   CPU
+
+
 // ======================================================================
 /**
 * @brief some useful macros:
@@ -74,6 +79,12 @@ typedef enum {
     do { \
         M_EXIT_IF_ERR(op(&cpu->alu, cpu->A, (arg), extract_carry(cpu, lu->opcode))); \
         combine_flags_set_A(cpu, flags_src); \
+    } while(0)
+
+#define combine_flags_set_pair(cpu, reg, ...) \
+    do { \
+        M_EXIT_IF_ERR(cpu_combine_alu_flags(cpu, __VA_ARGS__)); \
+        cpu_reg_pair_SP_set(cpu, reg, cpu->alu.value); \
     } while(0)
 
 

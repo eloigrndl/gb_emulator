@@ -154,6 +154,8 @@ int alu_add16_low(alu_output_t* result, uint16_t x, uint16_t y){
     if(result->value == 0)                                              // checks whether total is zero, sets flag accordingly
         set_Z(&result->flags);
     
+    printf("LOW  : X: %d, Y: %d, RESULT: %d\n", x, y, result->value);
+
     return ERR_NONE;
 }
 
@@ -194,6 +196,8 @@ int alu_add16_high(alu_output_t* result, uint16_t x, uint16_t y){
 
     if(result->value == 0)                                              // checks whether total is zero, sets flag accordingly
         set_Z(&result->flags);
+
+    printf("HIGH: X: %d, Y: %d, RESULT: %d\n", x, y, result->value);
 
     return ERR_NONE;
 }

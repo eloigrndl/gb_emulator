@@ -56,14 +56,14 @@ int cpu_write16_at_idx(cpu_t* cpu, addr_t addr, addr_t data16)
 }
 
 // ==== see cpu-storage.h ========================================
-int cpu_SP_push(cpu_t* cpu, addr_t data16)
+int cpu_SP_push(cpu_t* cpu, addr_t addr)
 {
     if(cpu == NULL || cpu->bus == NULL) 
         return ERR_BAD_PARAMETER;
     
     cpu->SP -= 2;
 
-    error_code e = cpu_write16_at_idx(cpu, cpu->SP, data16);
+    error_code e = cpu_write16_at_idx(cpu, cpu->SP, addr);
     return e;
 }
 
@@ -107,12 +107,12 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
             break;
 
         case LD_A_N16R:
-            cpu_A_set(cpu, cpu_read_data16_after_opcode(cpu));      // TODO: maybe define macro for this
+            cpu_A_set(cpu, cpu_read_addr_after_opcode(cpu));      // TODO: maybe define macro for this
             break;
 
         case LD_A_N8R:
-            cpu_read_data16_after_opcode(cpu);
-            cpu_A_set(cpu, cpu_read_data16_after_opcode( cpu)); 
+            cpu_read_addr_after_opcode(cpu);
+            cpu_A_set(cpu, cpu_read_addr_after_opcode( cpu)); 
             
             break;
             
@@ -143,19 +143,19 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
             return e;
 
         case LD_N16R_A:
-            e = cpu_write16_at_idx(cpu, cpu_read_data16_after_opcode(cpu), cpu_A_get(cpu));
+            e = cpu_write16_at_idx(cpu, cpu_read_addr_after_opcode(cpu), cpu_A_get(cpu));
             return e;
 
         case LD_N16R_SP:
-            e = cpu_write16_at_idx(cpu, cpu_read_data16_after_opcode(cpu), cpu_reg_pair_SP_get(cpu, REG_AF_CODE));
+            e = cpu_write16_at_idx(cpu, cpu_read_addr_after_opcode(cpu), cpu_reg_pair_SP_get(cpu, REG_AF_CODE));
             return e;
 
         case LD_N8R_A:
-            e = cpu_write_at_idx(cpu, 0xFF00 + cpu_read_data_after_opcode(cpu), cpu_A_get(cpu));//BUS[0xFF00 + n] = A
+            e = cpu_write_at_idx(cpu, 0xFF00 + cpu_read_data_after_opcode(cpu), cpu_A_get(cpu));
             return e;
 
         case LD_R16SP_N16:
-            cpu_reg_pair_set(cpu, extract_reg(lu->opcode, 5),cpu_read_data16_after_opcode(cpu));
+            cpu_reg_pair_set(cpu, extract_reg(lu->opcode, 5),cpu_read_addr_after_opcode(cpu));
             break;
 
         case LD_R8_HLR:

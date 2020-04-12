@@ -38,11 +38,6 @@ data_t cpu_read_at_idx(const cpu_t* cpu, addr_t addr);
 #define cpu_read_data_after_opcode(cpu)\
     cpu_read_at_idx(cpu,(addr_t)((cpu)->PC + 1))
 
-/**
- * @brief Reads 16-bit data after opcode from bus
- */
-#define cpu_read_data16_after_opcode(cpu)\
-    cpu_read16_at_idx(cpu,(addr_t)((cpu)->PC + 1))
 
 /**
  * @brief Reads 16bit data from the bus at a given adress

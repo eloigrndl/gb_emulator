@@ -227,8 +227,15 @@ static int cpu_do_cycle(cpu_t* cpu)
 {
     M_REQUIRE_NON_NULL(cpu);
     data_t bin = cpu_read_at_idx(cpu, cpu -> PC);
-    const instruction_t* instr = &instruction_direct[bin];
-    
+    const instruction_t* instr;
+
+    if(bin == 0xCB){
+        bin =  cpu_read_data_after_opcode(cpu);
+        instr = &instruction_prefixed[bin];
+    } else {
+        instr = &instruction_direct[bin];
+    }
+
     error_code e = cpu_dispatch(instr, cpu);
     return e;
 }
