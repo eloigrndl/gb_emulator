@@ -86,6 +86,7 @@ addr_t cpu_SP_pop(cpu_t* cpu)
 int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
 {
     M_REQUIRE_NON_NULL(cpu);
+    error_code e;
 
     switch (lu->family) {
         case LD_A_BCR:
@@ -102,7 +103,7 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
 
         case LD_A_HLRU:
             cpu_A_set(cpu, cpu_HL_get(cpu)); 
-            cpu_HL_set(cpu, cpu_HL_get(cpu) + cpu_extract_HL_increment(lu -> opcode));
+            cpu_HL_set(cpu, cpu_HL_get(cpu) + extract_HL_increment(lu -> opcode));
             break;
 
         case LD_A_N16R:
@@ -117,40 +118,40 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
             
         // ============= inversed order from here
         case LD_BCR_A:
-            error_code e = cpu_write_at_idx(cpu, cpu_BC_get(cpu), cpu_A_get(cpu));
+            e = cpu_write_at_idx(cpu, cpu_BC_get(cpu), cpu_A_get(cpu));
             return e;
 
         case LD_CR_A:
-            error_code e = cpu_write_at_idx(cpu, 0xFF00 + cpu_C_get(cpu), cpu_A_get(cpu));
+            e = cpu_write_at_idx(cpu, 0xFF00 + cpu_C_get(cpu), cpu_A_get(cpu));
             return e;
 
         case LD_DER_A:
-            error_code e = cpu_write_at_idx(cpu, cpu_DE_get(cpu), cpu_A_get(cpu));
+            e = cpu_write_at_idx(cpu, cpu_DE_get(cpu), cpu_A_get(cpu));
             return e;
 
         case LD_HLRU_A:
-            error_code e = cpu_write_at_idx(cpu, cpu_HL_get(cpu), cpu_A_get(cpu));                 // TODO maybe make macro for HL
-            cpu_HL_set(cpu, cpu_HL_get(cpu) + cpu_extract_HL_increment(lu->opcode));
+            e = cpu_write_at_idx(cpu, cpu_HL_get(cpu), cpu_A_get(cpu));                 // TODO maybe make macro for HL
+            cpu_HL_set(cpu, cpu_HL_get(cpu) + extract_HL_increment(lu->opcode));
             return e;
 
         case LD_HLR_N8:
-            error_code e =  cpu_write_at_idx(cpu, cpu_HL_get(cpu), cpu_read_data_after_opcode(cpu));
+            e =  cpu_write_at_idx(cpu, cpu_HL_get(cpu), cpu_read_data_after_opcode(cpu));
             return e;
 
         case LD_HLR_R8:
-            error_code e = cpu_write_at_idx(cpu, cpu_HL_get(cpu), cpu_get(cpu, extract_reg(lu->opcode, 0)));
+            e = cpu_write_at_idx(cpu, cpu_HL_get(cpu), cpu_reg_get(cpu, extract_reg(lu->opcode, 0)));
             return e;
 
         case LD_N16R_A:
-            error_code e = cpu_write16_at_idx(cpu, cpu_read_data16_after_opcode(cpu), cpu_A_get(cpu));
+            e = cpu_write16_at_idx(cpu, cpu_read_data16_after_opcode(cpu), cpu_A_get(cpu));
             return e;
 
         case LD_N16R_SP:
-            error_code e = cpu_write16_at_idx(cpu, cpu_read_data16_after_opcode(cpu), cpu_SP_get(cpu));
+            e = cpu_write16_at_idx(cpu, cpu_read_data16_after_opcode(cpu), cpu_reg_pair_SP_get(cpu, REG_AF_CODE));
             return e;
 
         case LD_N8R_A:
-            error_code e = cpu_write_at_idx(cpu, 0xFF00 + cpu_read_data_after_opcode(cpu), cpu_A_get(cpu));//BUS[0xFF00 + n] = A
+            e = cpu_write_at_idx(cpu, 0xFF00 + cpu_read_data_after_opcode(cpu), cpu_A_get(cpu));//BUS[0xFF00 + n] = A
             return e;
 
         case LD_R16SP_N16:
@@ -158,7 +159,7 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
             break;
 
         case LD_R8_HLR:
-            error_code e = cpu_write_at_idx(cpu, extract_reg(lu -> opcode, 3), cpu_read_at_HL(cpu));//r = BUS[HL]
+            e = cpu_write_at_idx(cpu, extract_reg(lu -> opcode, 3), cpu_read_at_HL(cpu));//r = BUS[HL]
             break;
 
         case LD_R8_N8:
@@ -174,7 +175,7 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
             break;
 
         case POP_R16:
-            error_code e = cpu_write16_at_idx(cpu, extract_reg(lu -> opcode, 4), cpu_SP_pop(cpu));
+            e = cpu_write16_at_idx(cpu, extract_reg(lu -> opcode, 4), cpu_SP_pop(cpu));
             return e;
 
         case PUSH_R16:

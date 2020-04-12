@@ -108,7 +108,7 @@ static void do_set_or_res(const instruction_t* lu, data_t* data)
         *data &= ~((data_t) (1 << extract_n3(lu->opcode)));
     }
 
-#pragma GCC diagnostic pop
+#pragma GCC diagnostic pop 
 }
 
 // ==== see cpu-alu.h ========================================
