@@ -89,20 +89,20 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
     error_code e;
 
     switch (lu->family) {
-        case LD_A_BCR:
-            cpu_A_set(cpu, cpu_BC_get(cpu));
+        case LD_A_BCR: 
+            set_A_from_bus(cpu, cpu_BC_get(cpu)); //TODO: simplify reading from bus with macros
             break;
 
         case LD_A_CR:
-            cpu_A_set(cpu, 0xFF00 + cpu_C_get(cpu));
+            set_A_from_bus(cpu, 0xFF00 + cpu_C_get(cpu));
             break;
 
         case LD_A_DER:
-            cpu_A_set(cpu, cpu_DE_get(cpu));
+            set_A_from_bus(cpu, cpu_DE_get(cpu));
             break;
 
         case LD_A_HLRU:
-            cpu_A_set(cpu, cpu_HL_get(cpu)); 
+            set_A_from_bus(cpu, cpu_HL_get(cpu)); 
             cpu_HL_set(cpu, cpu_HL_get(cpu) + extract_HL_increment(lu -> opcode));
             break;
 

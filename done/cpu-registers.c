@@ -28,7 +28,7 @@ uint8_t cpu_reg_get(const cpu_t* cpu, reg_kind reg){
         case REG_E_CODE: return cpu->E;
         case REG_H_CODE: return cpu->H;
         case REG_L_CODE: return cpu->L;
-        default: return 0xFF; //FIXME: FF or 00?
+        default: return 0; //FIXME: FF or 00?
     }
 }
 

@@ -90,7 +90,7 @@ int cpu_combine_alu_flags(cpu_t* cpu,
 
 // ======================================================================
 /**
-* @brief Tool function usefull for CHG_U3_R8:
+* @brief Tool function useful for CHG_U3_R8:
 *        Do a SET or a RESET(=unset) of data bit,
 *          according to SR and N3 bits of instruction's opcode
 */
@@ -171,8 +171,7 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
     } break;
 
     case ROT_R8: {
-        printf("Opcode: %d \n", lu->opcode);
-        M_EXIT_IF_ERR(alu_carry_rotate(&(cpu->alu), cpu_reg_get(cpu, extract_reg(lu->opcode, 0)), LEFT, cpu->F));
+        M_EXIT_IF_ERR(alu_carry_rotate(&(cpu->alu), cpu_reg_get(cpu, extract_reg(lu->opcode, 0)), extract_rot_dir(lu->opcode), cpu->F));
         cpu_reg_set(cpu, extract_reg(lu->opcode, 0), cpu -> alu.value);
         cpu_combine_alu_flags(cpu, SHIFT_FLAGS_SRC);
     } break;
@@ -181,14 +180,14 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
     // BIT TESTS (and set)
     case BIT_U3_R8: {
         cpu->alu.flags = 0; //TODO need to simplify in future
-        if(bit_get(extract_reg(lu->opcode, 0), extract_n3(lu->opcode)) != 0)
+        
+        if(bit_get(cpu_reg_get(cpu, extract_reg(lu->opcode, 0)), extract_n3(lu->opcode)) == 0)
             set_Z(&(cpu->alu.flags));
-
         cpu_combine_alu_flags(cpu, BIT_TEST_SRC);
     } break;
 
     case CHG_U3_R8: {
-        do_set_or_res(&(lu->opcode), cpu_reg_get(&cpu, extract_reg(lu->opcode, 0))); // POINTER?
+        do_set_or_res(lu, cpu_reg_get(cpu, extract_reg(lu->opcode, 0))); // TODO: HOW TO PASS POINTER?
     } break;
 
     // ---------------------------------------------------------

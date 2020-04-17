@@ -53,7 +53,12 @@ addr_t cpu_read16_at_idx(const cpu_t* cpu, addr_t addr);
  * @brief Reads 16bit data after opcode from bus
  */
 #define cpu_read_addr_after_opcode(cpu) \
-    FROM_GameBoy_16(cpu_read16_at_idx(cpu, (addr_t)((cpu)->PC + 1)))
+    cpu_read16_at_idx(cpu,(addr_t)((cpu)->PC + 1))
+
+    
+//TODO: DEFINITION
+#define set_A_from_bus(cpu, idx) \
+    cpu_A_set(cpu,  cpu_read_at_idx(cpu, idx))    
 
 /**
  * @brief Write data to the bus at a given adress
