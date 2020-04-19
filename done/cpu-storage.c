@@ -40,7 +40,6 @@ int cpu_write_at_idx(cpu_t* cpu, addr_t addr, data_t data)
 {
     if(cpu == NULL || cpu->bus == NULL)
         return  ERR_BAD_PARAMETER;
-
     error_code e = bus_write(*(cpu->bus), addr, data);
     return e;
 }
@@ -73,8 +72,7 @@ addr_t cpu_SP_pop(cpu_t* cpu)
      if(cpu == NULL || cpu->bus == NULL) 
         return 0;               //FIXME: do we have to return an error_code in case of nullPointer
     
-    addr_t data = 0;
-    data = cpu_read16_at_idx(cpu, cpu->SP);
+    addr_t data = cpu_read16_at_idx(cpu, cpu->SP);
     cpu->SP +=2;
     return data;
 }
@@ -107,12 +105,11 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
             break;
 
         case LD_A_N16R:
-            cpu_A_set(cpu, cpu_read_addr_after_opcode(cpu));      // TODO: maybe define macro for this
+            cpu_A_set(cpu, cpu_read_at_idx(cpu, cpu_read_addr_after_opcode(cpu)));      // TODO: maybe define macro for this
             break;
 
         case LD_A_N8R:
-            cpu_read_addr_after_opcode(cpu);
-            cpu_A_set(cpu, cpu_read_addr_after_opcode( cpu)); 
+            cpu_A_set(cpu, cpu_read_at_idx(cpu, 0xFF00 + cpu_read_data_after_opcode(cpu))); 
             
             break;
             
@@ -141,10 +138,13 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
         case LD_HLR_R8:
             e = cpu_write_at_idx(cpu, cpu_HL_get(cpu), cpu_reg_get(cpu, extract_reg(lu->opcode, 0)));
             return e;
+            
 
         case LD_N16R_A:
             e = cpu_write16_at_idx(cpu, cpu_read_addr_after_opcode(cpu), cpu_A_get(cpu));
             return e;
+            
+            
 
         case LD_N16R_SP:
             e = cpu_write16_at_idx(cpu, cpu_read_addr_after_opcode(cpu), cpu_reg_pair_SP_get(cpu, REG_AF_CODE));
@@ -155,7 +155,7 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
             return e;
 
         case LD_R16SP_N16:
-            cpu_reg_pair_set(cpu, extract_reg(lu->opcode, 5),cpu_read_addr_after_opcode(cpu));
+            cpu_reg_pair_SP_set(cpu, extract_reg_pair(lu->opcode), cpu_read_at_idx(cpu, cpu_read_addr_after_opcode(cpu)));
             break;
 
         case LD_R8_HLR:
@@ -167,19 +167,19 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
             break;
 
         case LD_R8_R8: 
-            cpu_reg_set(cpu, extract_reg(lu->opcode, 3), extract_reg(lu->opcode, 0)); //TODO: need to verify that r != s?
+            cpu_reg_set(cpu, extract_reg(lu->opcode, 3), cpu_reg_get(cpu, extract_reg(lu->opcode, 0))); //TODO: need to verify that r != s?
             break;
 
         case LD_SP_HL:
-            cpu_reg_pair_SP_get(cpu, cpu_read_at_HL(cpu));
+            cpu_reg_pair_SP_set(cpu, REG_AF_CODE, cpu_HL_get(cpu));
             break;
 
         case POP_R16:
-            e = cpu_write16_at_idx(cpu, extract_reg(lu -> opcode, 4), cpu_SP_pop(cpu));
-            return e;
+            cpu_reg_pair_set(cpu, cpu_reg_pair_get(cpu, extract_reg_pair(lu -> opcode)), cpu_SP_pop(cpu));
+            break;
 
         case PUSH_R16:
-            cpu_SP_push(cpu, cpu_reg_get(cpu, extract_reg(lu->opcode, 4)));
+            cpu_SP_push(cpu, cpu_reg_pair_get(cpu, extract_reg_pair(lu->opcode)));
             break;
 
         default:

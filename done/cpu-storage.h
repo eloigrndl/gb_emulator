@@ -58,7 +58,7 @@ addr_t cpu_read16_at_idx(const cpu_t* cpu, addr_t addr);
     
 //TODO: DEFINITION
 #define set_A_from_bus(cpu, idx) \
-    cpu_A_set(cpu,  cpu_read_at_idx(cpu, idx))    
+    cpu_A_set(cpu,  cpu_read_at_idx(cpu, idx))
 
 /**
  * @brief Write data to the bus at a given adress

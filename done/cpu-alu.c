@@ -134,7 +134,7 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
     } break;
 
     case INC_HLR: {
-        alu_add8(&(cpu -> alu), cpu_read_at_HL(cpu -> bus), 1, 0);
+        alu_add8(&(cpu -> alu), cpu_read_at_HL(cpu), 1, 0);
         cpu_write_at_HL(cpu, cpu -> alu.value);
         cpu_combine_alu_flags(cpu, INC_FLAGS_SRC);
     } break;
@@ -187,7 +187,9 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
     } break;
 
     case CHG_U3_R8: {
-        do_set_or_res(lu, cpu_reg_get(cpu, extract_reg(lu->opcode, 0))); // TODO: HOW TO PASS POINTER?
+        data_t reg = cpu_reg_get(cpu, extract_reg(lu->opcode, 0));
+        do_set_or_res(lu, &reg); 
+        cpu_reg_set(cpu, extract_reg(lu->opcode, 0), reg);
     } break;
 
     // ---------------------------------------------------------
