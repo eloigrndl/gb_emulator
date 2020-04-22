@@ -130,7 +130,8 @@ void cpu_reg_set(cpu_t* cpu, reg_kind reg, uint8_t value);
  * @params cpu pointer to the cpu
  * @param reg register type
  */
-#define cpu_reg_set_from_alu8(cpu, reg) \
+//TODO: use this macro
+#define cpu_reg_set_from_alu8(cpu, reg) \               
     cpu_reg_set(cpu, reg, lsb8((cpu)->alu.value))
 
 /**

@@ -72,7 +72,7 @@ uint16_t cpu_reg_pair_get(const cpu_t* cpu, reg_pair_kind reg){
         case REG_DE_CODE: return cpu->DE;
         case REG_HL_CODE: return cpu->HL;
         case REG_AF_CODE: return cpu->AF;
-        default: return 0;
+        default: return 0; //FIXME: 0 or 0xFF00
     }
 }
 
@@ -90,7 +90,7 @@ void cpu_reg_pair_set(cpu_t* cpu, reg_pair_kind reg, uint16_t value){
         case REG_BC_CODE: cpu->BC = value; break;
         case REG_DE_CODE: cpu->DE = value; break;
         case REG_HL_CODE: cpu->HL = value; break;
-        case REG_AF_CODE: cpu->AF = merge8(merge4(0, msb4(lsb8(value))), msb8(value)); break; 
+        case REG_AF_CODE: cpu->AF = merge8(merge4(0, msb4(lsb8(value))), msb8(value)); break; //TODO: leave or change? (just &0xFFF0)
         default: break;
         return;
     }

@@ -23,7 +23,7 @@ bit_t get_flag(flags_t flags, flag_bit_t flag){
         case FLAG_N: return bit_get(flags, 6) << 6;
         case FLAG_H: return bit_get(flags, 5) << 5;
         case FLAG_C: return bit_get(flags, 4) << 4;
-        default: return ERR_NONE;
+        default: return 0;
     }
 }
 
@@ -59,8 +59,7 @@ void set_flag(flags_t* flags, flag_bit_t flag){
  * @return error code
  */
 int alu_add8(alu_output_t* result, uint8_t x, uint8_t y, bit_t c0){
-    if(result == NULL)                                  // cannot work with a NULL pointer
-        return ERR_BAD_PARAMETER;
+    M_REQUIRE_NON_NULL(result);
 
     result->flags = 0; //resets all existing flags
 
@@ -71,7 +70,6 @@ int alu_add8(alu_output_t* result, uint8_t x, uint8_t y, bit_t c0){
     uint8_t msb = msb4(x) + msb4(y) + msb4(lsb);        // adds the 4 msb of x and y, including the half-carry of the prior 4-bit addition
     if(msb4(msb) != 0)                                  // checks whether there has been an overflow on the 4-bitton addition, sets flag accordingly
         set_C(&result->flags);
-
 
     uint16_t total = merge4(lsb, msb);                  // merges the computed msb and lsb of our sum to obtain the desired result
     if(total == 0)                                      // checks whether out result is 0, sets flag accordingly
@@ -93,8 +91,7 @@ int alu_add8(alu_output_t* result, uint8_t x, uint8_t y, bit_t c0){
  * @return error code
  */
 int alu_sub8(alu_output_t* result, uint8_t x, uint8_t y, bit_t b0){
-    if(result == NULL)                                                  // cannot work with a NULL pointer
-        return ERR_BAD_PARAMETER;
+    M_REQUIRE_NON_NULL(result);
 
     result->flags = 0;                                                  // resets the flags 
     set_N(&result->flags);                                              // N flag is always set for this operation
@@ -127,21 +124,14 @@ int alu_sub8(alu_output_t* result, uint8_t x, uint8_t y, bit_t b0){
  * @return error code
  */
 int alu_add16_low(alu_output_t* result, uint16_t x, uint16_t y){
-    if(result == NULL)                                                  // cannot work with Nullpointer
-        return ERR_BAD_PARAMETER;
+    M_REQUIRE_NON_NULL(result);
 
-    error_code e = alu_add8(result, lsb8(x), lsb8(y), 0);               // performs 8bit addition on the lsb of x and y, stores error code
-    if(e != ERR_NONE)                                                   // forwards error of prior addition
-        return e;         
-
+    M_REQUIRE_NO_ERR(alu_add8(result, lsb8(x), lsb8(y), 0));               // performs 8bit addition on the lsb of x and y, stores error code
     flags_t lowFlags = result->flags;                                   // stores the result and resulted flags of the lsb addition
     uint8_t lsb = result->value;
 
 
-    e = alu_add8(result, msb8(x), msb8(y), bit_get(lowFlags, 4));       // FIXME: magic nr performs 8bit addition on the msb of x and y, as well as any carry, stores error code 
-    if(e != ERR_NONE)                                                   // forwards error of prior addition
-        return e; 
-
+    M_REQUIRE_NO_ERR(alu_add8(result, msb8(x), msb8(y), get_C(lowFlags) >> 4));       // FIXME: magic nr performs 8bit addition on the msb of x and y, as well as any carry, stores error code 
     result->value = merge8(lsb, result->value);                         // merges lsb and msb of the two additions
 
     result->flags = 0;                                                  // resets all of the flags
@@ -168,20 +158,13 @@ int alu_add16_low(alu_output_t* result, uint16_t x, uint16_t y){
  * @return error code
  */
 int alu_add16_high(alu_output_t* result, uint16_t x, uint16_t y){
-        if(result == NULL)                                              // cannot work with Nullpointer
-        return ERR_BAD_PARAMETER;
+    M_REQUIRE_NON_NULL(result);
 
-    error_code e = alu_add8(result, lsb8(x), lsb8(y), 0);               // performs 8bit addition on the lsb of x and y, stores error code
-    if(e != ERR_NONE)                                                   // forwards error of prior addition
-        return e;         
-
+    M_REQUIRE_NO_ERR(alu_add8(result, lsb8(x), lsb8(y), 0));               // performs 8bit addition on the lsb of x and y, stores error code
     uint8_t lsb = result->value;
 
 
-    e = alu_add8(result, msb8(x), msb8(y), bit_get(result->flags, 4));  // FIXME: magic nr performs 8bit addition on the msb of x and y, as well as any carry, stores error code 
-    if(e != ERR_NONE)                                                   // forwards error of prior addition
-        return e; 
-
+    M_REQUIRE_NO_ERR(alu_add8(result, msb8(x), msb8(y), bit_get(result->flags, 4)));  // FIXME: magic nr performs 8bit addition on the msb of x and y, as well as any carry, stores error code 
     flags_t hiFlags = result->flags;                                    // stores the flag of the msb addition
     result->value = merge8(lsb, result->value);                         // merges lsb and msb of the two additions
 
@@ -209,8 +192,8 @@ int alu_add16_high(alu_output_t* result, uint16_t x, uint16_t y){
  * @return error code
  */
 int alu_shift(alu_output_t* result, uint8_t x, rot_dir_t dir){
-    if(result == NULL || dir < LEFT || dir > RIGHT)                     // Cannot work with Nullpointer, or direction which is out of bounds
-        return ERR_BAD_PARAMETER;
+    M_REQUIRE_NON_NULL(result);
+    M_REQUIRE(dir >= LEFT && dir <= RIGHT, ERR_BAD_PARAMETER; "direction %d is out of bounds", dir);
 
     bit_t left = 0;                                                     // will store bit lost by shift
 
@@ -243,21 +226,19 @@ int alu_shift(alu_output_t* result, uint8_t x, rot_dir_t dir){
  * @return error code
  */
 int alu_shiftR_A(alu_output_t* result, uint8_t x){
-    if(result == NULL)                                      // cannot work with Nullpointer
-        return ERR_BAD_PARAMETER;
+    M_REQUIRE_NON_NULL(result);
 
     bit_t msb = bit_get(x, 7);                              // stores msb before performing shift
     bit_t left = bit_get(x, 0);                             // stores msb that will be lost after shift
 
     x >>= 1,                                                // shifts x by 1 to the right
-    bit_edit(&x, 7, msb);                                   // replaces 0 of shifted x by the previously saves msb (arithmetic shift)
+    x |= (msb << 7);                                // replaces 0 of shifted x by the previously saves msb (arithmetic shift)
 
     result->value = x;
     result->flags = 0;
 
     if(x == 0)                                              // checks whether result after shift is 0, sets Z flag accordingly
         set_Z(&result->flags);
-
 
     if(left == 1)                                           // checks whether lost bit was a 1, sets C flag accordingly
         set_C(&result->flags);
@@ -275,14 +256,13 @@ int alu_shiftR_A(alu_output_t* result, uint8_t x){
  * @return error code
  */
 int alu_rotate(alu_output_t* result, uint8_t x, rot_dir_t dir){
-    if(result == NULL || dir < LEFT || dir > RIGHT)                     // Cannot work with Nullpointer, or direction which is out of bounds
-        return ERR_BAD_PARAMETER;
-
+    M_REQUIRE_NON_NULL(result);
+    M_REQUIRE(dir >= LEFT && dir <= RIGHT, ERR_BAD_PARAMETER; "direction %d is out of bounds", dir);
 
     bit_t left = dir == LEFT ? bit_get(x, 7) : bit_get(x, 0);           // stores bit that will "wrap" based on direction
     bit_rotate(&x, dir, 1);                                             // rotates bit by 1 in given direction
-
     result->value = x;
+
     result->flags = 0;
 
     if(x == 0)                                                          // checks whether result after rotation is 0, sets Z flag accordingly
@@ -306,12 +286,12 @@ int alu_rotate(alu_output_t* result, uint8_t x, rot_dir_t dir){
  * @return error code
  */
 int alu_carry_rotate(alu_output_t* result, uint8_t x, rot_dir_t dir, flags_t flags){
-    if(result == NULL || dir < LEFT || dir > RIGHT)
-        return ERR_BAD_PARAMETER;
+    M_REQUIRE_NON_NULL(result);
+    M_REQUIRE(dir >= LEFT && dir <= RIGHT, ERR_BAD_PARAMETER; "direction %d is out of bounds", dir);
 
     bit_t left = dir == LEFT ? bit_get(x, 7) : bit_get(x, 0);                          // bit to be wrapped around depends on direction
+    bit_t carry = (get_C(flags) >> 4);
     
-    bit_t carry = bit_get(flags, 4);
     if(dir == RIGHT)                                                                    // format of carry to be added depends on direction, the carry itself is defined by the added flag
         carry <<= 7;
 

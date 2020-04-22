@@ -26,7 +26,7 @@ LDLIBS += -lcheck -lm -lrt -pthread -lsubunit
 all:: 
 
 TARGETS := 
-CHECK_TARGETS := unit-test-bit unit-test-alu unit-test-bus unit-test-memory unit-test-cpu-dispatch-week08
+CHECK_TARGETS :=  unit-test-cpu-dispatch-week08 #unit-test-bit unit-test-alu unit-test-bus unit-test-memory 
 OBJS = 
 OBJS_NO_STATIC_TESTS =
 OBJS_STATIC_TESTS = 
@@ -119,11 +119,11 @@ unit-test-component.o: unit-test-component.c tests.h error.h bus.h \
  memory.h component.h
 unit-test-cpu-dispatch-week08.o: unit-test-cpu-dispatch-week08.c tests.h \
  error.h alu.h bit.h cpu.h bus.h memory.h component.h opcode.h gameboy.h \
- util.h unit-test-cpu-dispatch.h cpu-alu.h cpu-registers.h \
+ util.h unit-test-cpu-dispatch.h cpu.c cpu-alu.h cpu-registers.h \
  cpu-storage.h
 unit-test-cpu-dispatch-week09.o: unit-test-cpu-dispatch-week09.c tests.h \
  error.h alu.h bit.h cpu.h bus.h memory.h component.h opcode.h util.h \
- unit-test-cpu-dispatch.h cpu-alu.h cpu-registers.h cpu-storage.h
+ unit-test-cpu-dispatch.h cpu.c cpu-alu.h cpu-registers.h cpu-storage.h
 unit-test-cpu.o: unit-test-cpu.c tests.h error.h alu.h bit.h opcode.h \
  util.h cpu.h bus.h memory.h component.h cpu-registers.h cpu-storage.h \
  cpu-alu.h

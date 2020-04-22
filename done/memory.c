@@ -24,7 +24,7 @@ extern "C" {
  * @return error code
  */
 int mem_create(memory_t* mem, size_t size){
-    if(mem == NULL || size == 0){
+    if(mem == NULL || size == 0){  
         return ERR_BAD_PARAMETER;
     }
 

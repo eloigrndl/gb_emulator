@@ -39,11 +39,11 @@ uint8_t msb4(uint8_t value){
  */
 
 void bit_rotate(uint8_t* value, rot_dir_t dir, int d){
-    d = CLAMP07(d);
+    d = CLAMP07(d);                         //FIXME: what to do if value NULL? (applies also to other void functions)
     int rest = 0;
 
     if(dir == LEFT){
-        rest = *value >> (8 - d);
+        rest = *value >> (8 - d);           //FIXME: magic number?
         *value = *value << d;
     }else{
         rest = *value << (8 - d);
@@ -85,7 +85,7 @@ uint8_t msb8(uint16_t value){
  * @return result of merging v1 and v2 into 16bits
  */
 uint16_t merge8(uint8_t v1, uint8_t v2){
-    return ((lsb8(v2) << 8) | lsb8(v1));
+    return ((v2 << 8) | v1);
 }
 
 
@@ -150,7 +150,7 @@ void bit_unset(uint8_t* value, int index){
  * @param v allows to choose between set and unset
  */
 void bit_edit(uint8_t* value, int index, uint8_t v){
-    if(v)
+    if(v != 0)
         bit_set(value, index);
     else
         bit_unset(value, index);

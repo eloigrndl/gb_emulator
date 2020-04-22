@@ -30,7 +30,7 @@ int component_create(component_t* c, size_t mem_size){
         if(c->mem == NULL) 
             return ERR_MEM;
         
-        error_code e = mem_create(c->mem, mem_size);
+        error_code e = mem_create(c->mem, mem_size);    //FIXME: will M_REQUIRE_NO_ERR propagate the right error?
         if(e != ERR_NONE){
              return e;
         }

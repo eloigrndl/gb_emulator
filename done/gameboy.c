@@ -25,7 +25,7 @@ int gameboy_create(gameboy_t* gameboy, const char* filename){
     if(gameboy == NULL || filename == NULL)
         return ERR_BAD_PARAMETER;
     
-    memset(&(gameboy -> bus), NULL, sizeof(bus_t));
+    memset(&(gameboy -> bus), NULL, sizeof(bus_t));  //FIXME: Need to memset the BUS_SIZE elements?
 
     error_code e2 = component_create(&(gameboy -> components[0]), MEM_SIZE(WORK_RAM));
     if(e2 != ERR_NONE)
