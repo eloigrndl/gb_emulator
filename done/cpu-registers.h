@@ -158,7 +158,7 @@ uint16_t cpu_reg_pair_get(const cpu_t* cpu, reg_pair_kind reg);
 void cpu_reg_pair_set(cpu_t* cpu, reg_pair_kind reg, uint16_t value);
 
 #define cpu_reg_pair_SP_set(cpu, reg, value) \
-  (reg == REG_AF_CODE ? (void)((cpu)->SP = value) : cpu_reg_pair_set(cpu,reg,value))
+    (reg == REG_AF_CODE ? (void)((cpu)->SP = value) : cpu_reg_pair_set(cpu,reg,value))
 
 
 #ifdef __cplusplus

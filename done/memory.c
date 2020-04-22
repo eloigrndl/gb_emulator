@@ -44,8 +44,9 @@ int mem_create(memory_t* mem, size_t size){
  */
 void mem_free(memory_t* mem){
     free(mem->memory);
-    mem -> memory = NULL;   //TODO : is = NULL necessary ?
+    mem -> memory = NULL;
     mem -> size = 0;
+    return;
 }
 
 #ifdef __cplusplus

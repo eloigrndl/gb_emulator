@@ -20,8 +20,6 @@
  * @return error code
  */
 int bus_remap(bus_t bus, component_t* c, addr_t offset){
-    //TODO: free on which level??'
-    //TODO: find out if necessary to verify the bus (maybe external method)
     if(c == NULL || c->mem == NULL || c->mem->memory == NULL)
         return ERR_BAD_PARAMETER;
 
@@ -50,22 +48,17 @@ int bus_remap(bus_t bus, component_t* c, addr_t offset){
  * @return error code
  */
 int bus_forced_plug(bus_t bus, component_t* c, addr_t start, addr_t end, addr_t offset){
-
     if(c == NULL || end < start || end - start >= BUS_SIZE || c->mem == NULL )
         return ERR_BAD_PARAMETER;
     
-    //FIXME: verification for end, start and offset!!
+    //TODO: verification for end, start and offset!!
+    //TODO write Tests
     error_code e = bus_remap(bus, c, offset);
 
-    //TODO write Tests
     
-    if(e == ERR_NONE){          //TODO: replace with ?
-        c->start = start;
-        c->end = end;
-    }else{
-        c->start = 0;
-        c->end = 0;
-    }
+    c-> start = (e == ERR_NONE) ? start : 0;
+    c-> end = (e == ERR_NONE) ? end : 0;
+    
     return e;
 }
 
@@ -154,7 +147,7 @@ int bus_read16(const bus_t bus, addr_t address, addr_t* data16){
     data_t msb = 0;
 
     error_code e1 = bus_read(bus, address, &lsb);       //TODO: this will not return 0xFF but 0xFFFF in case both invalid
-    error_code e2 = bus_read(bus, address+1, &msb);
+    error_code e2 = bus_read(bus, address+1, &msb);     //FIXME: lsb and msb address order?
 
     if(e1 != ERR_NONE)
         return e1;
@@ -175,7 +168,7 @@ int bus_read16(const bus_t bus, addr_t address, addr_t* data16){
  * @return error code
  */
 int bus_write(bus_t bus, addr_t address, data_t data){
-    if(bus[address] == NULL) //FIXME: really necessary?
+    if(bus[address] == NULL) 
         return ERR_BAD_PARAMETER;
     
     *bus[address] = data;

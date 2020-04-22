@@ -21,7 +21,6 @@ int cpu_init(cpu_t* cpu)
 {
     if(cpu == NULL)
         return ERR_BAD_PARAMETER;
-    
 
     //TODO: use memset or not??
     cpu_AF_set(cpu, 0);

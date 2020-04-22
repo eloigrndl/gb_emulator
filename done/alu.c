@@ -257,7 +257,7 @@ int alu_shiftR_A(alu_output_t* result, uint8_t x){
  */
 int alu_rotate(alu_output_t* result, uint8_t x, rot_dir_t dir){
     M_REQUIRE_NON_NULL(result);
-    M_REQUIRE(dir >= LEFT && dir <= RIGHT, ERR_BAD_PARAMETER; "direction %d is out of bounds", dir);
+    M_REQUIRE(dir >= LEFT && dir <= RIGHT, ERR_BAD_PARAMETER; "direction %d is out of bounds", dir);    //FIXME: enum being out of bounds
 
     bit_t left = dir == LEFT ? bit_get(x, 7) : bit_get(x, 0);           // stores bit that will "wrap" based on direction
     bit_rotate(&x, dir, 1);                                             // rotates bit by 1 in given direction
@@ -297,7 +297,7 @@ int alu_carry_rotate(alu_output_t* result, uint8_t x, rot_dir_t dir, flags_t fla
 
     alu_shift(result, x, dir);                                                         // performs the shift itself
 
-    result->value |= carry;                                                            // FIXME: avoid copy paste by adding another method? // Appends the previously saved carry
+    result->value |= carry;                                                            // FIXME: avoid copy paste by adding macro for flags? // Appends the previously saved carry
     result->flags = 0;
 
     if(result->value == 0)                                                             // checks whether result after rotation is 0, sets Z flag accordingly

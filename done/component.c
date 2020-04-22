@@ -26,7 +26,7 @@ int component_create(component_t* c, size_t mem_size){
     if(mem_size == 0){
         c->mem = NULL;
     }else{
-        c->mem = calloc(1, sizeof(memory_t)); //FIXME: with or without *
+        c->mem = calloc(1, sizeof(memory_t)); 
         if(c->mem == NULL) 
             return ERR_MEM;
         

@@ -9,7 +9,6 @@
 #include "cpu-registers.h"
 #include "bit.h"
 
-//TODO if cpu NULL??????
 
 /**
  * @brief returns a register given the register value
@@ -20,6 +19,7 @@
  * @return value of the desired register
  */
 uint8_t cpu_reg_get(const cpu_t* cpu, reg_kind reg){
+    //FIXME if cpu NULL?
     switch(reg){
         case REG_A_CODE: return cpu->A;
         case REG_B_CODE: return cpu->B;
@@ -90,7 +90,7 @@ void cpu_reg_pair_set(cpu_t* cpu, reg_pair_kind reg, uint16_t value){
         case REG_BC_CODE: cpu->BC = value; break;
         case REG_DE_CODE: cpu->DE = value; break;
         case REG_HL_CODE: cpu->HL = value; break;
-        case REG_AF_CODE: cpu->AF = merge8(merge4(0, msb4(lsb8(value))), msb8(value)); break; //TODO: leave or change? (just &0xFFF0)
+        case REG_AF_CODE: cpu->AF = (value & 0xFFF0); break; //TODO: leave or change? (just &0xFFF0)
         default: break;
         return;
     }
