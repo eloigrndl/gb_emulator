@@ -16,13 +16,7 @@
 extern "C" {
 #endif
 
-/**
- * @brief Creates memory structure
- *
- * @param mem memory structure pointer to initialize
- * @param size size of the memory to create
- * @return error code
- */
+// ==== see gameboy.h ========================================
 int mem_create(memory_t* mem, size_t size){
     M_REQUIRE_NON_NULL(mem);
     M_REQUIRE(size > 0, ERR_BAD_PARAMETER, "Size too small", ...);
@@ -32,11 +26,7 @@ int mem_create(memory_t* mem, size_t size){
     return ERR_NONE;
 }
 
-/**
- * @brief Destroys memory structure
- *
- * @param mem memory structure pointer to destroy
- */
+// ==== see memory.h ========================================
 void mem_free(memory_t* mem){
     if(mem == NULL || mem->memory == NULL) return;
     free(mem->memory);

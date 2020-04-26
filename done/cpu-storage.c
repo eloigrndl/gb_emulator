@@ -10,6 +10,8 @@
 #include "cpu-registers.h" // cpu_BC_get
 #include "gameboy.h" // REGISTER_START
 #include "util.h"
+#include "myMacros.h"   // WORD_SIZE, set_A_from_bus
+
 #include <inttypes.h> // PRIX8
 #include <stdio.h> // fprintf
 
@@ -17,7 +19,7 @@
 data_t cpu_read_at_idx(const cpu_t* cpu, addr_t addr)
 {
     if(cpu == NULL || cpu->bus == NULL)
-        return  0;
+        return  DEFAULT_READ_VALUE;
 
     data_t data = 0;
     M_REQUIRE_NO_ERR(bus_read(*(cpu->bus), addr, &data));                         
@@ -28,7 +30,7 @@ data_t cpu_read_at_idx(const cpu_t* cpu, addr_t addr)
 addr_t cpu_read16_at_idx(const cpu_t* cpu, addr_t addr)
 {
     if(cpu == NULL || cpu->bus == NULL)
-        return  0;
+        return DEFAULT_READ_VALUE;
         
     addr_t data = 0;
     bus_read16(*cpu->bus, addr, &data);  
@@ -49,8 +51,8 @@ int cpu_write_at_idx(cpu_t* cpu, addr_t addr, data_t data)
 // ==== see cpu-storage.h ========================================
 int cpu_write16_at_idx(cpu_t* cpu, addr_t addr, addr_t data16)
 {
-   M_REQUIRE_NON_NULL(cpu);
-   M_REQUIRE_NON_NULL(cpu->bus);
+    M_REQUIRE_NON_NULL(cpu);
+    M_REQUIRE_NON_NULL(cpu->bus);
 
     M_REQUIRE_NO_ERR(bus_write16(*(cpu->bus), addr, data16));
     return ERR_NONE;
@@ -72,7 +74,7 @@ int cpu_SP_push(cpu_t* cpu, addr_t addr)
 addr_t cpu_SP_pop(cpu_t* cpu)
 {
     if(cpu == NULL || cpu->bus == NULL) 
-        return 0;              //TODO put 0 into default value
+        return DEFAULT_READ_VALUE;
     
     addr_t data = cpu_read16_at_idx(cpu, cpu->SP);
     cpu->SP += WORD_SIZE;
@@ -81,8 +83,6 @@ addr_t cpu_SP_pop(cpu_t* cpu)
 
 // ==== see cpu-storage.h ========================================
 
-
-//TODO: need to verify args / errors
 int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
 {
     M_REQUIRE_NON_NULL(cpu);

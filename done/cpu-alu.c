@@ -11,6 +11,7 @@
 #include "cpu-alu.h"
 #include "cpu-storage.h" // cpu_read_at_HL
 #include "cpu-registers.h" // cpu_HL_get
+#include "myMacros.h"
 
 // external library provided later to lower workload
 extern int cpu_dispatch_alu_ext(const instruction_t* lu, cpu_t* cpu);

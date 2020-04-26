@@ -12,13 +12,7 @@
 #include <stdio.h>
 
 
-/**
- * @brief Creates a component given various arguments
- *
- * @param c component pointer to initialize
- * @param mem_size size of the memory of the component
- * @return error code
- */
+// ==== see component.h ========================================
 int component_create(component_t* c, size_t mem_size){
     M_REQUIRE_NON_NULL(c);
     
@@ -35,13 +29,8 @@ int component_create(component_t* c, size_t mem_size){
     return ERR_NONE;
 } 
 
-/**
- * @brief Shares memory between two components
- *
- * @param c component pointer to share to
- * @param c_old component to share from
- * @return error code
- */
+
+// ==== see component.h ========================================
 int component_shared(component_t* c, component_t* c_old){
     M_REQUIRE_NON_NULL(c);
     M_REQUIRE_NON_NULL(c_old);
@@ -54,11 +43,7 @@ int component_shared(component_t* c, component_t* c_old){
 }
 
 
-/**
- * @brief Destroy's a component
- *
- * @param c component pointer to destroy
- */
+// ==== see component.h ========================================
 void component_free(component_t* c){
     if(c == NULL || c->mem == NULL) return;
     

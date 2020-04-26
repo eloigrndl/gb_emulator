@@ -7,20 +7,14 @@
  */
 
 #include "cpu-registers.h"
+#include "myMacros.h"
 #include "bit.h"
 
 
-/**
- * @brief returns a register given the register value
- *#
- * @params cpu pointer to the cpu
- * @param reg register type
- *
- * @return value of the desired register
- */
+// ==== see cpu-registers.h ========================================
 uint8_t cpu_reg_get(const cpu_t* cpu, reg_kind reg){
-    M_REQUIRE_NON_NULL(cpu);
-    //FIXME if cpu NULL?
+    if(cpu == NULL) return 0;
+    
     switch(reg){
         case REG_A_CODE: return cpu->A;
         case REG_B_CODE: return cpu->B;
@@ -34,15 +28,9 @@ uint8_t cpu_reg_get(const cpu_t* cpu, reg_kind reg){
 }
 
 
-/**
- * @brief writes to a register given the register value
- *
- * @params cpu pointer to the cpu
- * @param reg register type
- * @param value value to write to desired register
- */
+// ==== see cpu-registers.h ========================================
 void cpu_reg_set(cpu_t* cpu, reg_kind reg, uint8_t value){
-    if(cpu == NULL) return ;
+    if(cpu == NULL) return;
 
     switch(reg){
         case REG_A_CODE: cpu->A = value; break;
@@ -61,16 +49,9 @@ void cpu_reg_set(cpu_t* cpu, reg_kind reg, uint8_t value){
 
 
 
-/**
- * @brief returns a register given the register pair value
- *
- * @param cpu pointer to the cpu
- * @param reg register pair type
- *
- * @return value of the desired register pair
- */
+// ==== see cpu-registers.h ========================================
 uint16_t cpu_reg_pair_get(const cpu_t* cpu, reg_pair_kind reg){
-    M_REQUIRE_NON_NULL(cpu);
+    if (cpu == NULL) return 0;
 
     switch(reg){
         case REG_BC_CODE: return cpu->BC;
@@ -83,13 +64,7 @@ uint16_t cpu_reg_pair_get(const cpu_t* cpu, reg_pair_kind reg){
 
 
 
-/**
- * @brief writes to a register given the register pair value
- *
- * @params cpu pointer to the cpu
- * @param reg register pair type
- * @param value value to write to desired register pair
- */
+// ==== see cpu-registers.h ========================================
 void cpu_reg_pair_set(cpu_t* cpu, reg_pair_kind reg, uint16_t value){
     if(cpu == NULL) return;
 

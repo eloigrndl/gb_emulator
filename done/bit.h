@@ -104,7 +104,7 @@ uint8_t merge4(uint8_t v1, uint8_t v2);
 /**
 * @brief Extends an unsigned value from 8 to 16 bits
 */
-#define extend_u_16(v) merge8(0,v)
+#define extend_u_16(v) merge8(v,0)
 
 
 /**

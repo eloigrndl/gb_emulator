@@ -16,36 +16,35 @@
 #include <inttypes.h> // PRIX8
 #include <stdio.h> // fprintf
 
-// ======================================================================
+// ==== see cpu.h ========================================
 int cpu_init(cpu_t* cpu)
 {
-    M_REQUIRE_NON_NULL(cpu);        //TODO: need to initialize alu too?
-    memset(cpu, 0, sizeof(cpu_t)); //FIXME: see ZERO_INIT
+    M_REQUIRE_NON_NULL(cpu);        
+    zero_init_ptr(cpu);
 
     return ERR_NONE;
 }
 
-// ======================================================================
+// ==== see cpu.h ========================================
 int cpu_plug(cpu_t* cpu, bus_t* bus)
 {
     M_REQUIRE_NON_NULL(bus);
     M_REQUIRE_NON_NULL(cpu);
 
-    cpu -> bus = bus;
+    cpu->bus = bus;
     return ERR_NONE;
 }
 
-// ======================================================================
+// ==== see cpu.h ========================================
 void cpu_free(cpu_t* cpu)
 {
-    if(cpu == NULL) return;   //FIXME can't return error code in void method: what to do?
+    if(cpu == NULL) return;  
     
-    cpu -> bus = NULL;  //TODO: can free bus?
+    cpu->bus = NULL;
     return;
     
 }
 
-//=========================================================================
 /**
  * @brief Executes an instruction
  * @param lu instruction
@@ -57,7 +56,7 @@ void cpu_free(cpu_t* cpu)
 static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
 {
     M_REQUIRE_NON_NULL(lu);
-    M_REQUIRE_NON_NULL(cpu);    //TODO: make usage of this macro for args
+    M_REQUIRE_NON_NULL(cpu);   
 
     cpu->alu.value = 0;
     cpu->alu.flags = 0;
@@ -201,18 +200,23 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
     } // switch
 
 
-    //TODO: update PC, etc.
     cpu->idle_time -= lu->cycles;
     cpu->PC += lu->bytes;
 
     return ERR_NONE;
 }
 
-// ----------------------------------------------------------------------
+/**
+ * @brief Performs a cpu cycle
+ * @param cpu, the CPU which shall execute
+ * @return error code
+ *
+ * See cpu.h
+ */
 static int cpu_do_cycle(cpu_t* cpu)
 {
     M_REQUIRE_NON_NULL(cpu);
-    data_t bin = cpu_read_at_idx(cpu, cpu -> PC);
+    data_t bin = cpu_read_at_idx(cpu, cpu->PC);
     const instruction_t* instr;
 
     if(bin == 0xCB){
@@ -227,17 +231,14 @@ static int cpu_do_cycle(cpu_t* cpu)
 }
 
 
-// ======================================================================
-/**
- * See cpu.h
- */
+// ==== see cpu.h ========================================
 int cpu_cycle(cpu_t* cpu)
 {
     M_REQUIRE_NON_NULL(cpu);
     M_REQUIRE_NON_NULL(cpu->bus);
 
-    if(cpu -> idle_time > 0){
-        cpu -> idle_time -=1;
+    if(cpu->idle_time > 0){
+        cpu->idle_time -=1;
     }
     return ERR_NONE;
 }
