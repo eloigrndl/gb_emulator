@@ -19,8 +19,8 @@
 // ======================================================================
 int cpu_init(cpu_t* cpu)
 {
-    M_REQUIRE_NON_NULL(cpu);        //TODO Jan
-    memset(cpu, 0, sizeof(cpu_t));
+    M_REQUIRE_NON_NULL(cpu);        //TODO: need to initialize alu too?
+    memset(cpu, 0, sizeof(cpu_t)); //FIXME: see ZERO_INIT
 
     return ERR_NONE;
 }
