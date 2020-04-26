@@ -146,7 +146,7 @@ int bus_read16(const bus_t bus, addr_t address, addr_t* data16){
     data_t lsb = 0;
     data_t msb = 0;
 
-    error_code e1 = bus_read(bus, address, &lsb);       //TODO: this will not return 0xFF but 0xFFFF in case both invalid
+    error_code e1 = bus_read(bus, address, &lsb);       //use only one address, TODO: this will not return 0xFF but 0xFFFF in case both invalid
     error_code e2 = bus_read(bus, address+1, &msb);     //FIXME: lsb and msb address order?
 
     if(e1 != ERR_NONE)

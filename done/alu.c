@@ -131,7 +131,7 @@ int alu_add16_low(alu_output_t* result, uint16_t x, uint16_t y){
     uint8_t lsb = result->value;
 
 
-    M_REQUIRE_NO_ERR(alu_add8(result, msb8(x), msb8(y), get_C(lowFlags) >> 4));       // FIXME: magic nr performs 8bit addition on the msb of x and y, as well as any carry, stores error code 
+    M_REQUIRE_NO_ERR(alu_add8(result, msb8(x), msb8(y), get_C(lowFlags) >> 4));   //Use bit_get    // FIXME: magic nr performs 8bit addition on the msb of x and y, as well as any carry, stores error code 
     result->value = merge8(lsb, result->value);                         // merges lsb and msb of the two additions
 
     result->flags = 0;                                                  // resets all of the flags
@@ -257,7 +257,7 @@ int alu_shiftR_A(alu_output_t* result, uint8_t x){
  */
 int alu_rotate(alu_output_t* result, uint8_t x, rot_dir_t dir){
     M_REQUIRE_NON_NULL(result);
-    M_REQUIRE(dir >= LEFT && dir <= RIGHT, ERR_BAD_PARAMETER; "direction %d is out of bounds", dir);    //FIXME: enum being out of bounds
+    M_REQUIRE(dir >= LEFT && dir <= RIGHT, ERR_BAD_PARAMETER; "direction %d is out of bounds", dir);   // use == //FIXME: enum being out of bounds
 
     bit_t left = dir == LEFT ? bit_get(x, 7) : bit_get(x, 0);           // stores bit that will "wrap" based on direction
     bit_rotate(&x, dir, 1);                                             // rotates bit by 1 in given direction
@@ -287,7 +287,7 @@ int alu_rotate(alu_output_t* result, uint8_t x, rot_dir_t dir){
  */
 int alu_carry_rotate(alu_output_t* result, uint8_t x, rot_dir_t dir, flags_t flags){
     M_REQUIRE_NON_NULL(result);
-    M_REQUIRE(dir >= LEFT && dir <= RIGHT, ERR_BAD_PARAMETER; "direction %d is out of bounds", dir);
+    M_REQUIRE(dir >= LEFT && dir <= RIGHT, ERR_BAD_PARAMETER; "direction %d is out of bounds", dir);  //use ==
 
     bit_t left = dir == LEFT ? bit_get(x, 7) : bit_get(x, 0);                          // bit to be wrapped around depends on direction
     bit_t carry = (get_C(flags) >> 4);
@@ -297,7 +297,7 @@ int alu_carry_rotate(alu_output_t* result, uint8_t x, rot_dir_t dir, flags_t fla
 
     alu_shift(result, x, dir);                                                         // performs the shift itself
 
-    result->value |= carry;                                                            // FIXME: avoid copy paste by adding macro for flags? // Appends the previously saved carry
+    result->value |= carry;                                                            // use macro FIXME: avoid copy paste by adding macro for flags? // Appends the previously saved carry
     result->flags = 0;
 
     if(result->value == 0)                                                             // checks whether result after rotation is 0, sets Z flag accordingly

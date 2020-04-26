@@ -51,7 +51,6 @@ int component_create(component_t* c, size_t mem_size){
  * @return error code
  */
 int component_shared(component_t* c, component_t* c_old){
-    //TODO: check if correct c_old vs c?
     if(c == NULL && c_old == NULL){
         return ERR_BAD_PARAMETER;
     }

@@ -43,7 +43,7 @@ void bit_rotate(uint8_t* value, rot_dir_t dir, int d){
     int rest = 0;
 
     if(dir == LEFT){
-        rest = *value >> (8 - d);           //FIXME: magic number? can we use sizeof?
+        rest = *value >> (8 - d);           //use ? as well as macro/constante FIXME: magic number? can we use sizeof?
         *value = *value << d;
     }else{
         rest = *value << (8 - d);

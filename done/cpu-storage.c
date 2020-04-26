@@ -153,7 +153,7 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
             break;
 
         case LD_R16SP_N16:
-            cpu_reg_pair_SP_set(cpu, extract_reg_pair(lu->opcode), cpu_read_at_idx(cpu, cpu_read_addr_after_opcode(cpu)));
+            cpu_reg_pair_SP_set(cpu, extract_reg_pair(lu->opcode), cpu_read_addr_after_opcode(cpu));
             break;
 
         case LD_R8_HLR:

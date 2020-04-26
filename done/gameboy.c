@@ -49,6 +49,8 @@ void gameboy_free(gameboy_t* gameboy){
     }
     //FIXME: need to unplug cpu from bus?
     cpu_free(&(gameboy->cpu));
+
+    //create decoy echo-ram with same values, then unplug it
 }
 
 /**
