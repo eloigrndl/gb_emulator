@@ -19,7 +19,7 @@
 extern "C" {
 #endif
 
-#define GB_NB_COMPONENTS 5
+#define GB_NB_COMPONENTS 6
 
 /**
  * @brief Game Boy data structure.

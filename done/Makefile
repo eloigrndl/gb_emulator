@@ -26,7 +26,7 @@ LDLIBS += -lcheck -lm -lrt -pthread -lsubunit
 all:: 
 
 TARGETS := 
-CHECK_TARGETS :=  unit-test-cpu-dispatch-week08 #unit-test-bit unit-test-alu unit-test-bus unit-test-memory 
+CHECK_TARGETS := unit-test-bit unit-test-alu unit-test-bus unit-test-memory unit-test-component unit-test-cpu-dispatch-week08
 OBJS = 
 OBJS_NO_STATIC_TESTS =
 OBJS_STATIC_TESTS = 
@@ -88,6 +88,7 @@ unit-test-bit: unit-test-bit.o bit.o
 unit-test-alu: unit-test-alu.o bit.o alu.o 
 unit-test-bus: unit-test-bus.o bit.o component.o bus.o memory.o
 unit-test-memory: unit-test-memory.o bit.o component.o bus.o memory.o
+unit-test-component: unit-test-component.o component.o bus.o memory.o bit.o
 unit-test-cpu: unit-test-cpu.o cpu.o cpu-registers.o cpu-storage.o alu.o bit.o bus.o component.o memory.o cpu-alu.o opcode.o
 unit-test-cpu-dispatch-week08: unit-test-cpu-dispatch-week08.o cpu-registers.o cpu-storage.o alu.o bit.o bus.o component.o memory.o cpu-alu.o opcode.o error.o
 

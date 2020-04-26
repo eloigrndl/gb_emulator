@@ -37,6 +37,11 @@ typedef enum {
     REG_AF_CODE = 0x03
 } reg_pair_kind;
 
+/**
+* @brief size of a word for the stack pointer
+*/
+#define WORD_SIZE 2
+
 // ======================================================================
 /**
  * @brief returns a register given the register value
@@ -131,7 +136,7 @@ void cpu_reg_set(cpu_t* cpu, reg_kind reg, uint8_t value);
  * @param reg register type
  */
 //TODO: use this macro
-#define cpu_reg_set_from_alu8(cpu, reg) \               
+#define cpu_reg_set_from_alu8(cpu, reg) \
     cpu_reg_set(cpu, reg, lsb8((cpu)->alu.value))
 
 /**

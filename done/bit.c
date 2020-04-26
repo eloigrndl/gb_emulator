@@ -6,6 +6,7 @@
  * @date 2020
  */
 
+#include <stdlib.h>
 #include "bit.h"
 
 /**
@@ -39,20 +40,17 @@ uint8_t msb4(uint8_t value){
  */
 
 void bit_rotate(uint8_t* value, rot_dir_t dir, int d){
-    d = CLAMP07(d);                         //FIXME: what to do if value NULL? (applies also to other void functions)
-    int rest = 0;
-
-    if(dir == LEFT){
-        rest = *value >> (8 - d);           //use ? as well as macro/constante FIXME: magic number? can we use sizeof?
-        *value = *value << d;
-    }else{
-        rest = *value << (8 - d);
-        *value = *value >> d;
-    }
-
+    if(value == NULL) return;
+    
+    d = CLAMP07(d); 
+    
+    int rest = (dir == LEFT) ? (*value >> (8-d)) : (*value << (8 - d));
+    *value = (dir == LEFT) ? (*value << d) : (*value >> d);
+    
     *value |= rest;
     return;
 }
+
 
 /**
  * @brief returns the 8 LSB of a uint16_t
@@ -63,7 +61,6 @@ void bit_rotate(uint8_t* value, rot_dir_t dir, int d){
 uint8_t lsb8(uint16_t value){
     return (value & 0xff);
 }
- 
 
 
 /**
@@ -75,7 +72,6 @@ uint8_t lsb8(uint16_t value){
 uint8_t msb8(uint16_t value){
     return ((value & 0xff00) >> 8);
 }
-
 
 /**
  * @brief Merges two 8bit into 16bits
@@ -121,9 +117,8 @@ bit_t bit_get(uint8_t value, int index){
  * @param index index of the bit
  */
 void bit_set(uint8_t* value, int index){
-    uint8_t mask = 1 << CLAMP07(index);
-    uint8_t result = *value | mask;
-    *value = result;
+    if(value == NULL) return;
+    *value = (*value | (1 << CLAMP07(index)));
     return;
 }
 
@@ -135,9 +130,8 @@ void bit_set(uint8_t* value, int index){
  * @param index index of the bit
  */
 void bit_unset(uint8_t* value, int index){
-    uint8_t mask = 1 << CLAMP07(index);
-    uint8_t result = *value & ~mask;
-    *value = result;
+    if(value == NULL) return;
+    *value = (*value & ~(1 << CLAMP07(index)));
     return;
 }
 
@@ -150,9 +144,7 @@ void bit_unset(uint8_t* value, int index){
  * @param v allows to choose between set and unset
  */
 void bit_edit(uint8_t* value, int index, uint8_t v){
-    if(v != 0)
-        bit_set(value, index);
-    else
-        bit_unset(value, index);
+    if(value == NULL) return;
+    v != 0 ? bit_set(value, index) : bit_unset(value, index);
     return;
 }

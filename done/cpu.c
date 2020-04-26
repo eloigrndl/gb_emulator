@@ -19,31 +19,17 @@
 // ======================================================================
 int cpu_init(cpu_t* cpu)
 {
-    if(cpu == NULL)
-        return ERR_BAD_PARAMETER;
+    M_REQUIRE_NON_NULL(cpu);        //TODO Jan
+    memset(cpu, 0, sizeof(cpu_t));
 
-    //TODO: use memset or not??
-    cpu_AF_set(cpu, 0);
-    cpu_BC_set(cpu, 0);
-    cpu_DE_set(cpu, 0);
-    cpu_HL_set(cpu, 0);
-    
-    cpu->SP = 0;
-    cpu->PC = 0;
-    cpu->bus = NULL;
-    
-    //TODO: alu init?
-    cpu->alu.flags = 0;
-    cpu->alu.value = 0;    
-    cpu -> idle_time = 0;
     return ERR_NONE;
 }
 
 // ======================================================================
 int cpu_plug(cpu_t* cpu, bus_t* bus)
 {
-    if(bus == NULL || cpu == NULL)
-        return ERR_BAD_PARAMETER;
+    M_REQUIRE_NON_NULL(bus);
+    M_REQUIRE_NON_NULL(cpu);
 
     cpu -> bus = bus;
     return ERR_NONE;
@@ -52,7 +38,7 @@ int cpu_plug(cpu_t* cpu, bus_t* bus)
 // ======================================================================
 void cpu_free(cpu_t* cpu)
 {
-     //FIXME can't return error code in void method: what to do?
+    if(cpu == NULL) return;   //FIXME can't return error code in void method: what to do?
     
     cpu -> bus = NULL;  //TODO: can free bus?
     return;

@@ -19,6 +19,7 @@
  * @return value of the desired register
  */
 uint8_t cpu_reg_get(const cpu_t* cpu, reg_kind reg){
+    M_REQUIRE_NON_NULL(cpu);
     //FIXME if cpu NULL?
     switch(reg){
         case REG_A_CODE: return cpu->A;
@@ -41,6 +42,8 @@ uint8_t cpu_reg_get(const cpu_t* cpu, reg_kind reg){
  * @param value value to write to desired register
  */
 void cpu_reg_set(cpu_t* cpu, reg_kind reg, uint8_t value){
+    if(cpu == NULL) return ;
+
     switch(reg){
         case REG_A_CODE: cpu->A = value; break;
         case REG_B_CODE: cpu->B = value; break;
@@ -61,12 +64,14 @@ void cpu_reg_set(cpu_t* cpu, reg_kind reg, uint8_t value){
 /**
  * @brief returns a register given the register pair value
  *
- * @params cpu pointer to the cpu
+ * @param cpu pointer to the cpu
  * @param reg register pair type
  *
  * @return value of the desired register pair
  */
 uint16_t cpu_reg_pair_get(const cpu_t* cpu, reg_pair_kind reg){
+    M_REQUIRE_NON_NULL(cpu);
+
     switch(reg){
         case REG_BC_CODE: return cpu->BC;
         case REG_DE_CODE: return cpu->DE;
@@ -86,11 +91,13 @@ uint16_t cpu_reg_pair_get(const cpu_t* cpu, reg_pair_kind reg){
  * @param value value to write to desired register pair
  */
 void cpu_reg_pair_set(cpu_t* cpu, reg_pair_kind reg, uint16_t value){
+    if(cpu == NULL) return;
+
     switch(reg){
         case REG_BC_CODE: cpu->BC = value; break;
         case REG_DE_CODE: cpu->DE = value; break;
         case REG_HL_CODE: cpu->HL = value; break;
-        case REG_AF_CODE: cpu->AF = (value & 0xFFF0); break; //TODO: leave or change? (just &0xFFF0)
+        case REG_AF_CODE: cpu->AF = (value & 0xFFF0); break; 
         default: break;
         return;
     }

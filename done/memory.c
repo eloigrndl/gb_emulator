@@ -24,14 +24,9 @@ extern "C" {
  * @return error code
  */
 int mem_create(memory_t* mem, size_t size){
-    if(mem == NULL || size == 0){  
-        return ERR_BAD_PARAMETER;
-    }
-
-    mem->memory = calloc(size, sizeof(data_t));
-    if(mem-> memory == NULL){
-        return ERR_MEM;
-    }
+    M_REQUIRE_NON_NULL(mem);
+    M_REQUIRE(size > 0, ERR_BAD_PARAMETER, "Size too small", ...);
+    M_EXIT_IF_NULL(mem->memory = calloc(size, sizeof(data_t)), sizeof(data_t));
 
     mem->size = size;
     return ERR_NONE;
@@ -43,6 +38,7 @@ int mem_create(memory_t* mem, size_t size){
  * @param mem memory structure pointer to destroy
  */
 void mem_free(memory_t* mem){
+    if(mem == NULL || mem->memory == NULL) return;
     free(mem->memory);
     mem -> memory = NULL;
     mem -> size = 0;

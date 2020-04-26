@@ -17,7 +17,7 @@
 data_t cpu_read_at_idx(const cpu_t* cpu, addr_t addr)
 {
     if(cpu == NULL || cpu->bus == NULL)
-        return  0;   // FIXME: how to return error?
+        return  0;
 
     data_t data = 0;
     M_REQUIRE_NO_ERR(bus_read(*(cpu->bus), addr, &data));                         
@@ -27,8 +27,9 @@ data_t cpu_read_at_idx(const cpu_t* cpu, addr_t addr)
 // ==== see cpu-storage.h ========================================
 addr_t cpu_read16_at_idx(const cpu_t* cpu, addr_t addr)
 {
-     if(cpu == NULL || cpu->bus == NULL)
+    if(cpu == NULL || cpu->bus == NULL)
         return  0;
+        
     addr_t data = 0;
     bus_read16(*cpu->bus, addr, &data);  
                 
@@ -38,44 +39,43 @@ addr_t cpu_read16_at_idx(const cpu_t* cpu, addr_t addr)
 // ==== see cpu-storage.h ========================================
 int cpu_write_at_idx(cpu_t* cpu, addr_t addr, data_t data)
 {   
-    if(cpu == NULL || cpu->bus == NULL)
-        return  ERR_BAD_PARAMETER;
-    error_code e = bus_write(*(cpu->bus), addr, data);
-    return e;
+    M_REQUIRE_NON_NULL(cpu);
+    M_REQUIRE_NON_NULL(cpu->bus);
+    
+    M_REQUIRE_NO_ERR(bus_write(*(cpu->bus), addr, data));
+    return ERR_NONE;
 }
 
 // ==== see cpu-storage.h ========================================
 int cpu_write16_at_idx(cpu_t* cpu, addr_t addr, addr_t data16)
 {
-   if(cpu == NULL || cpu->bus == NULL)
-        return  ERR_BAD_PARAMETER;
+   M_REQUIRE_NON_NULL(cpu);
+   M_REQUIRE_NON_NULL(cpu->bus);
 
-    
-
-    error_code e = bus_write16(*(cpu->bus), addr, data16);
-    return e;
+    M_REQUIRE_NO_ERR(bus_write16(*(cpu->bus), addr, data16));
+    return ERR_NONE;
 }
 
 // ==== see cpu-storage.h ========================================
 int cpu_SP_push(cpu_t* cpu, addr_t addr)
 {
-    if(cpu == NULL || cpu->bus == NULL) 
-        return ERR_BAD_PARAMETER;
+    M_REQUIRE_NON_NULL(cpu);
+    M_REQUIRE_NON_NULL(cpu->bus);
     
-    cpu->SP -= 2;   //FIXME: need to store this 2 in a constant?
+    cpu->SP -= WORD_SIZE; 
 
-    error_code e = cpu_write16_at_idx(cpu, cpu->SP, addr);
-    return e;
+    M_REQUIRE_NO_ERR(cpu_write16_at_idx(cpu, cpu->SP, addr));
+    return ERR_NONE;
 }
 
 // ==== see cpu-storage.h ========================================
 addr_t cpu_SP_pop(cpu_t* cpu)
 {
-     if(cpu == NULL || cpu->bus == NULL) 
-        return 0;              
+    if(cpu == NULL || cpu->bus == NULL) 
+        return 0;              //TODO put 0 into default value
     
     addr_t data = cpu_read16_at_idx(cpu, cpu->SP);
-    cpu->SP +=2;
+    cpu->SP += WORD_SIZE;
     return data;
 }
 

@@ -20,25 +20,17 @@
  * @return error code
  */
 int component_create(component_t* c, size_t mem_size){
-    if(c == NULL)
-        return ERR_BAD_PARAMETER;
-
+    M_REQUIRE_NON_NULL(c);
+    
     if(mem_size == 0){
         c->mem = NULL;
     }else{
-        c->mem = calloc(1, sizeof(memory_t)); 
-        if(c->mem == NULL) 
-            return ERR_MEM;
-        
-        error_code e = mem_create(c->mem, mem_size);    //FIXME: will M_REQUIRE_NO_ERR propagate the right error?
-        if(e != ERR_NONE){
-             return e;
-        }
+        M_EXIT_IF_NULL(c->mem = calloc(1, sizeof(memory_t)), sizeof(memory_t)); 
+        M_REQUIRE_NO_ERR(mem_create(c->mem, mem_size)); 
     }
+    
     c->start = 0;
     c->end = 0;
-
-
     
     return ERR_NONE;
 } 
@@ -51,13 +43,13 @@ int component_create(component_t* c, size_t mem_size){
  * @return error code
  */
 int component_shared(component_t* c, component_t* c_old){
-    if(c == NULL && c_old == NULL){
-        return ERR_BAD_PARAMETER;
-    }
-    
+    M_REQUIRE_NON_NULL(c);
+    M_REQUIRE_NON_NULL(c_old);
+
     c -> mem = c_old -> mem;
     c -> start = 0;
     c -> end = 0;
+
     return ERR_NONE; 
 }
 
@@ -68,6 +60,8 @@ int component_shared(component_t* c, component_t* c_old){
  * @param c component pointer to destroy
  */
 void component_free(component_t* c){
+    if(c == NULL || c->mem == NULL) return;
+    
     mem_free(c->mem);
     free(c->mem);
     c->mem = NULL;
@@ -75,8 +69,5 @@ void component_free(component_t* c){
     c-> start = 0;
     c-> end = 0;
 
-    //FIXME: need to add TODO and FIXME?
     return;
 }
-
-//TODO ifndef?

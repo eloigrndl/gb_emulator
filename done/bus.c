@@ -20,19 +20,14 @@
  * @return error code
  */
 int bus_remap(bus_t bus, component_t* c, addr_t offset){
-    if(c == NULL || c->mem == NULL || c->mem->memory == NULL)
-        return ERR_BAD_PARAMETER;
-
-
-    if(c->end - c->start + offset >= c->mem -> size)
-        return ERR_ADDRESS;
+    M_REQUIRE_NON_NULL(c);
+    M_REQUIRE_NON_NULL(c->mem);
+    M_REQUIRE_NON_NULL(c->mem->memory);
+    M_REQUIRE(c-> end - c->start + offset < c->mem->size, ERR_ADDRESS, "Address error", ... );
     
-
-    for(int i = 0; i < c->mem -> size - offset; i++){
+    for(int i = 0; i < c->mem -> size - offset; i++)
         bus[c-> start+i] = &(c->mem->memory[offset+i]);
         
-    }
-
     return ERR_NONE;
 }
 
@@ -48,14 +43,10 @@ int bus_remap(bus_t bus, component_t* c, addr_t offset){
  * @return error code
  */
 int bus_forced_plug(bus_t bus, component_t* c, addr_t start, addr_t end, addr_t offset){
-    if(c == NULL || end < start || end - start >= BUS_SIZE || c->mem == NULL )
-        return ERR_BAD_PARAMETER;
+    M_REQUIRE_NON_NULL(c);
+    M_REQUIRE((end >= start) && (end - start < BUS_SIZE), ERR_ADDRESS, "Address error", ...);
     
-    //TODO: verification for end, start and offset!!
-    //TODO write Tests
     error_code e = bus_remap(bus, c, offset);
-
-    
     c-> start = (e == ERR_NONE) ? start : 0;
     c-> end = (e == ERR_NONE) ? end : 0;
     
@@ -73,25 +64,15 @@ int bus_forced_plug(bus_t bus, component_t* c, addr_t start, addr_t end, addr_t 
  * @return error code
  */
 int bus_plug(bus_t bus, component_t* c, addr_t start, addr_t end){
-    if(c == NULL || end < start || end - start >= BUS_SIZE || c->mem == NULL){
-        return ERR_BAD_PARAMETER;
-    }
+    
+    M_REQUIRE_NON_NULL(c);
+    M_REQUIRE_NON_NULL(c->mem);
+    M_REQUIRE((end >= start) && (end - start < BUS_SIZE) && (end - start < c-> mem->size), ERR_ADDRESS, "Address error", ...);
 
-
-    if(end - start >= c-> mem->size) 
-        return ERR_ADDRESS;
-
-
-
-    //TODO: check for other possible errors
-    //checks whether bus is free for this space
-    for(int i = start; i <= end; i++){
-        if(bus[i] != NULL)
-            return ERR_ADDRESS;
-    }
+    for(int i = start; i <= end; i++)
+        M_REQUIRE(bus[i] == NULL, ERR_ADDRESS, "Part of area already occupied", ...);   //TODO find out about VA_ARGS
 
     return bus_forced_plug(bus, c, start, end, 0);
-
 }
 
 
@@ -103,9 +84,7 @@ int bus_plug(bus_t bus, component_t* c, addr_t start, addr_t end){
  * @return error code
  */
 int bus_unplug(bus_t bus, component_t* c){
-    if(c == NULL){
-        return ERR_BAD_PARAMETER;
-    }
+    M_REQUIRE_NON_NULL(c);
 
     for(int i = c->start; i <= c->end; i++)
         bus[i] = NULL;
@@ -126,6 +105,7 @@ int bus_unplug(bus_t bus, component_t* c){
  */
 int bus_read(const bus_t bus, addr_t address, data_t* data){
     M_REQUIRE_NON_NULL(data);
+    M_REQUIRE(address < BUS_SIZE, ERR_ADDRESS, "Address Error", ...);
 
     *data = bus[address] == NULL ? 0xFF : *(bus[address]);
     return ERR_NONE;
@@ -140,22 +120,9 @@ int bus_read(const bus_t bus, addr_t address, data_t* data){
  * @return error code
  */
 int bus_read16(const bus_t bus, addr_t address, addr_t* data16){
-    if(data16 == NULL)
-        return ERR_BAD_PARAMETER;
+    M_REQUIRE_NON_NULL(data16);
 
-    data_t lsb = 0;
-    data_t msb = 0;
-
-    error_code e1 = bus_read(bus, address, &lsb);       //use only one address, TODO: this will not return 0xFF but 0xFFFF in case both invalid
-    error_code e2 = bus_read(bus, address+1, &msb);     //FIXME: lsb and msb address order?
-
-    if(e1 != ERR_NONE)
-        return e1;
-    if(e2 != ERR_NONE)
-        return e2;
-
-    *data16 = merge8(lsb, msb); 
-
+    *data16 = (address == 0xFFFF || bus[address] == NULL || bus[address+1] == NULL) ? 0xFF : merge8(*(bus[address]), *(bus[address+1])); 
     return ERR_NONE;
 }
 
@@ -168,8 +135,7 @@ int bus_read16(const bus_t bus, addr_t address, addr_t* data16){
  * @return error code
  */
 int bus_write(bus_t bus, addr_t address, data_t data){
-    if(bus[address] == NULL) 
-        return ERR_BAD_PARAMETER;
+    M_REQUIRE_NON_NULL(bus[address]);
     
     *bus[address] = data;
     return ERR_NONE;
@@ -184,8 +150,9 @@ int bus_write(bus_t bus, addr_t address, data_t data){
  * @return error code
  */
 int bus_write16(bus_t bus, addr_t address, addr_t data16){
-    if(bus[address] == NULL || bus[address+1] == NULL)
-        return ERR_BAD_PARAMETER;
+    M_REQUIRE_NON_NULL(bus[address]);
+    M_REQUIRE_NON_NULL(bus[address+1]);
+    M_REQUIRE(address != 0xFFFF, ERR_ADDRESS, "Address error", ...);
 
     bus_write(bus, address,  lsb8(data16));         
     bus_write(bus, address+1, msb8(data16));
