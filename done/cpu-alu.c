@@ -145,6 +145,13 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
         cpu_combine_alu_flags(cpu, INC_FLAGS_SRC);
     } break;
 
+    //FIXME check if okay
+    case DEC_R8: {
+        M_EXIT_IF_ERR(alu_sub8(&(cpu -> alu), cpu_reg_get(cpu, extract_reg(lu->opcode, 3)), 1, 0));
+        cpu_reg_set(cpu, extract_reg(lu->opcode, 3), cpu -> alu.value);
+        cpu_combine_alu_flags(cpu, DEC_FLAGS_SRC);
+    } break;
+
     case ADD_HL_R16SP: {
         M_EXIT_IF_ERR(alu_add16_high(&cpu->alu, cpu_HL_get(cpu), cpu_reg_pair_SP_get(cpu, extract_reg_pair(lu->opcode)))); \
         combine_flags_set_pair(cpu, REG_HL_CODE, R16SP_FLAGS); 
@@ -162,6 +169,11 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
         M_EXIT_IF_ERR(cpu_combine_alu_flags(cpu, SUB_FLAGS_SRC));
     } break;
 
+    //FIXME check if okay
+    case CP_A_N8: {
+        M_EXIT_IF_ERR(alu_sub8(&cpu->alu, cpu->A, cpu_read_data_after_opcode(cpu), 0));
+        M_EXIT_IF_ERR(cpu_combine_alu_flags(cpu, SUB_FLAGS_SRC));
+    } break;
 
     // BIT MOVE (rotate, shift)
     case SLA_R8: {

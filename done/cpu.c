@@ -32,10 +32,19 @@ int cpu_init(cpu_t* cpu)
     cpu->SP = 0;
     cpu->PC = 0;
 
+    //FIXME ok ?
+    cpu->IME = 0;
+    cpu->HALT = 0;
+
     //TODO: alu init?
     cpu->alu.flags = 0;
     cpu->alu.value = 0;    
     cpu -> idle_time = 0;
+
+    //TODO: why high ram in cpu and not directly in gameboy
+    component_create(&(cpu->high_ram), HIGH_RAM_SIZE); 
+
+
     return ERR_NONE;
 }
 
@@ -46,6 +55,7 @@ int cpu_plug(cpu_t* cpu, bus_t* bus)
         return ERR_BAD_PARAMETER;
 
     cpu -> bus = bus;
+    bus_plug(*(cpu->bus), &(cpu->high_ram), HIGH_RAM_START, HIGH_RAM_END);
     return ERR_NONE;
 }
 
@@ -54,7 +64,11 @@ void cpu_free(cpu_t* cpu)
 {
      //FIXME can't return error code in void method
     
-    cpu -> bus = NULL;
+    cpu->bus = NULL;
+
+    //freeing the high_ram
+    component_free(&(cpu->component));
+    &(cpu->component) = NULL.
     return;
     
 }
@@ -73,6 +87,7 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
     M_REQUIRE_NON_NULL(lu);
     M_REQUIRE_NON_NULL(cpu);    //TODO: make usage of this macro for args
 
+    //FIXME sure about this ?
     cpu->alu.value = 0;
     cpu->alu.flags = 0;
 
@@ -158,45 +173,70 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
 
     // JUMP
     case JP_CC_N16:
+        if(verify_cc(lu))
+            cpu->PC = cpu_read_addr_after_opcode(cpu);
         break;
 
     case JP_HL:
+        cpu->PC = cpu_reg_pair_get(cpu, REG_HL_CODE);
         break;
 
     case JP_N16:
+        cpu->PC = cpu_read_addr_after_opcode(cpu);
         break;
 
     case JR_CC_E8:
+        //FIXME is PC'= PC+1 ?? and will this be really signed value
+        if(verify_cc(lu))
+            cpu->PC = cpu_read_data_after_opcode(cpu); + 1;
         break;
 
     case JR_E8:
+        cpu->PC = cpu_read_data_after_opcode(cpu) + 1;
         break;
 
 
     // CALLS
     case CALL_CC_N16:
+        //FIXME PC' = PC+1 ??
+        if(verify_cc(lu)){
+            cpu_SP_push(cpu, cpu->PC + 1);
+            cpu->PC = cpu_read_addr_after_opcode(cpu);
+        }
         break;
 
     case CALL_N16:
+        cpu_SP_push(cpu, cpu->PC + 1);
+        cpu->PC = cpu_read_addr_after_opcode(cpu);
         break;
 
 
     // RETURN (from call)
     case RET:
+        cpu->PC = cpu_SP_pop(cpu);
         break;
 
     case RET_CC:
+        if(verify_cc(lu))
+            cpu->PC = cpu_SP_pop(cpu);
         break;
 
     case RST_U3:
+        //FIXME PC' = PC+1
+        cpu_SP_push(cpu, cpu->PC+1);
+        cpu->PC = exctract_n3(lu->opcode) << 3;
         break;
 
 
     // INTERRUPT & MISC.
     case EDI:
+        //FIXME IME as reg in cpu ?
+        cpu->IME = bit_get(lu->opcode, 3);
         break;
 
     case RETI:
+        bit_set(&(cpu->IME), 3);
+        cpu->PC = cpu_SP_pop(cpu);
         break;
 
     case HALT:
@@ -226,18 +266,48 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
 static int cpu_do_cycle(cpu_t* cpu)
 {
     M_REQUIRE_NON_NULL(cpu);
-    data_t bin = cpu_read_at_idx(cpu, cpu -> PC);
-    const instruction_t* instr;
+    uint8_t pendings = is_pending(cpu);
 
-    if(bin == 0xCB){
-        bin =  cpu_read_data_after_opcode(cpu);
-        instr = &instruction_prefixed[bin];
+    //if there are oendings interruption
+    if(cpu->IME == 1 && pendings != 0){
+        //set IME to zero
+        cpu->IME = 0;
+
+        //get the index of rightmost set bit of pending interruptions
+        int index = 0;
+        while(bit_get(pendings, 0) != 1){
+            ++index;
+            pendings >>= 1;
+        }
+
+        //unsetting the corresponding bit in IF
+        data_t prev_interrupt = cpu_read_at_idx(cpu, REG_IF);
+        bit_unset(&prev_interrupt, index);
+        cpu_write_at_idx(cpu, REG_IF, prev_interrupt);
+
+        //push current PC address
+        cpu_SP_push(cpu, cpu->PC);
+
+        //setting the address of instruction handler in PC
+        cpu->PC = 0x40 + 8 × index;
+    
+        //adding 5 cycles to idle_time
+        cpu->idle_time += 5;
+
+        return ERR_NONE;
     } else {
-        instr = &instruction_direct[bin];
-    }
+        data_t bin = cpu_read_at_idx(cpu, cpu -> PC);
+        const instruction_t* instr;
 
-    error_code e = cpu_dispatch(instr, cpu);
-    return e;
+        if(bin == 0xCB){
+            bin =  cpu_read_data_after_opcode(cpu);
+            instr = &instruction_prefixed[bin];
+        } else {
+            instr = &instruction_direct[bin];
+        }
+
+        return cpu_dispatch(instr, cpu);
+    }
 }
 
 
@@ -250,8 +320,60 @@ int cpu_cycle(cpu_t* cpu)
     M_REQUIRE_NON_NULL(cpu);
     M_REQUIRE_NON_NULL(cpu->bus);
 
+    if(cpu->HALT == 1 && is_pending(cpu) != 0 && cpu->idle_time == 0){
+        cpu->HALT = 0;
+        return cpu_do_cycle(cpu);
+    }
+
     if(cpu -> idle_time > 0){
         cpu -> idle_time -=1;
     }
     return ERR_NONE;
+}
+
+/**
+ * @brief Set an interruption
+ */
+void cpu_request_interrupt(cpu_t* cpu, interrupt_t i){
+    data_t prev_interrupt = cpu_read_at_idx(cpu, REG_IF);
+    bit_set(&prev_interrupt, i);
+    cpu_write_at_idx(cpu, REG_IF, prev_interrupt);
+}
+
+
+
+
+//FIXME add also in cpu.h
+/**
+* @brief verify if a certain conditiion (cc) is verified or not
+* @param  lu instruction to extract the condition
+* @return the condition is verified or not
+*/
+int verify_cc(const instruction_t* lu){
+    switch(exctract_cc(lu->opcode)){
+        case 0 :
+                return !get_Z(cpu->alu.flags);
+
+            case 1 :
+                return get_Z(cpu->alu.flags);
+
+            case 2 :
+                return !get_C(cpu->alu.flags);
+
+            case 3 :
+                return get_C(cpu->alu.flags);
+
+            //FIXME:really necessary
+            default:
+                return 0;
+    }
+}
+
+//FIXME put also in cpu.h or define ??
+/**
+* @brief check if an interruption is pending ;:
+         if the same bit is 1 in IF and in IE
+*/
+uint8_t is_pending(cpu_t* cpu){
+    return (cpu_read_at_idx(cpu, REF_IF) & cpu_read_at_idx(cpu, REG_IE));
 }

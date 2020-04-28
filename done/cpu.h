@@ -38,6 +38,11 @@ typedef struct{
     alu_output_t alu;
     bus_t* bus;
     uint8_t idle_time;
+    component_t high_ram;
+
+    //FIXME ok ?
+    bit_t IME;
+    bit_t HALT;
 
     union {
         struct{
