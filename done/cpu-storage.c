@@ -10,6 +10,8 @@
 #include "cpu-registers.h" // cpu_BC_get
 #include "gameboy.h" // REGISTER_START
 #include "util.h"
+#include "myMacros.h"   // WORD_SIZE, set_A_from_bus
+
 #include <inttypes.h> // PRIX8
 #include <stdio.h> // fprintf
 
@@ -17,18 +19,19 @@
 data_t cpu_read_at_idx(const cpu_t* cpu, addr_t addr)
 {
     if(cpu == NULL || cpu->bus == NULL)
-        return  0;   /// TODO wrong type : error_code  != addr_t
+        return  DEFAULT_READ_VALUE;
 
     data_t data = 0;
-    bus_read(*(cpu->bus), addr, &data);                         
+    M_REQUIRE_NO_ERR(bus_read(*(cpu->bus), addr, &data));                         
     return data;
 }
 
 // ==== see cpu-storage.h ========================================
 addr_t cpu_read16_at_idx(const cpu_t* cpu, addr_t addr)
 {
-     if(cpu == NULL || cpu->bus == NULL)
-        return  0;   /// TODO wrong type : error_code  != addr_t
+    if(cpu == NULL || cpu->bus == NULL)
+        return DEFAULT_READ_VALUE;
+        
     addr_t data = 0;
     bus_read16(*cpu->bus, addr, &data);  
                 
@@ -37,54 +40,53 @@ addr_t cpu_read16_at_idx(const cpu_t* cpu, addr_t addr)
 
 // ==== see cpu-storage.h ========================================
 int cpu_write_at_idx(cpu_t* cpu, addr_t addr, data_t data)
-{
-    if(cpu == NULL || cpu->bus == NULL)
-        return  ERR_BAD_PARAMETER;
-    error_code e = bus_write(*(cpu->bus), addr, data);
-    return e;
+{   
+    M_REQUIRE_NON_NULL(cpu);
+    M_REQUIRE_NON_NULL(cpu->bus);
+    
+    M_REQUIRE_NO_ERR(bus_write(*(cpu->bus), addr, data));
+    return ERR_NONE;
 }
 
 // ==== see cpu-storage.h ========================================
 int cpu_write16_at_idx(cpu_t* cpu, addr_t addr, addr_t data16)
 {
-   if(cpu == NULL || cpu->bus == NULL)
-        return  ERR_BAD_PARAMETER;
+    M_REQUIRE_NON_NULL(cpu);
+    M_REQUIRE_NON_NULL(cpu->bus);
 
-    error_code e = bus_write16(*(cpu->bus), addr, data16);
-    return e;
+    M_REQUIRE_NO_ERR(bus_write16(*(cpu->bus), addr, data16));
+    return ERR_NONE;
 }
 
 // ==== see cpu-storage.h ========================================
 int cpu_SP_push(cpu_t* cpu, addr_t addr)
 {
-    if(cpu == NULL || cpu->bus == NULL) 
-        return ERR_BAD_PARAMETER;
+    M_REQUIRE_NON_NULL(cpu);
+    M_REQUIRE_NON_NULL(cpu->bus);
     
-    cpu->SP -= 2;
+    cpu->SP -= WORD_SIZE; 
 
-    error_code e = cpu_write16_at_idx(cpu, cpu->SP, addr);
-    return e;
+    M_REQUIRE_NO_ERR(cpu_write16_at_idx(cpu, cpu->SP, addr));
+    return ERR_NONE;
 }
 
 // ==== see cpu-storage.h ========================================
 addr_t cpu_SP_pop(cpu_t* cpu)
 {
-     if(cpu == NULL || cpu->bus == NULL) 
-        return 0;               //FIXME: do we have to return an error_code in case of nullPointer
+    if(cpu == NULL || cpu->bus == NULL) 
+        return DEFAULT_READ_VALUE;
     
     addr_t data = cpu_read16_at_idx(cpu, cpu->SP);
-    cpu->SP +=2;
+    cpu->SP += WORD_SIZE;
     return data;
 }
 
 // ==== see cpu-storage.h ========================================
 
-
-//TODO: need to verify args / errors
 int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
 {
     M_REQUIRE_NON_NULL(cpu);
-    error_code e;
+
 
     switch (lu->family) {
         case LD_A_BCR: 
@@ -92,7 +94,7 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
             break;
 
         case LD_A_CR:
-            set_A_from_bus(cpu, 0xFF00 + cpu_C_get(cpu));
+            set_A_from_bus(cpu, REGISTERS_START + cpu_C_get(cpu));
             break;
 
         case LD_A_DER:
@@ -101,65 +103,61 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
 
         case LD_A_HLRU:
             set_A_from_bus(cpu, cpu_HL_get(cpu)); 
-            cpu_HL_set(cpu, cpu_HL_get(cpu) + extract_HL_increment(lu -> opcode));
+            cpu->HL += extract_HL_increment(lu->opcode);
             break;
 
         case LD_A_N16R:
-            cpu_A_set(cpu, cpu_read_at_idx(cpu, cpu_read_addr_after_opcode(cpu)));      // TODO: maybe define macro for this
+            set_A_from_bus(cpu, cpu_read_addr_after_opcode(cpu));      // TODO: maybe define macro for this
             break;
 
         case LD_A_N8R:
-            cpu_A_set(cpu, cpu_read_at_idx(cpu, 0xFF00 + cpu_read_data_after_opcode(cpu))); 
-            
-            break;
+            set_A_from_bus(cpu, REGISTERS_START + cpu_read_data_after_opcode(cpu)); 
+            break;  
             
         // ============= inversed order from here
         case LD_BCR_A:
-            e = cpu_write_at_idx(cpu, cpu_BC_get(cpu), cpu_A_get(cpu));
-            return e;
-
+            M_REQUIRE_NO_ERR(cpu_write_at_idx(cpu, cpu_BC_get(cpu), cpu_A_get(cpu)));
+            break;
+            
         case LD_CR_A:
-            e = cpu_write_at_idx(cpu, 0xFF00 + cpu_C_get(cpu), cpu_A_get(cpu));
-            return e;
+            M_REQUIRE_NO_ERR(cpu_write_at_idx(cpu, REGISTERS_START + cpu_C_get(cpu), cpu_A_get(cpu)));
+            break; //FIXME: need to add a break?
 
         case LD_DER_A:
-            e = cpu_write_at_idx(cpu, cpu_DE_get(cpu), cpu_A_get(cpu));
-            return e;
+            M_REQUIRE_NO_ERR(cpu_write_at_idx(cpu, cpu_DE_get(cpu), cpu_A_get(cpu)));
+            break;
 
-        case LD_HLRU_A:
-            e = cpu_write_at_idx(cpu, cpu_HL_get(cpu), cpu_A_get(cpu));                 // TODO maybe make macro for HL
-            cpu_HL_set(cpu, cpu_HL_get(cpu) + extract_HL_increment(lu->opcode));
-            return e;
+        case LD_HLRU_A:        
+            M_REQUIRE_NO_ERR(cpu_write_at_HL(cpu, cpu_A_get(cpu)));
+            cpu->HL += extract_HL_increment(lu->opcode);
+            break;
 
         case LD_HLR_N8:
-            e =  cpu_write_at_idx(cpu, cpu_HL_get(cpu), cpu_read_data_after_opcode(cpu));
-            return e;
+            M_REQUIRE_NO_ERR(cpu_write_at_HL(cpu, cpu_read_data_after_opcode(cpu)));
+            break;
 
         case LD_HLR_R8:
-            e = cpu_write_at_idx(cpu, cpu_HL_get(cpu), cpu_reg_get(cpu, extract_reg(lu->opcode, 0)));
-            return e;
-            
+            M_REQUIRE_NO_ERR(cpu_write_at_HL(cpu, cpu_reg_get(cpu, extract_reg(lu->opcode, 0))));
+            break;
 
         case LD_N16R_A:
-            e = cpu_write16_at_idx(cpu, cpu_read_addr_after_opcode(cpu), cpu_A_get(cpu));
-            return e;
+            M_REQUIRE_NO_ERR(cpu_write_at_idx(cpu, cpu_read_addr_after_opcode(cpu), cpu_A_get(cpu)));
+            break;
             
-            
-
         case LD_N16R_SP:
-            e = cpu_write16_at_idx(cpu, cpu_read_addr_after_opcode(cpu), cpu_reg_pair_SP_get(cpu, REG_AF_CODE));
-            return e;
+            M_REQUIRE_NO_ERR(cpu_write16_at_idx(cpu, cpu_read_addr_after_opcode(cpu), cpu_reg_pair_SP_get(cpu, REG_AF_CODE)));
+            break;
 
         case LD_N8R_A:
-            e = cpu_write_at_idx(cpu, 0xFF00 + cpu_read_data_after_opcode(cpu), cpu_A_get(cpu));
-            return e;
+            M_REQUIRE_NO_ERR(cpu_write_at_idx(cpu, REGISTERS_START + cpu_read_data_after_opcode(cpu), cpu_A_get(cpu)));
+            break;
 
         case LD_R16SP_N16:
-            cpu_reg_pair_SP_set(cpu, extract_reg_pair(lu->opcode), cpu_read_at_idx(cpu, cpu_read_addr_after_opcode(cpu)));
+            cpu_reg_pair_SP_set(cpu, extract_reg_pair(lu->opcode), cpu_read_addr_after_opcode(cpu));
             break;
 
         case LD_R8_HLR:
-            e = cpu_write_at_idx(cpu, extract_reg(lu -> opcode, 3), cpu_read_at_HL(cpu));//r = BUS[HL]
+            cpu_reg_set(cpu, extract_reg(lu -> opcode, 3), cpu_read_at_HL(cpu));
             break;
 
         case LD_R8_N8:
@@ -175,11 +173,11 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
             break;
 
         case POP_R16:
-            cpu_reg_pair_set(cpu, cpu_reg_pair_get(cpu, extract_reg_pair(lu -> opcode)), cpu_SP_pop(cpu));
+            cpu_reg_pair_set(cpu,  extract_reg_pair(lu -> opcode), cpu_SP_pop(cpu));
             break;
 
         case PUSH_R16:
-            cpu_SP_push(cpu, cpu_reg_pair_get(cpu, extract_reg_pair(lu->opcode)));
+            M_REQUIRE_NO_ERR(cpu_SP_push(cpu, cpu_reg_pair_get(cpu, extract_reg_pair(lu->opcode))));
             break;
 
         default:

@@ -9,112 +9,52 @@
 #include "bus.h"
 #include "error.h"
 #include "bit.h"
+#include "myMacros.h"
 #include <stdio.h>
 
-/** 
- * @brief Remap the memory of a component to the bus
- *
- * @param bus bus to remap to
- * @param c component to remap
- * @param offset new offset to use
- * @return error code
- */
+// ==== see bus.h ========================================
 int bus_remap(bus_t bus, component_t* c, addr_t offset){
-    //TODO: free on which level??'
-    //TODO: find out if necessary to verify the bus (maybe external method)
-    if(c == NULL || c->mem == NULL || c->mem->memory == NULL)
-        return ERR_BAD_PARAMETER;
-
-
-    if(c->end - c->start + offset >= c->mem -> size)
-        return ERR_ADDRESS;
+    M_REQUIRE_NON_NULL(c);
+    M_REQUIRE_NON_NULL(c->mem);
+    M_REQUIRE_NON_NULL(c->mem->memory);
+    M_REQUIRE(c-> end - c->start + offset < c->mem->size, ERR_ADDRESS, "Memory size %lu too small", c->mem->size);
     
-
-    for(int i = 0; i < c->mem -> size - offset; i++){
-        bus[c-> start+i] = &c->mem -> memory[offset+i];
+    for(int i = 0; i < c->mem -> size - offset; i++)
+        bus[c-> start+i] = &(c->mem->memory[offset+i]);
         
-    }
-
     return ERR_NONE;
 }
 
-/**
- * @brief Plug forcibly a component into the bus (allows to use outside of range start and end).
- *        For example, if we want to map a component to somewhere else than the initialy described area.
- *
- * @param bus bus to plug into
- * @param c component to plug into bus
- * @param start address from where to plug to (included)
- * @param end address until where to plug to (included)
- * @param offset offset where to start in the component
- * @return error code
- */
+// ==== see bus.h ========================================
 int bus_forced_plug(bus_t bus, component_t* c, addr_t start, addr_t end, addr_t offset){
-
-    if(c == NULL || end < start || end - start >= BUS_SIZE || c->mem == NULL )
-        return ERR_BAD_PARAMETER;
+    M_REQUIRE_NON_NULL(c);
+    M_REQUIRE((end >= start) && (end - start < BUS_SIZE), ERR_ADDRESS, "End %u and Start %u invalid", end, start);
     
-    
-
-    //FIXME: verification for end, start and offset!!
     error_code e = bus_remap(bus, c, offset);
-
-    //TODO write Tests
+    c->start = (e == ERR_NONE) ? start : 0;
+    c->end = (e == ERR_NONE) ? end : 0;
     
-    if(e == ERR_NONE){
-        c->start = start;
-        c->end = end;
-    }else{
-        c->start = 0;
-        c->end = 0;
-    }
     return e;
 }
 
 
-/**
- * @brief Plug a component into the bus
- *
- * @param bus bus to plug into
- * @param c component to plug into bus
- * @param start address from where to plug (included)
- * @param end address until where to plug (included)
- * @return error code
- */
+// ==== see bus.h ========================================
 int bus_plug(bus_t bus, component_t* c, addr_t start, addr_t end){
-    if(c == NULL || end < start || end - start >= BUS_SIZE || c->mem == NULL){
-        return ERR_BAD_PARAMETER;
-    }
+    
+    M_REQUIRE_NON_NULL(c);
+    M_REQUIRE_NON_NULL(c->mem);
+    M_REQUIRE((end >= start) && (end - start < BUS_SIZE) && (end - start < c->mem->size), ERR_ADDRESS, "End %u and Start %u invalid or Memory too small", start, end);
 
-
-    if(end - start >= c-> mem->size) 
-        return ERR_ADDRESS;
-
-
-
-    //TODO: check for other possible errors
-    //checks whether bus is free for this space
-    for(int i = start; i <= end; i++){
-        if(bus[i] != NULL)
-            return ERR_ADDRESS;
-    }
+    for(int i = start; i <= end; i++)
+        M_REQUIRE(bus[i] == NULL, ERR_ADDRESS, "Part of area already occupied: %d", i);
 
     return bus_forced_plug(bus, c, start, end, 0);
-
 }
 
 
-/**
- * @brief Unplug a component from the bus
- *
- * @param bus bus to unplug from
- * @param c component to plug into bus
- * @return error code
- */
+// ==== see bus.h ========================================
 int bus_unplug(bus_t bus, component_t* c){
-    if(c == NULL){
-        return ERR_BAD_PARAMETER;
-    }
+    M_REQUIRE_NON_NULL(c);
 
     for(int i = c->start; i <= c->end; i++)
         bus[i] = NULL;
@@ -125,77 +65,39 @@ int bus_unplug(bus_t bus, component_t* c){
     return ERR_NONE;
 }
 
-/**
- * @brief Read the bus at a given address
- *
- * @param bus bus to read from
- * @param address address to read at
- * @param data pointer to write read data to
- * @return error code
- */
+
+// ==== see bus.h ========================================
 int bus_read(const bus_t bus, addr_t address, data_t* data){
-    if(data == NULL)
-        return ERR_BAD_PARAMETER;
+    M_REQUIRE_NON_NULL(data);
+    M_REQUIRE(address < BUS_SIZE, ERR_ADDRESS, "Address %d too big", address);
 
-    *data = bus[address] == NULL ? 0xFF : *bus[address];
+    *data = bus[address] == NULL ? DEFAULT_READ_VALUE : *(bus[address]);
     return ERR_NONE;
 }
 
-/**
- * @brief Read the bus at a given address (reads 16 bits)
- *
- * @param bus bus to read from
- * @param address address to read at
- * @param data16 pointer to write read data to
- * @return error code
- */
+
+// ==== see bus.h ========================================
 int bus_read16(const bus_t bus, addr_t address, addr_t* data16){
-    if(data16 == NULL)
-        return ERR_BAD_PARAMETER;
-
-    data_t lsb = 0;
-    data_t msb = 0;
-
-    error_code e1 = bus_read(bus, address, &lsb);
-    error_code e2 = bus_read(bus, address+1, &msb);
-
-    if(e1 != ERR_NONE)
-        return e1;
-    if(e2 != ERR_NONE)
-        return e2;
-
-    *data16 = merge8(lsb, msb); 
-
+    M_REQUIRE_NON_NULL(data16);
+    *data16 = (address >= 0xFFFF || bus[address] == NULL || bus[address+1] == NULL) ? DEFAULT_READ_VALUE : merge8(*(bus[address]), *(bus[address+1])); 
     return ERR_NONE;
 }
 
-/**
- * @brief Write to the bus at a given address
- *
- * @param bus bus to write to
- * @param address address to write at
- * @param data data to write
- * @return error code
- */
+
+// ==== see bus.h ========================================
 int bus_write(bus_t bus, addr_t address, data_t data){
-    if(bus[address] == NULL)
-        return ERR_BAD_PARAMETER;
+    M_REQUIRE_NON_NULL(bus[address]);
     
     *bus[address] = data;
     return ERR_NONE;
 }
 
-/**
- * @brief Write to the bus at a given address (writes 16 bits)
- *
- * @param bus bus to write to
- * @param address address to write at
- * @param data16 data to write
- * @return error code
- */
+
+// ==== see bus.h ========================================
 int bus_write16(bus_t bus, addr_t address, addr_t data16){
-    if(bus[address] == NULL || bus[address+1] == NULL)
-        return ERR_BAD_PARAMETER;
+    M_REQUIRE_NON_NULL(bus[address]);
+    M_REQUIRE_NON_NULL(bus[address+1]);
+    M_REQUIRE(address < 0xFFFF, ERR_ADDRESS, "Address %d out of bounds", address);
 
     bus_write(bus, address,  lsb8(data16));         
     bus_write(bus, address+1, msb8(data16));

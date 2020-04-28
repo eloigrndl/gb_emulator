@@ -16,53 +16,30 @@
 #include <inttypes.h> // PRIX8
 #include <stdio.h> // fprintf
 
-// ======================================================================
+// ==== see cpu.h ========================================
 int cpu_init(cpu_t* cpu)
 {
-    if(cpu == NULL)
-        return ERR_BAD_PARAMETER;
-
-
-    //TODO: use memset or not??
-    cpu_AF_set(cpu, 0);
-    cpu_BC_set(cpu, 0);
-    cpu_DE_set(cpu, 0);
-    cpu_HL_set(cpu, 0);
-    
-    cpu->SP = 0;
-    cpu->PC = 0;
-
-    //FIXME ok ?
-    cpu->IME = 0;
-    cpu->HALT = 0;
-
-    //TODO: alu init?
-    cpu->alu.flags = 0;
-    cpu->alu.value = 0;    
-    cpu -> idle_time = 0;
-
-    //TODO: why high ram in cpu and not directly in gameboy
-    component_create(&(cpu->high_ram), HIGH_RAM_SIZE); 
-
+    M_REQUIRE_NON_NULL(cpu);        
+    zero_init_ptr(cpu);
 
     return ERR_NONE;
 }
 
-// ======================================================================
+// ==== see cpu.h ========================================
 int cpu_plug(cpu_t* cpu, bus_t* bus)
 {
-    if(bus == NULL || cpu == NULL)
-        return ERR_BAD_PARAMETER;
+    M_REQUIRE_NON_NULL(bus);
+    M_REQUIRE_NON_NULL(cpu);
 
     cpu -> bus = bus;
     bus_plug(*(cpu->bus), &(cpu->high_ram), HIGH_RAM_START, HIGH_RAM_END);
     return ERR_NONE;
 }
 
-// ======================================================================
+// ==== see cpu.h ========================================
 void cpu_free(cpu_t* cpu)
 {
-     //FIXME can't return error code in void method
+    if(cpu == NULL) return;  
     
     cpu->bus = NULL;
 
@@ -73,7 +50,6 @@ void cpu_free(cpu_t* cpu)
     
 }
 
-//=========================================================================
 /**
  * @brief Executes an instruction
  * @param lu instruction
@@ -85,7 +61,7 @@ void cpu_free(cpu_t* cpu)
 static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
 {
     M_REQUIRE_NON_NULL(lu);
-    M_REQUIRE_NON_NULL(cpu);    //TODO: make usage of this macro for args
+    M_REQUIRE_NON_NULL(cpu);   
 
     //FIXME sure about this ?
     cpu->alu.value = 0;
@@ -255,14 +231,19 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
     } // switch
 
 
-    //TODO: update PC, etc.
     cpu->idle_time -= lu->cycles;
     cpu->PC += lu->bytes;
 
     return ERR_NONE;
 }
 
-// ----------------------------------------------------------------------
+/**
+ * @brief Performs a cpu cycle
+ * @param cpu, the CPU which shall execute
+ * @return error code
+ *
+ * See cpu.h
+ */
 static int cpu_do_cycle(cpu_t* cpu)
 {
     M_REQUIRE_NON_NULL(cpu);
@@ -311,10 +292,7 @@ static int cpu_do_cycle(cpu_t* cpu)
 }
 
 
-// ======================================================================
-/**
- * See cpu.h
- */
+// ==== see cpu.h ========================================
 int cpu_cycle(cpu_t* cpu)
 {
     M_REQUIRE_NON_NULL(cpu);

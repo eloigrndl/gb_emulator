@@ -7,19 +7,14 @@
  */
 
 #include "cpu-registers.h"
+#include "myMacros.h"
 #include "bit.h"
 
-//TODO if cpu NULL??????
 
-/**
- * @brief returns a register given the register value
- *#
- * @params cpu pointer to the cpu
- * @param reg register type
- *
- * @return value of the desired register
- */
+// ==== see cpu-registers.h ========================================
 uint8_t cpu_reg_get(const cpu_t* cpu, reg_kind reg){
+    if(cpu == NULL) return 0;
+    
     switch(reg){
         case REG_A_CODE: return cpu->A;
         case REG_B_CODE: return cpu->B;
@@ -33,14 +28,10 @@ uint8_t cpu_reg_get(const cpu_t* cpu, reg_kind reg){
 }
 
 
-/**
- * @brief writes to a register given the register value
- *
- * @params cpu pointer to the cpu
- * @param reg register type
- * @param value value to write to desired register
- */
+// ==== see cpu-registers.h ========================================
 void cpu_reg_set(cpu_t* cpu, reg_kind reg, uint8_t value){
+    if(cpu == NULL) return;
+
     switch(reg){
         case REG_A_CODE: cpu->A = value; break;
         case REG_B_CODE: cpu->B = value; break;
@@ -58,39 +49,30 @@ void cpu_reg_set(cpu_t* cpu, reg_kind reg, uint8_t value){
 
 
 
-/**
- * @brief returns a register given the register pair value
- *
- * @params cpu pointer to the cpu
- * @param reg register pair type
- *
- * @return value of the desired register pair
- */
+// ==== see cpu-registers.h ========================================
 uint16_t cpu_reg_pair_get(const cpu_t* cpu, reg_pair_kind reg){
+    if (cpu == NULL) return 0;
+
     switch(reg){
         case REG_BC_CODE: return cpu->BC;
         case REG_DE_CODE: return cpu->DE;
         case REG_HL_CODE: return cpu->HL;
         case REG_AF_CODE: return cpu->AF;
-        default: return 0;
+        default: return 0; //FIXME: 0 or 0xFF00
     }
 }
 
 
 
-/**
- * @brief writes to a register given the register pair value
- *
- * @params cpu pointer to the cpu
- * @param reg register pair type
- * @param value value to write to desired register pair
- */
+// ==== see cpu-registers.h ========================================
 void cpu_reg_pair_set(cpu_t* cpu, reg_pair_kind reg, uint16_t value){
+    if(cpu == NULL) return;
+
     switch(reg){
         case REG_BC_CODE: cpu->BC = value; break;
         case REG_DE_CODE: cpu->DE = value; break;
         case REG_HL_CODE: cpu->HL = value; break;
-        case REG_AF_CODE: cpu->AF = merge8(merge4(0, msb4(lsb8(value))), msb8(value)); break; 
+        case REG_AF_CODE: cpu->AF = (value & 0xFFF0); break; 
         default: break;
         return;
     }

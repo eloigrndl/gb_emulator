@@ -43,7 +43,6 @@ typedef struct{
     flags_t flags;
 } alu_output_t;
 
-
 /**
  * @brief get flag value
  *
@@ -51,7 +50,7 @@ typedef struct{
  * @param flag flag value to get
  * @return flag value
  */
-bit_t get_flag(flags_t flags, flag_bit_t flag);
+flag_bit_t get_flag(flags_t flags, flag_bit_t flag);
 
 #define get_C(X) get_flag(X, FLAG_C)
 #define get_H(X) get_flag(X, FLAG_H)

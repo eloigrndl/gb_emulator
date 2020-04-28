@@ -166,7 +166,6 @@ START_TEST(bus_write_err)
     data_t data = 0xF;
     INIT;
     ck_assert_int_eq(component_create(&c, c_size + 1), ERR_NONE);
-
     ck_assert_int_eq(bus_write(bus, 0, data), ERR_BAD_PARAMETER);
 
     component_free(&c);

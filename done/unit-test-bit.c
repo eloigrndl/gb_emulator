@@ -105,6 +105,19 @@ START_TEST(handout_examples)
                   "msb8() failed on 0x%" PRIX16 ": got 0x%"
                   PRIX8 " instead of 0x%" PRIX8,
                   input3, result, expected);
+    input = 0xae;
+    expected = 0xaf;
+    result = input;
+    bit_edit(&result, 0, 1);
+    ck_assert_msg(result == expected,
+                  "bit_edit() failed on 0x%" PRIX16 ": got 0x%"
+                  PRIX8 " instead of 0x%" PRIX8,
+                  input, result, expected);
+    bit_edit(&result, 0, 0);
+    ck_assert_msg(result == input,
+                  "bit_edit() failed on 0x%" PRIX16 ": got 0x%"
+                  PRIX8 " instead of 0x%" PRIX8,
+                  input, result, expected);
 
 #ifdef WITH_PRINT
     printf("=== END of %s\n", __func__);
@@ -126,6 +139,30 @@ START_TEST(lsb4_exec)
         const uint8_t result = lsb4(input[i_]);
         ck_assert_msg(result == expected[i_],
                       "lsb4() failed on 0x%" PRIX8 ": got 0x%"
+                      PRIX8 " instead of 0x%" PRIX8,
+                      input[i_], result, expected[i_]);
+    }
+
+#ifdef WITH_PRINT
+    printf("=== END of %s\n", __func__);
+#endif
+}
+END_TEST
+
+START_TEST(msb4_exec)
+{
+// ------------------------------------------------------------
+#ifdef WITH_PRINT
+    printf("=== %s:\n", __func__);
+#endif
+    const uint8_t input   [] = {0xAB, 0x01, 0xF0, 0x11, 0xA9, 0x10};
+    const uint8_t expected[] = {0x0A, 0x00, 0x0F, 0x01, 0x0A, 0x01};
+    ASSERT_EQ_NB_EL(input, expected);
+
+    LOOP_ON(input) {
+        const uint8_t result = msb4(input[i_]);
+        ck_assert_msg(result == expected[i_],
+                      "msb4() failed on 0x%" PRIX8 ": got 0x%"
                       PRIX8 " instead of 0x%" PRIX8,
                       input[i_], result, expected[i_]);
     }
@@ -253,6 +290,33 @@ START_TEST(merge8_exec)
 }
 END_TEST
 
+START_TEST(merge4_exec)
+{
+// ------------------------------------------------------------
+#ifdef WITH_PRINT
+    printf("=== %s:\n", __func__);
+#endif
+
+    const uint8_t high     [] = {0xBA,   0xFF,   0xCC,   0x00,   0x11,   0xDC, 0x0A  };
+    const uint8_t low      [] = {  0xAB,   0x01,   0xF0,   0x11,   0xA9,   0x00, 0x0B};
+    const uint8_t expected[] = {0xAB, 0xF1, 0xC0, 0x01, 0x19, 0xC0, 0xAB};
+    ASSERT_EQ_NB_EL(low, expected);
+    ASSERT_EQ_NB_EL(high, expected);
+
+    LOOP_ON(low) {
+        const uint8_t result = merge4(low[i_], high[i_]);
+        ck_assert_msg(result == expected[i_],
+                      "merge4(0x%" PRIX8 ", 0x%" PRIX8 ") failed: got 0x%"
+                      PRIX8 " instead of 0x%" PRIX8,
+                      low[i_], high[i_], result, expected[i_]);
+    }
+
+#ifdef WITH_PRINT
+    printf("=== END of %s\n", __func__);
+#endif
+}
+END_TEST
+
 // ======================================================================
 Suite* bus_test_suite()
 {
@@ -267,9 +331,12 @@ Suite* bus_test_suite()
     Add_Case(s, tc1, "various bit tests");
     tcase_add_test(tc1, handout_examples);
     tcase_add_test(tc1, lsb4_exec);
+    tcase_add_test(tc1, msb4_exec);
     tcase_add_test(tc1, bit_rotate_exec);
     tcase_add_test(tc1, lsb8_msb8_exec);
     tcase_add_test(tc1, merge8_exec);
+    tcase_add_test(tc1, merge4_exec);
+
 
     return s;
 }

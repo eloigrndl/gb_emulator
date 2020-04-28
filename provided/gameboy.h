@@ -13,7 +13,6 @@
 
 #include "bus.h"
 #include "component.h"
-#include "cpu.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,14 +24,14 @@ extern "C" {
  * @brief Game Boy data structure.
  *        Regroups everything needed to simulate the Game Boy.
  */
- typedef struct{
-    bus_t bus;
-    component_t components[GB_NB_COMPONENTS];
-    cpu_t cpu;
- } gameboy_t; 
+/* TODO WEEK 06:
+ * Définir ici le type gameboy_t
+ * (et supprimer ces quatre lignes de commentaire).
+ */
 
 // Number of Game Boy cycles per second (= 2^20)
 #define GB_CYCLES_PER_S  (((uint64_t) 1) << 20)
+#define GB_TICS_PER_CYCLE 4
 
 /**
  * @brief Creates a gameboy
@@ -85,7 +84,6 @@ int gameboy_run_until(gameboy_t* gameboy, uint64_t cycle);
 
 
 // Memory-mapped "IO" registers
-#define REGS_START      0xFF00
 #define BLARGG_REG      0xFF01
 
 #define REGS_LCDC_START 0xFF40

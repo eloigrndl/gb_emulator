@@ -24,7 +24,7 @@ typedef uint8_t bit_t;
 /**
  * @brief Enumeration type of rotation directions: either LEFT or RIGHT
  */
-typedef enum {LEFT,RIGHT}rot_dir_t;
+typedef enum {LEFT, RIGHT} rot_dir_t;
 
 
 /**
@@ -104,7 +104,7 @@ uint8_t merge4(uint8_t v1, uint8_t v2);
 /**
 * @brief Extends an unsigned value from 8 to 16 bits
 */
-#define extend_u_16(v) merge8(0,v)
+#define extend_u_16(v) merge8(v,0)
 
 
 /**
