@@ -44,6 +44,9 @@ typedef struct{
     uint8_t IE;
     uint8_t IF;
     
+    addr_t write_listener;
+
+    //FIXME ok ?
     bit_t IME;
     bit_t HALT;
 

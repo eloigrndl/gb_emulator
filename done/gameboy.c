@@ -50,8 +50,13 @@ extern "C" {
 
         M_REQUIRE_NO_ERR(cpu_init(&(gameboy->cpu)));
         M_REQUIRE_NO_ERR(cpu_plug(&(gameboy->cpu), &(gameboy->bus)));
+
+        M_REQUIRE_NO_ERR(bootrom_init(&(gameboy->bootrom)));
+        M_REQUIRE_NO_ERR(bootrom_plug(&(gameboy->bootrom), &(gameboy->bus))); //FIXME is this okay
+
         return ERR_NONE;
     }
+
 
 // ==== see gameboy.h ========================================
 void gameboy_free(gameboy_t* gameboy){
@@ -67,6 +72,7 @@ int gameboy_run_until(gameboy_t* gameboy, uint64_t cycle){
         cpu_cycle(gameboy->cpu);
         //TODO: how to increment????????????????!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     }
+    M_REQUIRE_NO_ERR(bootrom_bus_listener(gameboy, REG_BOOT_ROM_DISABLE));
     return 0;
 }
 

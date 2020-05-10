@@ -26,11 +26,12 @@ extern "C" {
  *        Regroups everything needed to simulate the Game Boy.
  */
  typedef struct{
-      bus_t bus;
-      component_t components[GB_NB_COMPONENTS];
-      cpu_t cpu;
-      uint64_t cycles;
-
+    bus_t bus;
+    component_t components[GB_NB_COMPONENTS];
+    component_t bootrom;
+    bit_t boot;
+    cpu_t cpu;
+    uint64_t cycles;
  } gameboy_t; 
 
 // Number of Game Boy cycles per second (= 2^20)

@@ -53,7 +53,8 @@ void cpu_free(cpu_t* cpu)
 
     //freeing the high_ram
     bus_unplug(*(cpu->bus), &(cpu->high_ram));
-       component_free(&(cpu->high_ram));
+    component_free(&(cpu->high_ram));
+    &(cpu->high_ram) = NULL;
     
     (*(cpu->bus))[REG_IE] = NULL;
     (*(cpu->bus))[REG_IF] = NULL;
@@ -327,6 +328,7 @@ int cpu_cycle(cpu_t* cpu)
 
     if((cpu->HALT == 1 && is_pending(cpu) != 0 && cpu->idle_time == 0) || (cpu->HALT == 0 && cpu->idle_time == 0)){
         cpu->HALT = 0;
+        cpu->write_listener = 0;
         return cpu_do_cycle(cpu);
     } 
 
