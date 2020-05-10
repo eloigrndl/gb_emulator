@@ -26,7 +26,7 @@ LDLIBS += -lcheck -lm -lrt -pthread -lsubunit
 all::
 
 TARGETS := 
-CHECK_TARGETS := unit-test-bit unit-test-alu unit-test-bus unit-test-memory unit-test-component unit-test-cpu-dispatch-week08
+CHECK_TARGETS := unit-test-bit unit-test-alu unit-test-memory unit-test-component unit-test-bus unit-test-cpu-dispatch-week09 unit-test-cpu-dispatch-week09 test-cpu-week08
 OBJS =
 OBJS_NO_STATIC_TESTS =
 OBJS_STATIC_TESTS = 
@@ -91,22 +91,24 @@ unit-test-memory: unit-test-memory.o bit.o component.o bus.o memory.o error.o
 unit-test-component: unit-test-component.o component.o bus.o memory.o bit.o error.o
 unit-test-cpu: unit-test-cpu.o cpu.o cpu-registers.o cpu-storage.o alu.o bit.o bus.o component.o memory.o cpu-alu.o opcode.o error.o
 unit-test-cpu-dispatch-week08: unit-test-cpu-dispatch-week08.o cpu-registers.o cpu-storage.o alu.o bit.o bus.o component.o memory.o cpu-alu.o opcode.o error.o
-
+unit-test-cpu-dispatch-week09: unit-test-cpu-dispatch-week09.o cpu-registers.o cpu-storage.o alu.o bit.o bus.o component.o memory.o cpu-alu.o opcode.o error.o
+test-cpu-week08: opcode.o error.o cpu.o util.o cpu-storage.o bus.o cpu-alu.o alu.o bit.o cpu-registers.o component.o memory.o
 
 
 alu.o: alu.c alu.h bit.h error.h
 bit.o: bit.c bit.h
-bus.o: bus.c bus.h memory.h component.h error.h bit.h myMacros.h
+bus.o: bus.c bus.h memory.h component.h error.h bit.h myMacros.h cpu.h \
+ alu.h opcode.h
 component.o: component.c error.h component.h memory.h
 cpu-alu.o: cpu-alu.c error.h bit.h alu.h cpu-alu.h opcode.h cpu.h bus.h \
  memory.h component.h cpu-storage.h cpu-registers.h myMacros.h
 cpu-registers.o: cpu-registers.c cpu-registers.h cpu.h alu.h bit.h \
- error.h bus.h memory.h component.h myMacros.h
+ error.h bus.h memory.h component.h myMacros.h opcode.h
 cpu-storage.o: cpu-storage.c error.h cpu-storage.h memory.h opcode.h \
  bit.h cpu.h alu.h bus.h component.h cpu-registers.h gameboy.h util.h \
  myMacros.h
 cpu.o: cpu.c error.h opcode.h bit.h cpu.h alu.h bus.h memory.h \
- component.h cpu-alu.h cpu-registers.h util.h cpu-storage.h
+ component.h cpu-alu.h cpu-registers.h util.h cpu-storage.h myMacros.h
 error.o: error.c
 gameboy.o: gameboy.c error.h util.h gameboy.h bus.h memory.h component.h \
  cpu.h alu.h bit.h
@@ -125,10 +127,11 @@ unit-test-component.o: unit-test-component.c tests.h error.h bus.h \
 unit-test-cpu-dispatch-week08.o: unit-test-cpu-dispatch-week08.c tests.h \
  error.h alu.h bit.h cpu.h bus.h memory.h component.h opcode.h gameboy.h \
  util.h unit-test-cpu-dispatch.h cpu.c cpu-alu.h cpu-registers.h \
- cpu-storage.h
+ cpu-storage.h myMacros.h
 unit-test-cpu-dispatch-week09.o: unit-test-cpu-dispatch-week09.c tests.h \
  error.h alu.h bit.h cpu.h bus.h memory.h component.h opcode.h util.h \
- unit-test-cpu-dispatch.h cpu.c cpu-alu.h cpu-registers.h cpu-storage.h
+ unit-test-cpu-dispatch.h cpu.c cpu-alu.h cpu-registers.h cpu-storage.h \
+ myMacros.h
 unit-test-cpu.o: unit-test-cpu.c tests.h error.h alu.h bit.h opcode.h \
  util.h cpu.h bus.h memory.h component.h cpu-registers.h cpu-storage.h \
  cpu-alu.h

@@ -1,6 +1,7 @@
 {
     "files.associations": {
-        "unit-test-cpu-dispatch.h": "c"
+        "unit-test-cpu-dispatch.h": "c",
+        "inttypes.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

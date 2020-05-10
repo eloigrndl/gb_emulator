@@ -18,9 +18,10 @@ int bus_remap(bus_t bus, component_t* c, addr_t offset){
     M_REQUIRE_NON_NULL(c->mem);
     M_REQUIRE_NON_NULL(c->mem->memory);
     M_REQUIRE(c-> end - c->start + offset < c->mem->size, ERR_ADDRESS, "Memory size %lu too small", c->mem->size);
-    
-    for(int i = 0; i < c->mem -> size - offset; i++)
-        bus[c-> start+i] = &(c->mem->memory[offset+i]);
+
+    for(int i = 0; i < c->mem->size - offset; i++){
+        bus[c->start+i] = &(c->mem->memory[offset+i]);
+    }
         
     return ERR_NONE;
 }
@@ -30,11 +31,11 @@ int bus_forced_plug(bus_t bus, component_t* c, addr_t start, addr_t end, addr_t 
     M_REQUIRE_NON_NULL(c);
     M_REQUIRE((end >= start) && (end - start < BUS_SIZE), ERR_ADDRESS, "End %u and Start %u invalid", end, start);
     
-    error_code e = bus_remap(bus, c, offset);
-    c->start = (e == ERR_NONE) ? start : 0;
-    c->end = (e == ERR_NONE) ? end : 0;
+    c->start = start;
+    c->end = end;
+
+    M_EXIT_IF_ERR_DO_SOMETHING(bus_remap(bus, c, offset), c->start = 0; c->end = 0); // FIXME see if this is ok
     
-    return e;
 }
 
 
@@ -44,6 +45,7 @@ int bus_plug(bus_t bus, component_t* c, addr_t start, addr_t end){
     M_REQUIRE_NON_NULL(c);
     M_REQUIRE_NON_NULL(c->mem);
     M_REQUIRE((end >= start) && (end - start < BUS_SIZE) && (end - start < c->mem->size), ERR_ADDRESS, "End %u and Start %u invalid or Memory too small", start, end);
+
 
     for(int i = start; i <= end; i++)
         M_REQUIRE(bus[i] == NULL, ERR_ADDRESS, "Part of area already occupied: %d", i);
@@ -71,7 +73,7 @@ int bus_read(const bus_t bus, addr_t address, data_t* data){
     M_REQUIRE_NON_NULL(data);
     M_REQUIRE(address < BUS_SIZE, ERR_ADDRESS, "Address %d too big", address);
 
-    *data = bus[address] == NULL ? DEFAULT_READ_VALUE : *(bus[address]);
+    *data = bus[address] == NULL ? DEFAULT_READ_VALUE : *(bus)[address];
     return ERR_NONE;
 }
 
@@ -79,7 +81,7 @@ int bus_read(const bus_t bus, addr_t address, data_t* data){
 // ==== see bus.h ========================================
 int bus_read16(const bus_t bus, addr_t address, addr_t* data16){
     M_REQUIRE_NON_NULL(data16);
-    *data16 = (address >= 0xFFFF || bus[address] == NULL || bus[address+1] == NULL) ? DEFAULT_READ_VALUE : merge8(*(bus[address]), *(bus[address+1])); 
+    *data16 = (address >= 0xFFFF || bus[address] == NULL || bus[address+1] == NULL) ? DEFAULT_READ_VALUE : merge8(*(bus)[address], *(bus)[address+1]); 
     return ERR_NONE;
 }
 

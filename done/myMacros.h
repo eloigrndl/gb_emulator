@@ -10,6 +10,8 @@
 
 #include <stdint.h>
 #include "error.h"
+#include "cpu.h"
+#include "opcode.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -87,6 +89,19 @@ extern "C" {
 #define set_A_from_bus(cpu, idx) \
     cpu_A_set(cpu,  cpu_read_at_idx(cpu, idx))
 
+
+/**
+* @brief verify if a certain conditiion (cc) is verified or not
+* @param  cpu cpu that stores the flags
+* @param lu instruction to extract the condition
+* @return the condition is verified or not
+*/
+int verify_cc(cpu_t* cpu, const instruction_t* lu);
+
+/**
+* @brief check if an interruption is pending if the same bit is 1 in IF and in IE
+*/
+uint8_t is_pending(cpu_t* cpu);
 
 #ifdef __cplusplus
 }

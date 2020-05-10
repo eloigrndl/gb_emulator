@@ -168,17 +168,21 @@ int main(int argc, char *argv[])
     assert(sizeof(instructions) <= TEST_CARTRIDGE_SIZE);
     memcpy(c.mem->memory, instructions, sizeof(instructions));
 
+
     cpu_t cpu;
     zero_init_var(cpu);
     M_EXIT_IF_ERR(cpu_init(&cpu));
     M_EXIT_IF_ERR_DO_SOMETHING(bus_plug(bus, &c, 0, (addr_t)(TEST_CARTRIDGE_SIZE - 1)),
-                               component_free(&c));
+                               component_free(&c));     //TODO adapt for other methods too``
+
     M_EXIT_IF_ERR_DO_SOMETHING(cpu_plug(&cpu, &bus),
                                component_free(&c));
+
 
     error_code err = ERR_NONE;
     printf("Starting running CPU for %lu cycles\n", cycle);
     do {
+        
         fputs(cpu.idle_time >= 1 ? "Waiting to execute" : "Executing", stdout);
         data_t code = cpu_read_at_idx(&cpu, cpu.PC);
         uint8_t cycles = 0;

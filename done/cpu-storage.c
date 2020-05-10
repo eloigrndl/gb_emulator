@@ -22,7 +22,7 @@ data_t cpu_read_at_idx(const cpu_t* cpu, addr_t addr)
         return  DEFAULT_READ_VALUE;
 
     data_t data = 0;
-    M_REQUIRE_NO_ERR(bus_read(*(cpu->bus), addr, &data));                         
+    M_REQUIRE_NO_ERR(bus_read(*(cpu->bus), addr, &data)); 
     return data;
 }
 

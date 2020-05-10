@@ -258,8 +258,9 @@ START_TEST(test_cpu_init_exec)
 
     ck_assert_int_eq(cpu.alu.flags, 0);
     ck_assert_int_eq(cpu.alu.value, 0);
-
+    printf("yes boi\n");
     cpu_free(&cpu);
+    printf("yes after boi\n");
 #ifdef WITH_PRINT
     printf("=== END of %s\n", __func__);
 #endif
