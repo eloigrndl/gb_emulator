@@ -39,6 +39,7 @@ typedef struct{
     bus_t* bus;
     uint8_t idle_time;
     component_t high_ram;
+    addr_t write_listener;
 
     //FIXME ok ?
     bit_t IME;

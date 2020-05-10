@@ -33,8 +33,7 @@ addr_t cpu_read16_at_idx(const cpu_t* cpu, addr_t addr)
         return DEFAULT_READ_VALUE;
         
     addr_t data = 0;
-    bus_read16(*cpu->bus, addr, &data);  
-                
+    bus_read16(*cpu->bus, addr, &data);   
     return data;
 }
 
@@ -45,6 +44,7 @@ int cpu_write_at_idx(cpu_t* cpu, addr_t addr, data_t data)
     M_REQUIRE_NON_NULL(cpu->bus);
     
     M_REQUIRE_NO_ERR(bus_write(*(cpu->bus), addr, data));
+    cpu->write_listener = addr; 
     return ERR_NONE;
 }
 
@@ -55,6 +55,7 @@ int cpu_write16_at_idx(cpu_t* cpu, addr_t addr, addr_t data16)
     M_REQUIRE_NON_NULL(cpu->bus);
 
     M_REQUIRE_NO_ERR(bus_write16(*(cpu->bus), addr, data16));
+    cpu->write_listener = addr; 
     return ERR_NONE;
 }
 

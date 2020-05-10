@@ -44,8 +44,8 @@ void cpu_free(cpu_t* cpu)
     cpu->bus = NULL;
 
     //freeing the high_ram
-    component_free(&(cpu->component));
-    &(cpu->component) = NULL.
+    component_free(&(cpu->high_ram));
+    &(cpu->high_ram) = NULL;
     return;
     
 }
@@ -300,6 +300,7 @@ int cpu_cycle(cpu_t* cpu)
 
     if(cpu->HALT == 1 && is_pending(cpu) != 0 && cpu->idle_time == 0){
         cpu->HALT = 0;
+        cpu->write_listener = 0;
         return cpu_do_cycle(cpu);
     }
 

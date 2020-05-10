@@ -32,6 +32,9 @@ extern "C" {
     M_REQUIRE_NO_ERR(component_create(echo_ram, 0));
     M_REQUIRE_NO_ERR(component_shared(echo_ram, &(gameboy->components[0])));
     M_REQUIRE_NO_ERR(bus_plug(gameboy->bus, echo_ram, ECHO_RAM_START, ECHO_RAM_END));   //TODO: free components in case of error (use intermediate gameboy, assign only if everything worked)
+
+    M_REQUIRE_NO_ERR(bootrom_init(&(gameboy->bootrom)));
+    M_REQUIRE_NO_ERR(bootrom_plug(&(gameboy->bootrom), &(gameboy->bus))); //FIXME is this okay
     return ERR_NONE;
 }
 
@@ -45,6 +48,7 @@ void gameboy_free(gameboy_t* gameboy){
 
 // ==== see gameboy.h ========================================
 int gameboy_run_until(gameboy_t* gameboy, uint64_t cycle){
+    M_REQUIRE_NO_ERR(bootrom_bus_listener(gameboy, REG_BOOT_ROM_DISABLE));
     return 0;
 }
 
