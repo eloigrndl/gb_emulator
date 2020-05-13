@@ -54,7 +54,6 @@ void cpu_free(cpu_t* cpu)
     //freeing the high_ram
     bus_unplug(*(cpu->bus), &(cpu->high_ram));
     component_free(&(cpu->high_ram));
-    &(cpu->high_ram) = NULL;
     
     (*(cpu->bus))[REG_IE] = NULL;
     (*(cpu->bus))[REG_IF] = NULL;
@@ -75,6 +74,7 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
 {
     M_REQUIRE_NON_NULL(lu);
     M_REQUIRE_NON_NULL(cpu);   
+
 
     cpu->idle_time += lu->cycles - 1;
     //FIXME sure about this ?
@@ -280,6 +280,8 @@ static int cpu_do_cycle(cpu_t* cpu)
     M_REQUIRE_NON_NULL(cpu);
     uint8_t pendings = is_pending(cpu);
 
+    //printf("EXCEPTION : %d and IME : %d and HALT : %d\n", pendings, cpu->IME, cpu->HALT);
+
     //if there are oendings interruption
     if(cpu->IME != 0 && pendings != 0){
         //set IME to zero
@@ -290,7 +292,7 @@ static int cpu_do_cycle(cpu_t* cpu)
         while(bit_get(pendings, index) != 1){
             ++index;
         }
-
+        //printf("index of exception : %d \n", index);
         //unsetting the corresponding bit in IF
         bit_unset(&(cpu->IF), index);
 
@@ -303,9 +305,10 @@ static int cpu_do_cycle(cpu_t* cpu)
         //adding 5 cycles to idle_time
         cpu->idle_time += 5;
 
+        cpu->IME = 1;
         return ERR_NONE;
     } else {
-        data_t bin = cpu_read_at_idx(cpu, cpu -> PC);
+        data_t bin = cpu_read_at_idx(cpu, cpu->PC);
         const instruction_t* instr;
 
         if(bin == 0xCB){
@@ -314,7 +317,7 @@ static int cpu_do_cycle(cpu_t* cpu)
         } else {
             instr = &instruction_direct[bin];
         }
-
+        
         return cpu_dispatch(instr, cpu);
     }
 }
@@ -326,9 +329,11 @@ int cpu_cycle(cpu_t* cpu)
     M_REQUIRE_NON_NULL(cpu);
     M_REQUIRE_NON_NULL(cpu->bus);
 
+    //fprintf(stderr, "EXCEPTIONS : %d\n", cpu_read_at_idx(cpu, REG_IE));
+
     if((cpu->HALT == 1 && is_pending(cpu) != 0 && cpu->idle_time == 0) || (cpu->HALT == 0 && cpu->idle_time == 0)){
         cpu->HALT = 0;
-        cpu->write_listener = 0;
+        cpu->write_listener = 0;    //FIXME outside of if or not? 
         return cpu_do_cycle(cpu);
     } 
 

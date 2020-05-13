@@ -65,9 +65,11 @@ int cpu_SP_push(cpu_t* cpu, addr_t addr)
     M_REQUIRE_NON_NULL(cpu);
     M_REQUIRE_NON_NULL(cpu->bus);
     
+    uint16_t temp = cpu->SP - WORD_SIZE; 
+    
+    M_REQUIRE_NO_ERR(cpu_write16_at_idx(cpu, temp, addr));
     cpu->SP -= WORD_SIZE; 
 
-    M_REQUIRE_NO_ERR(cpu_write16_at_idx(cpu, cpu->SP, addr));
     return ERR_NONE;
 }
 

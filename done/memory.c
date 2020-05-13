@@ -28,7 +28,13 @@ int mem_create(memory_t* mem, size_t size){
 
 // ==== see memory.h ========================================
 void mem_free(memory_t* mem){
-    if(mem == NULL || mem->memory == NULL) return;
+    if(mem == NULL)
+        return;
+    mem->size = 0;
+     
+    if(mem->memory == NULL) 
+        return;
+
     free(mem->memory);
     mem -> memory = NULL;
     mem -> size = 0;

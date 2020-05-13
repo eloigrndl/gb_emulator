@@ -13,30 +13,44 @@
 
 #include "bus.h"
 #include "component.h"
+#include "cartridge.h"
 #include "cpu.h"
+#include "timer.h"
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+// Number of Game Boy cycles per second (= 2^20)
+#define GB_CYCLES_PER_S  (((uint64_t) 1) << 20)
+#define GB_TICS_PER_CYCLE 4
 #define GB_NB_COMPONENTS 6
 
 /**
  * @brief Game Boy data structure.
  *        Regroups everything needed to simulate the Game Boy.
  */
+ 
  typedef struct{
     bus_t bus;
     component_t components[GB_NB_COMPONENTS];
+    size_t nb_connected;
     component_t bootrom;
     bit_t boot;
     cpu_t cpu;
     uint64_t cycles;
+    cartridge_t cartridge;
+    gbtimer_t timer;
+
+    uint8_t DIV;
+    uint8_t TAC;
+    uint8_t TIMA;
+    uint8_t TMA;
+
  } gameboy_t; 
 
-// Number of Game Boy cycles per second (= 2^20)
-#define GB_CYCLES_PER_S  (((uint64_t) 1) << 20)
-
+ 
 /**
  * @brief Creates a gameboy
  *
@@ -88,7 +102,6 @@ int gameboy_run_until(gameboy_t* gameboy, uint64_t cycle);
 
 
 // Memory-mapped "IO" registers
-#define REGS_START      0xFF00
 #define BLARGG_REG      0xFF01
 
 #define REGS_LCDC_START 0xFF40

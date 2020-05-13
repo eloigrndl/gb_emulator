@@ -46,7 +46,6 @@ typedef struct{
     
     addr_t write_listener;
 
-    //FIXME ok ?
     bit_t IME;
     bit_t HALT;
 

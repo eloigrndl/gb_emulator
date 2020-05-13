@@ -35,9 +35,11 @@ int component_shared(component_t* c, component_t* c_old){
     M_REQUIRE_NON_NULL(c);
     M_REQUIRE_NON_NULL(c_old);
 
-    c -> mem = c_old -> mem;
-    c -> start = 0;
-    c -> end = 0;
+
+
+    c->mem = c_old->mem;
+    c->start = 0;
+    c->end = 0;
 
     return ERR_NONE; 
 }
@@ -45,14 +47,18 @@ int component_shared(component_t* c, component_t* c_old){
 
 // ==== see component.h ========================================
 void component_free(component_t* c){
-    if(c == NULL || c->mem == NULL) return;
+    if(c == NULL)
+        return;
+        
+    c->start = 0;
+    c->end = 0;
+
+    if(c->mem == NULL) 
+        return;
     
     mem_free(c->mem);
     free(c->mem);
     c->mem = NULL;
-
-    c-> start = 0;
-    c-> end = 0;
 
     return;
 }

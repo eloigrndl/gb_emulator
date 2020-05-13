@@ -29,7 +29,7 @@ typedef uint16_t addr_t;
 typedef struct{
     data_t* memory;
     size_t size;
-}memory_t;
+} memory_t;
 
 /**
  * @brief Creates memory structure

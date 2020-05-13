@@ -54,7 +54,7 @@ const opcode_t instructions[] = {
     0x00,       // NOP
     0x33,       // INC SP       (INC_R16SP)    ---> ++SP : 6
     0x39,       // ADD HL, SP   (ADD_HL_R16SP) --->  HL = 0x03 + 0x06 = 0x09
-    0xBD,       // CP A, L      (CP_A_R8)      ---> A > 9  --> F = Z1HC0000b = 01010000b = 0x60
+    0xBD,       // CP A, L      (CP_A_R8)      ---> A > 9  --> F = Z1HC0000b = 01100000b = 0x60
     0x00,       // NOP
     0xCB, 0xC7, // SET 0, A     (CHG_U3_R8)    ---> A = A & 0x01 = 0x51
     0x00,       // NOP
@@ -168,21 +168,17 @@ int main(int argc, char *argv[])
     assert(sizeof(instructions) <= TEST_CARTRIDGE_SIZE);
     memcpy(c.mem->memory, instructions, sizeof(instructions));
 
-
     cpu_t cpu;
     zero_init_var(cpu);
     M_EXIT_IF_ERR(cpu_init(&cpu));
     M_EXIT_IF_ERR_DO_SOMETHING(bus_plug(bus, &c, 0, (addr_t)(TEST_CARTRIDGE_SIZE - 1)),
-                               component_free(&c));     //TODO adapt for other methods too``
-
+                               component_free(&c));
     M_EXIT_IF_ERR_DO_SOMETHING(cpu_plug(&cpu, &bus),
                                component_free(&c));
-
 
     error_code err = ERR_NONE;
     printf("Starting running CPU for %lu cycles\n", cycle);
     do {
-        
         fputs(cpu.idle_time >= 1 ? "Waiting to execute" : "Executing", stdout);
         data_t code = cpu_read_at_idx(&cpu, cpu.PC);
         uint8_t cycles = 0;

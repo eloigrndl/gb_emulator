@@ -19,6 +19,7 @@ int bus_remap(bus_t bus, component_t* c, addr_t offset){
     M_REQUIRE_NON_NULL(c->mem->memory);
     M_REQUIRE(c-> end - c->start + offset < c->mem->size, ERR_ADDRESS, "Memory size %lu too small", c->mem->size);
 
+
     for(int i = 0; i < c->mem->size - offset; i++){
         bus[c->start+i] = &(c->mem->memory[offset+i]);
     }
@@ -35,20 +36,20 @@ int bus_forced_plug(bus_t bus, component_t* c, addr_t start, addr_t end, addr_t 
     c->end = end;
 
     M_EXIT_IF_ERR_DO_SOMETHING(bus_remap(bus, c, offset), c->start = 0; c->end = 0); // FIXME see if this is ok
-    
+    return ERR_NONE;
 }
 
 
 // ==== see bus.h ========================================
 int bus_plug(bus_t bus, component_t* c, addr_t start, addr_t end){
-    
     M_REQUIRE_NON_NULL(c);
     M_REQUIRE_NON_NULL(c->mem);
     M_REQUIRE((end >= start) && (end - start < BUS_SIZE) && (end - start < c->mem->size), ERR_ADDRESS, "End %u and Start %u invalid or Memory too small", start, end);
 
 
-    for(int i = start; i <= end; i++)
+    for(int i = start; i <= end; i++){
         M_REQUIRE(bus[i] == NULL, ERR_ADDRESS, "Part of area already occupied: %d", i);
+    }
 
     return bus_forced_plug(bus, c, start, end, 0);
 }

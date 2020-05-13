@@ -1,14 +1,13 @@
-#pragma once
-
 /**
  * @file cartridge.c
  * @brief Game Boy Cartridge simulation header
  *
- * @author Eloi GARANDEL, Eric Wengle EPFL
+ * @author Eloi Garandel, Erik Wengle EPFL
  * @date 05/2020
  */
 
 #include <stdint.h>
+#include <stdio.h>
 
 #include "component.h"
 #include "bus.h"
@@ -27,9 +26,34 @@ extern "C" {
  * @return error code
  */
 int cartridge_init_from_file(component_t* c, const char* filename){
-    M_REQUIRE_NON_NULL_CUSTOM_ERR(c, ERR_BAD_PARAMETER);
-    M_REQUIRE_NON_NULL_CUSTOM_ERR(filename, ERR_BAD_PARAMETER);
-    //FIXME idon't know what to do
+    M_REQUIRE_NON_NULL(c);
+    M_REQUIRE_NON_NULL(filename);
+
+
+    //FIXME: treat problems
+    FILE* file = fopen(filename, "rb");
+    M_REQUIRE_NON_NULL_CUSTOM_ERR(file, ERR_IO);
+    
+    
+    if(c->mem->memory == NULL){
+        fclose(file);
+        return ERR_IO;
+    }
+
+
+    if(ferror(file) || fread(c->mem->memory, 1, BANK_ROM_SIZE, file) < BANK_ROM_SIZE){
+        fclose(file);
+        return ERR_IO;
+    }
+
+    if(c->mem->memory[CARTRIDGE_TYPE_ADDR] != 0){
+        fclose(file);
+        return ERR_NOT_IMPLEMENTED;
+    }
+
+    fclose(file);
+    return ERR_NONE;
+
 }
 
 
@@ -59,6 +83,7 @@ int cartridge_init(cartridge_t* ct, const char* filename){
  */
 int cartridge_plug(cartridge_t* ct, bus_t bus){
     M_REQUIRE_NON_NULL(ct);
+    M_REQUIRE_NON_NULL(bus); //FIXME ???? shouldn't we rather check size?
 
     M_REQUIRE_NO_ERR(bus_forced_plug(bus, &(ct->c), BANK_ROM0_START, BANK_ROM1_END, 0));
     return ERR_NONE;
@@ -71,10 +96,10 @@ int cartridge_plug(cartridge_t* ct, bus_t bus){
  * @param ct cartridge to free
  */
 void cartridge_free(cartridge_t* ct){
-    M_REQUIRE_NON_NULL(ct);
+    if(ct == NULL) return;
 
-    M_REQUIRE_NO_ERR(component_free(&(ct->c)));
-    return ERR_NONE;
+   component_free(&(ct->c));
+   return;
 }
 
 #ifdef __cplusplus
