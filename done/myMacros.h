@@ -101,7 +101,7 @@ int verify_cc(cpu_t* cpu, const instruction_t* lu);
 /**
 * @brief check if an interruption is pending if the same bit is 1 in IF and in IE
 */
-uint8_t is_pending(cpu_t* cpu);
+uint8_t pending_interruptions(cpu_t* cpu);
 
 #ifdef __cplusplus
 }

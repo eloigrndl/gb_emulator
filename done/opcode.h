@@ -16,8 +16,16 @@ extern "C" {
 #endif
 
 //=========================================================================
+
+/**
+ * @brief Type to represent opcode
+ */
 typedef uint8_t opcode_t;
 
+
+/**
+ * @brief Type to represent kind of an instruction
+ */
 typedef enum {
     DIRECT = 0x00, PREFIXED = 0xCB
 } opcode_kind;
@@ -188,9 +196,9 @@ typedef enum {
  * @brief Type to represent Instruction
  */
 typedef struct{
-    opcode_t opcode;
     opcode_kind kind;
     opcode_family family;
+    opcode_t opcode;
     uint8_t bytes;
     uint8_t cycles;
     uint8_t xtra_cycles; 
@@ -201,7 +209,6 @@ typedef struct{
   { .kind=Kind, .family=Family, .opcode=Code, .bytes=Bytes, .cycles=Cycles, .xtra_cycles=Xtra }
 #define INSTR_DEF(Kind, Family, Code, Bytes, Cycles) \
     INSTR_DFX(Kind, Family, Code, Bytes, Cycles, 0)
-
 /**
  * @brief All (500) Game Boy CPU instructions
  *
@@ -779,3 +786,4 @@ const instruction_t instruction_direct[256], instruction_prefixed[256];
 #ifdef __cplusplus
 }
 #endif
+

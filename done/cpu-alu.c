@@ -116,6 +116,7 @@ static void do_set_or_res(const instruction_t* lu, data_t* data)
 int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
 {
     M_REQUIRE_NON_NULL(cpu);
+    M_REQUIRE_NON_NULL(lu);
 
     switch (lu->family) {
 

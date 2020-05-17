@@ -22,7 +22,6 @@ int component_create(component_t* c, size_t mem_size){
         M_EXIT_IF_NULL(c->mem = calloc(1, sizeof(memory_t)), sizeof(memory_t)); 
         M_REQUIRE_NO_ERR(mem_create(c->mem, mem_size)); 
     }
-    
     c->start = 0;
     c->end = 0;
     
@@ -34,8 +33,7 @@ int component_create(component_t* c, size_t mem_size){
 int component_shared(component_t* c, component_t* c_old){
     M_REQUIRE_NON_NULL(c);
     M_REQUIRE_NON_NULL(c_old);
-
-
+    M_REQUIRE_NON_NULL(c_old->mem);
 
     c->mem = c_old->mem;
     c->start = 0;

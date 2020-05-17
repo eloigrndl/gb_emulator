@@ -20,9 +20,8 @@
 // ==== see cpu.h ========================================
 int cpu_init(cpu_t* cpu)
 {
-    M_REQUIRE_NON_NULL(cpu);        
+    M_REQUIRE_NON_NULL(cpu); 
     zero_init_ptr(cpu);
-    
     M_REQUIRE_NO_ERR(component_create(&(cpu->high_ram), HIGH_RAM_SIZE));
 
     return ERR_NONE;
@@ -36,9 +35,10 @@ int cpu_plug(cpu_t* cpu, bus_t* bus)
 
     
     cpu->bus = bus; 
-    bus_plug(*bus, &(cpu->high_ram), HIGH_RAM_START, HIGH_RAM_END);
+    M_REQUIRE_NO_ERR(bus_plug(*bus, &(cpu->high_ram), HIGH_RAM_START, HIGH_RAM_END));
     
-    //TODO: check that these two not occupied
+
+    //TODO: need to check whether occupied or not?
     (*(cpu->bus))[REG_IE] = &(cpu->IE);
     (*(cpu->bus))[REG_IF] = &(cpu->IF);
 
@@ -48,15 +48,20 @@ int cpu_plug(cpu_t* cpu, bus_t* bus)
 // ==== see cpu.h =======================================
 void cpu_free(cpu_t* cpu)
 {
-    if(cpu == NULL) return;  
-    
 
-    //freeing the high_ram
-    bus_unplug(*(cpu->bus), &(cpu->high_ram));
-    component_free(&(cpu->high_ram));
+    if(cpu == NULL) return;
+    if(cpu->bus == NULL) {
+        component_free(&(cpu->high_ram));
+        return;
+    }
     
     (*(cpu->bus))[REG_IE] = NULL;
     (*(cpu->bus))[REG_IF] = NULL;
+    
+    //freeing the high_ram
+    
+    bus_unplug(*(cpu->bus), &(cpu->high_ram));
+    component_free(&(cpu->high_ram));
 
     cpu->bus = NULL;
     return;
@@ -70,14 +75,17 @@ void cpu_free(cpu_t* cpu)
  *
  * See opcode.h and cpu.h
  */
+//TODO: macros for instructions (also add to myMacros)
 static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
 {
     M_REQUIRE_NON_NULL(lu);
     M_REQUIRE_NON_NULL(cpu);   
 
 
-    cpu->idle_time += lu->cycles - 1;
     //FIXME sure about this ?
+    cpu->idle_time += lu->cycles - 1;
+    cpu->alu.value = 0; //TODO: set in macro - check also for resetting alu values
+    cpu->alu.flags = 0;
 
     switch (lu->family) {
 
@@ -130,8 +138,6 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
     case DAA:
     case SCCF:
         M_EXIT_IF_ERR(cpu_dispatch_alu(lu, cpu));
-        cpu->alu.value = 0; //TODO: set in macro - check also for resetting alu values
-        cpu->alu.flags = 0;
         cpu->PC += lu->bytes;
         break;
 
@@ -159,8 +165,6 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
     case POP_R16:
     case PUSH_R16:
         M_EXIT_IF_ERR(cpu_dispatch_storage(lu, cpu));
-        cpu->alu.value = 0;
-        cpu->alu.flags = 0;
         cpu->PC += lu->bytes;
         break;
 
@@ -169,9 +173,10 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
     case JP_CC_N16:
         if(verify_cc(cpu, lu)){
             cpu->PC = cpu_read_addr_after_opcode(cpu);
+            cpu->idle_time += lu->xtra_cycles;
+
         } else{
             cpu->PC += lu->bytes; 
-            cpu->idle_time += lu->xtra_cycles;
         }
         break;
     
@@ -185,11 +190,12 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
         break;
 
     case JR_CC_E8:
+        //TODO: simplify with macro
         if(verify_cc(cpu, lu)){
             cpu->PC += lu->bytes + (int8_t) cpu_read_data_after_opcode(cpu);
+            cpu->idle_time += lu->xtra_cycles;
         } else{
              cpu->PC += lu->bytes;
-             cpu->idle_time += lu->xtra_cycles;
         }
         
         break;
@@ -201,12 +207,12 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
 
     // CALLS
     case CALL_CC_N16:
-        if(verify_cc(cpu, lu)){
+        if(verify_cc(cpu, lu)){ 
             cpu_SP_push(cpu, cpu->PC +lu->bytes);  
             cpu->PC = cpu_read_addr_after_opcode(cpu);
+            cpu->idle_time += lu->xtra_cycles;
         } else{
             cpu->PC += lu->bytes;
-            cpu->idle_time += lu->xtra_cycles;
         }
 
         break;
@@ -215,7 +221,6 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
         cpu_SP_push(cpu, cpu->PC + lu->bytes);
         cpu->PC = cpu_read_addr_after_opcode(cpu);
         break;
-    //FIXME: => halt: boolean value, PC': macros, two's complement not working (test with blargg later)
 
     // RETURN (from call)
     case RET:
@@ -223,11 +228,11 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
         break;
 
     case RET_CC:
-        if(verify_cc(cpu, lu))
+        if(verify_cc(cpu, lu)){
             cpu->PC = cpu_SP_pop(cpu);
-        else{
-            cpu->PC += lu->bytes;
             cpu->idle_time += lu->xtra_cycles;
+        } else {
+            cpu->PC += lu->bytes;
         }
         break;
 
@@ -239,7 +244,8 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
 
     // INTERRUPT & MISC.
     case EDI:
-        cpu->IME = bit_get(lu->opcode, OPCODE_IME_IDX);
+        cpu->IME = extract_ime(lu->opcode);
+        cpu->PC += lu->bytes;
         break;
 
     case RETI:
@@ -248,7 +254,8 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
         break;
 
     case HALT:
-        cpu->HALT = 1;  //TODO: make big if
+        cpu->HALT = 1;
+        cpu->PC += lu->bytes;
         break;
 
     case STOP:
@@ -278,21 +285,18 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
 static int cpu_do_cycle(cpu_t* cpu)
 {
     M_REQUIRE_NON_NULL(cpu);
-    uint8_t pendings = is_pending(cpu);
+    uint8_t pendings = pending_interruptions(cpu);
 
-    //printf("EXCEPTION : %d and IME : %d and HALT : %d\n", pendings, cpu->IME, cpu->HALT);
-
-    //if there are oendings interruption
+    //if there are pending interruptions
     if(cpu->IME != 0 && pendings != 0){
         //set IME to zero
         cpu->IME = 0;
-
         //get the index of rightmost set bit of pending interruptions
         size_t index = 0;
         while(bit_get(pendings, index) != 1){
             ++index;
         }
-        //printf("index of exception : %d \n", index);
+
         //unsetting the corresponding bit in IF
         bit_unset(&(cpu->IF), index);
 
@@ -309,9 +313,10 @@ static int cpu_do_cycle(cpu_t* cpu)
         return ERR_NONE;
     } else {
         data_t bin = cpu_read_at_idx(cpu, cpu->PC);
+        
         const instruction_t* instr;
 
-        if(bin == 0xCB){
+        if(bin == PREFIXED){
             bin =  cpu_read_data_after_opcode(cpu);
             instr = &instruction_prefixed[bin];
         } else {
@@ -328,16 +333,15 @@ int cpu_cycle(cpu_t* cpu)
 {
     M_REQUIRE_NON_NULL(cpu);
     M_REQUIRE_NON_NULL(cpu->bus);
+    
+    cpu->write_listener = 0;    //FIXME outside of if or not? 
 
-    //fprintf(stderr, "EXCEPTIONS : %d\n", cpu_read_at_idx(cpu, REG_IE));
-
-    if((cpu->HALT == 1 && is_pending(cpu) != 0 && cpu->idle_time == 0) || (cpu->HALT == 0 && cpu->idle_time == 0)){
+    if((cpu->HALT == 1 && pending_interruptions(cpu) != 0 && cpu->idle_time == 0) || (cpu->HALT == 0 && cpu->idle_time == 0)){
         cpu->HALT = 0;
-        cpu->write_listener = 0;    //FIXME outside of if or not? 
         return cpu_do_cycle(cpu);
     } 
 
-    if(cpu->idle_time > 0){ //FIXME: decrement idle time in both cases or just when not halted?s
+    if(cpu->idle_time > 0){
         cpu->idle_time -=1;
     }
     return ERR_NONE;
@@ -351,30 +355,15 @@ void cpu_request_interrupt(cpu_t* cpu, interrupt_t i){
 }
 
 
-
-
-//FIXME add also in cpu.h
 /**
 * @brief verify if a certain conditiion (cc) is verified or not
 * @param  lu instruction to extract the condition
 * @return the condition is verified or not
 */
 int verify_cc(cpu_t* cpu, const instruction_t* lu){
-    switch(extract_cc(lu->opcode)){
-        case 0 :
-            return get_Z(cpu->F) == 0;
-
-        case 1 :
-            return get_Z(cpu->F) != 0;
-
-        case 2 :
-            return get_C(cpu->F) == 0;
-
-        case 3 :
-            return get_C(cpu->F) != 0;
-        default:
-            return 0;
-    }
+    uint8_t cc = extract_cc(lu->opcode);
+    flag_bit_t flag = bit_get(cc, 1) == 1 ? get_C(cpu->F) : get_Z(cpu->F);
+    return bit_get(cc, 0) == 1 ? (flag != 0) : (flag == 0);
 }
 
 //FIXME put also in cpu.h or define ??
@@ -382,6 +371,6 @@ int verify_cc(cpu_t* cpu, const instruction_t* lu){
 * @brief check if an interruption is pending ;:
          if the same bit is 1 in IF and in IE
 */
-uint8_t is_pending(cpu_t* cpu){
+uint8_t pending_interruptions(cpu_t* cpu){
     return (cpu_read_at_idx(cpu, REG_IF) & cpu_read_at_idx(cpu, REG_IE));
 }

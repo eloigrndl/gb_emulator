@@ -19,6 +19,18 @@
 extern "C" {
 #endif
 
+    #ifdef BLARGG
+        int blargg_bus_listener(gameboy_t* gameboy, addr_t addr){
+            M_REQUIRE_NON_NULL(gameboy);
+
+           // printf("Expected: %X, received: %x\n", BLARGG_REG, addr);
+            if(BLARGG_REG == addr){
+                printf("%c", *(gameboy->bus[BLARGG_REG]));
+            }
+            return ERR_NONE;
+        }
+    #endif
+
 // ==== see gameboy.h ========================================
     int gameboy_create(gameboy_t* gameboy, const char* filename){
         M_REQUIRE_NON_NULL(gameboy);
@@ -36,7 +48,8 @@ extern "C" {
         M_EXIT_IF_NULL(echo_ram = calloc(1, sizeof(component_t)), sizeof(component_t));
         M_REQUIRE_NO_ERR(component_create(echo_ram, 0));
         M_REQUIRE_NO_ERR(component_shared(echo_ram, &(gameboy->components[0])));
-        
+        ++gameboy->nb_connected;
+
         echo_ram->mem->size = MEM_SIZE(ECHO_RAM);
         M_REQUIRE_NO_ERR(bus_plug(gameboy->bus, echo_ram, ECHO_RAM_START, ECHO_RAM_END));   //TODO intermediate gameboy
         free(echo_ram);
@@ -63,9 +76,6 @@ extern "C" {
 
         M_REQUIRE_NO_ERR(cpu_init(&(gameboy->cpu)));
         M_REQUIRE_NO_ERR(cpu_plug(&(gameboy->cpu), &(gameboy->bus)));
-        ++gameboy->nb_connected;
-        
-        
         
         gameboy->DIV = 0;
         gameboy->TAC = 0;
@@ -85,9 +95,7 @@ extern "C" {
         gameboy->boot = 1;
         M_REQUIRE_NO_ERR(bootrom_init(&(gameboy->bootrom)));
         M_REQUIRE_NO_ERR(bootrom_plug(&(gameboy->bootrom), gameboy->bus));
-        
-        //FIXME: how to plug cartridge correctly?
-        //FIXME: seg fault??
+        gameboy->cpu.IME = 1;
 
         return ERR_NONE;
     }
@@ -95,20 +103,19 @@ extern "C" {
     // ==== see gameboy.h ========================================
     void gameboy_free(gameboy_t* gameboy){
         if(gameboy == NULL) return;
-
+        
         for(int i = 0; i < gameboy->nb_connected; ++i){
+            bus_unplug(gameboy->bus, &(gameboy->components[i]));
             component_free(&(gameboy->components[i]));
         }
 
-
-        cpu_free(&(gameboy->cpu));
-        cartridge_free(&(gameboy->cartridge)); //TODO: need to free other stuff too?
-        component_free(&(gameboy->bootrom));
-        
-        //FIXME: need to unplug differently?
-        for(int i = 0; i < BUS_SIZE; i++){
+        for(int i = ECHO_RAM_START; i <= ECHO_RAM_END; ++i)
             gameboy->bus[i] = NULL;
-        }
+        
+        gameboy->nb_connected = 0;
+        cpu_free(&(gameboy->cpu));
+        cartridge_free(&(gameboy->cartridge));
+        component_free(&(gameboy->bootrom));        
     }
 
 
@@ -116,6 +123,7 @@ extern "C" {
     int gameboy_run_until(gameboy_t* gameboy, uint64_t cycle){
         M_REQUIRE_NON_NULL(gameboy);
         while(gameboy->cycles < cycle){
+            
             /*
            printf("========================================\n"); fflush(stdout);
            printf("Running cycle %ld \n", gameboy->cycles); fflush(stdout);
@@ -125,17 +133,22 @@ extern "C" {
 
            M_REQUIRE_NO_ERR(timer_cycle(&(gameboy->timer)));
            M_REQUIRE_NO_ERR(cpu_cycle(&(gameboy->cpu)));
-           M_REQUIRE_NO_ERR(bootrom_bus_listener(gameboy, (gameboy->cpu).write_listener));
-           gameboy->cycles++;
 
-            //just for the test
-            if(gameboy->cycles%17556 == 5) 
-                cpu_request_interrupt(&(gameboy->cpu), VBLANK);
-         
+           M_REQUIRE_NO_ERR(timer_bus_listener(&(gameboy->timer), (gameboy->cpu).write_listener));
+           M_REQUIRE_NO_ERR(bootrom_bus_listener(gameboy, (gameboy->cpu).write_listener));
+           
+           #ifdef BLARGG
+                M_REQUIRE_NO_ERR(blargg_bus_listener(gameboy, (gameboy->cpu).write_listener));
+                if(gameboy->cycles%17556 == 0 && gameboy->cycles > 0){
+                    cpu_request_interrupt(&(gameboy->cpu), VBLANK);
+                }
+           #endif
+           
+           gameboy->cycles++;
+           //printf("PC: %d\n", gameboy->cpu.PC);
         }
         return ERR_NONE;
     } 
-
 
 
 #ifdef __cplusplus

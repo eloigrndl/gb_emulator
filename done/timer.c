@@ -22,7 +22,7 @@
 extern "C" {
 #endif
 
-
+//TODO
 bit_t timer_state(gbtimer_t* timer);
 int timer_incr_if_state_change(gbtimer_t* timer, bit_t old_state);
 
@@ -80,19 +80,7 @@ bit_t timer_state(gbtimer_t* timer){
     bit_t TAC_bit = bit_get(current_state, 2);
     uint8_t two_lsb = current_state & 0x3;
 
-    switch(two_lsb){
-        case 0 : 
-            return TAC_bit & bit_get(msb8(timer->counter), 1);
-        case 1 :
-            return TAC_bit & bit_get(timer->counter, 3);
-        case 2 :
-            return TAC_bit & bit_get(timer->counter, 5);
-        case 3 :
-            return TAC_bit & bit_get(timer->counter, 7);
-        default: return 0;
-    }
-   
-    return 0;
+    return TAC_bit & (two_lsb == 0 ? bit_get(msb8(timer->counter), 1) : bit_get(timer->counter, 2 * two_lsb + 1));
 }
 
 
@@ -106,14 +94,13 @@ bit_t timer_state(gbtimer_t* timer){
 int timer_bus_listener(gbtimer_t* timer, addr_t addr){
 	M_REQUIRE_NON_NULL(timer);
     M_REQUIRE_NON_NULL(timer->cpu);
-    
+
     switch(addr){
         case REG_DIV:   timer->counter = 0;
                         M_REQUIRE_NO_ERR(cpu_write_at_idx(timer->cpu, REG_DIV, 0));
-                        break;
         case REG_TAC:
 						M_REQUIRE_NO_ERR(timer_incr_if_state_change(timer, timer_state(timer)));
-                        break;
+        default:        return ERR_NONE;
     }
     
     return ERR_NONE;
@@ -126,13 +113,13 @@ int timer_bus_listener(gbtimer_t* timer, addr_t addr){
 int timer_incr_if_state_change(gbtimer_t* timer, bit_t old_state){
     M_REQUIRE_NON_NULL(timer);
     M_REQUIRE_NON_NULL(timer->cpu);
-    //printf("%d\n", old_state);
+
     if(0 != old_state && timer_state(timer) == 0){
         
         uint8_t current_timer = cpu_read_at_idx(timer->cpu, REG_TIMA);
         if(current_timer == 0xFF){
             M_REQUIRE_NO_ERR(cpu_write_at_idx(timer->cpu, REG_TIMA, cpu_read_at_idx(timer->cpu, REG_TMA)));
-            cpu_request_interrupt(timer->cpu, 2);
+            cpu_request_interrupt(timer->cpu, TIMER);
         } else {
             M_REQUIRE_NO_ERR(cpu_write_at_idx(timer->cpu, REG_TIMA, current_timer + 1));
         }

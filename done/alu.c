@@ -66,13 +66,7 @@ void set_flags_after_shift(alu_output_t* result, bit_t left){
 
 // ==== see alu.h ========================================
 flag_bit_t get_flag(flags_t flags, flag_bit_t flag){
-    switch(flag){
-        case FLAG_Z: return bit_get(flags, INDEX_FLAG_Z) << INDEX_FLAG_Z;
-        case FLAG_N: return bit_get(flags, INDEX_FLAG_N) << INDEX_FLAG_N;
-        case FLAG_H: return bit_get(flags, INDEX_FLAG_H) << INDEX_FLAG_H;
-        case FLAG_C: return bit_get(flags, INDEX_FLAG_C) << INDEX_FLAG_C;
-        default: return 0;
-    }
+    return flags & flag;
 }
 
 
@@ -80,17 +74,8 @@ flag_bit_t get_flag(flags_t flags, flag_bit_t flag){
 void set_flag(flags_t* flags, flag_bit_t flag){
     if(flags == NULL) return;
 
-    switch(flag){
-        case FLAG_Z: bit_set(flags, INDEX_FLAG_Z);
-                     break;
-        case FLAG_N: bit_set(flags, INDEX_FLAG_N);
-                     break;
-        case FLAG_H: bit_set(flags, INDEX_FLAG_H);
-                     break;
-        case FLAG_C: bit_set(flags, INDEX_FLAG_C);
-                     break;
-        default: return;
-    }
+    *flags = *flags | flag;
+    return;
 }
 
 

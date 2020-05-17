@@ -35,6 +35,7 @@ START_TEST(cartridge_init_err)
     ck_assert_bad_param(cartridge_init(&ct, NULL));
     ck_assert_bad_param(cartridge_init(NULL, fpath));
     ck_assert_int_eq(cartridge_init(&ct, fpath), ERR_IO);
+    cartridge_free(&ct);
 #ifdef WITH_PRINT
     printf("=== END of %s\n", __func__);
 #endif

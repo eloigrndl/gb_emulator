@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
     bus_t bus = {0};
     component_t c = {NULL, 0, 0};
 
-#define TEST_CARTRIDGE_SIZE HIGH_RAM_START
+#define TEST_CARTRIDGE_SIZE REG_IF
     M_EXIT_IF_ERR(component_create(&c, TEST_CARTRIDGE_SIZE));
     assert(sizeof(instructions) <= TEST_CARTRIDGE_SIZE);
     memcpy(c.mem->memory, instructions, sizeof(instructions));
@@ -200,6 +200,7 @@ int main(int argc, char *argv[])
         err = cpu_cycle(&cpu);
         cycle--;
     } while (err == ERR_NONE && cycle > 0);
+
 
     if (err == ERR_NONE) {
         (void)cpu_dump_to_file("dump_cpu.txt", &cpu);

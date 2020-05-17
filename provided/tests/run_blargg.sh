@@ -32,7 +32,7 @@ display () {
 
 # ======================================================================
 rootdir="$(realpath "$(dirname "$(realpath "$0")")/..")"
-exec="${rootdir}/test-gameboy"
+exec="${rootdir}/tests"
 [ -x "${exec}" ] || error "Cannot find \"${exec}\""
 
 testdir="${rootdir}/tests/data/blargg_roms"

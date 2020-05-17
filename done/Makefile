@@ -7,7 +7,8 @@ GTK_LIBS := `pkg-config --libs gtk+-3.0`
 
 .PHONY: clean new style feedback submit1 submit2 submit
 
-CFLAGS += -std=c11 -Wall -pedantic -g
+CFLAGS += -std=c11 -Wall -pedantic -g -fsanitize=address
+
 
 # a bit more checks if you'd like to (uncomment
  #CFLAGS += -Wextra -Wfloat-equal -Wshadow                         \
@@ -15,19 +16,19 @@ CFLAGS += -std=c11 -Wall -pedantic -g
  -Wconversion -Wunreachable-code
 
 # uncomment if you want to add DEBUG flag
-# CPPFLAGS += -DDEBUG
+ CPPFLAGS += -DBLARGG
 
 # ----------------------------------------------------------------------
 # feel free to update/modifiy this part as you wish
 
 # all those libs are required on Debian, feel free to adapt it to your box
-LDLIBS += -lcheck -lm -lrt -pthread -lsubunit -libcs212gbcpuext
+LDLIBS += -lcheck -lm -lrt -pthread -lsubunit -lcs212gbcpuext -fsanitize=address
 LDFLAGS += -L.
 
 all::
 
 TARGETS := 
-CHECK_TARGETS := unit-test-bit unit-test-alu unit-test-memory unit-test-component unit-test-bus unit-test-alu_ext unit-test-cpu-dispatch #unit-test-cpu-dispatch-week09 test-cpu-week08
+CHECK_TARGETS := unit-test-bit unit-test-alu unit-test-memory unit-test-component unit-test-bus unit-test-cpu unit-test-cpu-dispatch-week09 unit-test-cartridge unit-test-timer  test-cpu-week08 unit-test-alu_ext unit-test-cpu-dispatch test-gameboy
 OBJS =
 OBJS_NO_STATIC_TESTS =
 OBJS_STATIC_TESTS = 
@@ -97,17 +98,12 @@ unit-test-cartridge: unit-test-cartridge.o cartridge.o component.o bus.o memory.
 unit-test-timer: unit-test-timer.o timer.o bit.o cpu-storage.o cpu.o cpu-registers.o opcode.o alu.o bus.o component.o memory.o cpu-alu.o alu.o error.o  
 test-cpu-week08: opcode.o error.o cpu.o util.o cpu-storage.o bus.o cpu-alu.o alu.o bit.o cpu-registers.o component.o memory.o
 
-test-gameboy: LDFLAGS += -L.
-test-gameboy: LDLIBS += -lcs212gbcpuext
 test-gameboy:test-gameboy.o gameboy.o component.o cartridge.o bus.o bootrom.o timer.o cpu.o alu.o bit.o opcode.o cpu-storage.o cpu-registers.o memory.o cpu-alu.o error.o
 
-cpu-alu: cpu-alu.o
 
 unit-test-alu_ext: unit-test-alu_ext.o cpu-storage.o cpu-registers.o cpu-alu.o alu.o bus.o bit.o error.o
-	gcc -L . unit-test-alu_ext.o cpu-storage.o cpu-registers.o cpu-alu.o alu.o bus.o bit.o error.o -lcs212gbcpuext -lcheck -lm -lrt -pthread -lsubunit -o unit-test-alu_ext
 
 unit-test-cpu-dispatch: unit-test-cpu-dispatch.o cpu-storage.o cpu-registers.o cpu-alu.o opcode.o alu.o component.o memory.o bus.o bit.o error.o
-	gcc -L . unit-test-cpu-dispatch.o cpu-storage.o cpu-registers.o cpu-alu.o opcode.o alu.o component.o memory.o bus.o bit.o error.o -lcs212gbcpuext  -lcheck -lm -lrt -pthread -lsubunit  -o unit-test-cpu-dispatch
 
 alu.o: alu.c alu.h bit.h error.h
 bit.o: bit.c bit.h

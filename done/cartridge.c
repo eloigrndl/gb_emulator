@@ -29,31 +29,16 @@ int cartridge_init_from_file(component_t* c, const char* filename){
     M_REQUIRE_NON_NULL(c);
     M_REQUIRE_NON_NULL(filename);
 
-
-    //FIXME: treat problems
     FILE* file = fopen(filename, "rb");
     M_REQUIRE_NON_NULL_CUSTOM_ERR(file, ERR_IO);
-    
-    
-    if(c->mem->memory == NULL){
-        fclose(file);
-        return ERR_IO;
-    }
-
-
-    if(ferror(file) || fread(c->mem->memory, 1, BANK_ROM_SIZE, file) < BANK_ROM_SIZE){
-        fclose(file);
-        return ERR_IO;
-    }
-
-    if(c->mem->memory[CARTRIDGE_TYPE_ADDR] != 0){
-        fclose(file);
-        return ERR_NOT_IMPLEMENTED;
-    }
+    M_EXIT_IF_ERR_DO_SOMETHING(c->mem->memory == NULL ? ERR_IO : ERR_NONE, fclose(file));
+    M_EXIT_IF_ERR_DO_SOMETHING((ferror(file) || fread(c->mem->memory, 1, BANK_ROM_SIZE, file) < BANK_ROM_SIZE) ? ERR_IO : ERR_NONE, fclose(file));
+    M_EXIT_IF_ERR_DO_SOMETHING((c->mem->memory[CARTRIDGE_TYPE_ADDR] != 0) ? ERR_NOT_IMPLEMENTED : ERR_NONE, fclose(file));
 
     fclose(file);
-    return ERR_NONE;
 
+
+    return ERR_NONE;
 }
 
 
@@ -83,8 +68,7 @@ int cartridge_init(cartridge_t* ct, const char* filename){
  */
 int cartridge_plug(cartridge_t* ct, bus_t bus){
     M_REQUIRE_NON_NULL(ct);
-    M_REQUIRE_NON_NULL(bus); //FIXME ???? shouldn't we rather check size?
-
+    M_REQUIRE_NON_NULL(bus);
     M_REQUIRE_NO_ERR(bus_forced_plug(bus, &(ct->c), BANK_ROM0_START, BANK_ROM1_END, 0));
     return ERR_NONE;
 }

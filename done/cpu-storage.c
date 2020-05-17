@@ -42,6 +42,7 @@ int cpu_write_at_idx(cpu_t* cpu, addr_t addr, data_t data)
 {   
     M_REQUIRE_NON_NULL(cpu);
     M_REQUIRE_NON_NULL(cpu->bus);
+    //printf("writing a byte at %X\n", addr);
     
     M_REQUIRE_NO_ERR(bus_write(*(cpu->bus), addr, data));
     cpu->write_listener = addr; 
@@ -53,7 +54,7 @@ int cpu_write16_at_idx(cpu_t* cpu, addr_t addr, addr_t data16)
 {
     M_REQUIRE_NON_NULL(cpu);
     M_REQUIRE_NON_NULL(cpu->bus);
-
+    //printf("writing TWO BYTES at %X\n", addr);
     M_REQUIRE_NO_ERR(bus_write16(*(cpu->bus), addr, data16));
     cpu->write_listener = addr; 
     return ERR_NONE;
@@ -65,10 +66,8 @@ int cpu_SP_push(cpu_t* cpu, addr_t addr)
     M_REQUIRE_NON_NULL(cpu);
     M_REQUIRE_NON_NULL(cpu->bus);
     
-    uint16_t temp = cpu->SP - WORD_SIZE; 
-    
-    M_REQUIRE_NO_ERR(cpu_write16_at_idx(cpu, temp, addr));
-    cpu->SP -= WORD_SIZE; 
+    M_REQUIRE_NO_ERR(cpu_write16_at_idx(cpu, cpu->SP - WORD_SIZE, addr));
+    cpu->SP -= WORD_SIZE;
 
     return ERR_NONE;
 }
