@@ -23,7 +23,7 @@ uint8_t cpu_reg_get(const cpu_t* cpu, reg_kind reg){
         case REG_E_CODE: return cpu->E;
         case REG_H_CODE: return cpu->H;
         case REG_L_CODE: return cpu->L;
-        default: return 0; //FIXME: FF or 00?
+        default: return 0;
     }
 }
 
@@ -58,7 +58,7 @@ uint16_t cpu_reg_pair_get(const cpu_t* cpu, reg_pair_kind reg){
         case REG_DE_CODE: return cpu->DE;
         case REG_HL_CODE: return cpu->HL;
         case REG_AF_CODE: return cpu->AF;
-        default: return 0; //FIXME: 0 or 0xFF00
+        default: return 0;
     }
 }
 

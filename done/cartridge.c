@@ -3,7 +3,7 @@
  * @brief Game Boy Cartridge simulation header
  *
  * @author Eloi Garandel, Erik Wengle EPFL
- * @date 05/2020
+ * @date 2020
  */
 
 #include <stdint.h>
@@ -18,19 +18,14 @@
 extern "C" {
 #endif
 
-/**
- * @brief Reads a file into the memory of a component
- *
- * @param c component to write to
- * @param filename file to read from
- * @return error code
- */
+// ==== see cartridge.h ========================================
 int cartridge_init_from_file(component_t* c, const char* filename){
     M_REQUIRE_NON_NULL(c);
     M_REQUIRE_NON_NULL(filename);
 
     FILE* file = fopen(filename, "rb");
     M_REQUIRE_NON_NULL_CUSTOM_ERR(file, ERR_IO);
+    
     M_EXIT_IF_ERR_DO_SOMETHING(c->mem->memory == NULL ? ERR_IO : ERR_NONE, fclose(file));
     M_EXIT_IF_ERR_DO_SOMETHING((ferror(file) || fread(c->mem->memory, 1, BANK_ROM_SIZE, file) < BANK_ROM_SIZE) ? ERR_IO : ERR_NONE, fclose(file));
     M_EXIT_IF_ERR_DO_SOMETHING((c->mem->memory[CARTRIDGE_TYPE_ADDR] != 0) ? ERR_NOT_IMPLEMENTED : ERR_NONE, fclose(file));
@@ -42,13 +37,7 @@ int cartridge_init_from_file(component_t* c, const char* filename){
 }
 
 
-/**
- * @brief Initiates a cartridge given a filename
- *
- * @param ct cartridge to initiate
- * @param filename file to read from
- * @return error code
- */
+// ==== see cartridge.h ========================================
 int cartridge_init(cartridge_t* ct, const char* filename){
     M_REQUIRE_NON_NULL(ct);
     M_REQUIRE_NON_NULL(filename);
@@ -59,13 +48,7 @@ int cartridge_init(cartridge_t* ct, const char* filename){
 }
 
 
-/**
- * @brief Plugs a cartridge to the bus
- *
- * @param ct cartridge to plug
- * @param bus bus to plug into
- * @return error code
- */
+// ==== see cartridge.h ========================================
 int cartridge_plug(cartridge_t* ct, bus_t bus){
     M_REQUIRE_NON_NULL(ct);
     M_REQUIRE_NON_NULL(bus);
@@ -74,11 +57,8 @@ int cartridge_plug(cartridge_t* ct, bus_t bus){
 }
 
 
-/**
- * @brief Frees a cartridge
- *
- * @param ct cartridge to free
- */
+
+// ==== see cartridge.h ========================================
 void cartridge_free(cartridge_t* ct){
     if(ct == NULL) return;
 

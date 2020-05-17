@@ -37,7 +37,7 @@ int bus_forced_plug(bus_t bus, component_t* c, addr_t start, addr_t end, addr_t 
     c->start = start;
     c->end = end;
 
-    M_EXIT_IF_ERR_DO_SOMETHING(bus_remap(bus, c, offset), c->start = 0; c->end = 0); // FIXME see if this is ok
+    M_EXIT_IF_ERR_DO_SOMETHING(bus_remap(bus, c, offset), c->start = 0; c->end = 0);
     return ERR_NONE;
 }
 

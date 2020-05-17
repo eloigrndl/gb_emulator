@@ -17,10 +17,28 @@
 #include <inttypes.h> // PRIX8
 #include <stdio.h> // fprintf
 
+
+/**
+* @brief verify if a certain conditiion (cc) is verified or not
+* @param  cpu cpu that stores the flags
+* @param lu instruction to extract the condition
+* @return the condition is verified or not
+*/
+int verify_cc(cpu_t* cpu, const instruction_t* lu);
+
+/**
+* @brief check if an interruption is pending if the same bit is 1 in IF and in IE
+* @param cpu cpu to check
+* @return content of REG_IF
+*/
+uint8_t pending_interruptions(cpu_t* cpu);
+
+
 // ==== see cpu.h ========================================
 int cpu_init(cpu_t* cpu)
 {
     M_REQUIRE_NON_NULL(cpu); 
+
     zero_init_ptr(cpu);
     M_REQUIRE_NO_ERR(component_create(&(cpu->high_ram), HIGH_RAM_SIZE));
 
@@ -32,13 +50,10 @@ int cpu_plug(cpu_t* cpu, bus_t* bus)
 {
     M_REQUIRE_NON_NULL(bus);
     M_REQUIRE_NON_NULL(cpu);
-
     
     cpu->bus = bus; 
     M_REQUIRE_NO_ERR(bus_plug(*bus, &(cpu->high_ram), HIGH_RAM_START, HIGH_RAM_END));
     
-
-    //TODO: need to check whether occupied or not?
     (*(cpu->bus))[REG_IE] = &(cpu->IE);
     (*(cpu->bus))[REG_IF] = &(cpu->IF);
 
@@ -48,8 +63,8 @@ int cpu_plug(cpu_t* cpu, bus_t* bus)
 // ==== see cpu.h =======================================
 void cpu_free(cpu_t* cpu)
 {
-
     if(cpu == NULL) return;
+    
     if(cpu->bus == NULL) {
         component_free(&(cpu->high_ram));
         return;
@@ -75,16 +90,14 @@ void cpu_free(cpu_t* cpu)
  *
  * See opcode.h and cpu.h
  */
-//TODO: macros for instructions (also add to myMacros)
 static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
 {
     M_REQUIRE_NON_NULL(lu);
     M_REQUIRE_NON_NULL(cpu);   
 
 
-    //FIXME sure about this ?
     cpu->idle_time += lu->cycles - 1;
-    cpu->alu.value = 0; //TODO: set in macro - check also for resetting alu values
+    cpu->alu.value = 0; 
     cpu->alu.flags = 0;
 
     switch (lu->family) {
@@ -190,14 +203,7 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
         break;
 
     case JR_CC_E8:
-        //TODO: simplify with macro
-        if(verify_cc(cpu, lu)){
-            cpu->PC += lu->bytes + (int8_t) cpu_read_data_after_opcode(cpu);
-            cpu->idle_time += lu->xtra_cycles;
-        } else{
-             cpu->PC += lu->bytes;
-        }
-        
+        control_pc_and(cpu, lu, cpu->PC += lu->bytes + (int8_t) cpu_read_data_after_opcode(cpu));
         break;
 
     case JR_E8:
@@ -207,14 +213,10 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
 
     // CALLS
     case CALL_CC_N16:
-        if(verify_cc(cpu, lu)){ 
+        control_pc_and(cpu, lu, 
             cpu_SP_push(cpu, cpu->PC +lu->bytes);  
-            cpu->PC = cpu_read_addr_after_opcode(cpu);
-            cpu->idle_time += lu->xtra_cycles;
-        } else{
-            cpu->PC += lu->bytes;
-        }
-
+            cpu->PC = cpu_read_addr_after_opcode(cpu)
+        );
         break;
 
     case CALL_N16:
@@ -228,12 +230,7 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
         break;
 
     case RET_CC:
-        if(verify_cc(cpu, lu)){
-            cpu->PC = cpu_SP_pop(cpu);
-            cpu->idle_time += lu->xtra_cycles;
-        } else {
-            cpu->PC += lu->bytes;
-        }
+        control_pc_and(cpu, lu, cpu->PC = cpu_SP_pop(cpu));
         break;
 
     case RST_U3:
@@ -285,26 +282,29 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
 static int cpu_do_cycle(cpu_t* cpu)
 {
     M_REQUIRE_NON_NULL(cpu);
-    uint8_t pendings = pending_interruptions(cpu);
+    uint8_t pending = pending_interruptions(cpu);
 
     //if there are pending interruptions
-    if(cpu->IME != 0 && pendings != 0){
+    if(cpu->IME != 0 && pending != 0){
+        
         //set IME to zero
         cpu->IME = 0;
+
         //get the index of rightmost set bit of pending interruptions
-        size_t index = 0;
-        while(bit_get(pendings, index) != 1){
-            ++index;
+        interrupt_t ir = VBLANK;
+
+        while(bit_get(pending, ir) != 1){
+            ++ir;
         }
 
         //unsetting the corresponding bit in IF
-        bit_unset(&(cpu->IF), index);
+        bit_unset(&(cpu->IF), ir);
 
         //push current PC address
         cpu_SP_push(cpu, cpu->PC);
 
         //setting the address of instruction handler in PC
-        cpu->PC = 0x40 + 8 * index;
+        cpu->PC = ir_address(ir);
     
         //adding 5 cycles to idle_time
         cpu->idle_time += 5;
@@ -334,7 +334,7 @@ int cpu_cycle(cpu_t* cpu)
     M_REQUIRE_NON_NULL(cpu);
     M_REQUIRE_NON_NULL(cpu->bus);
     
-    cpu->write_listener = 0;    //FIXME outside of if or not? 
+    cpu->write_listener = 0;
 
     if((cpu->HALT == 1 && pending_interruptions(cpu) != 0 && cpu->idle_time == 0) || (cpu->HALT == 0 && cpu->idle_time == 0)){
         cpu->HALT = 0;
@@ -355,22 +355,15 @@ void cpu_request_interrupt(cpu_t* cpu, interrupt_t i){
 }
 
 
-/**
-* @brief verify if a certain conditiion (cc) is verified or not
-* @param  lu instruction to extract the condition
-* @return the condition is verified or not
-*/
+// ==== Tool method ========================================
 int verify_cc(cpu_t* cpu, const instruction_t* lu){
     uint8_t cc = extract_cc(lu->opcode);
     flag_bit_t flag = bit_get(cc, 1) == 1 ? get_C(cpu->F) : get_Z(cpu->F);
+
     return bit_get(cc, 0) == 1 ? (flag != 0) : (flag == 0);
 }
 
-//FIXME put also in cpu.h or define ??
-/**
-* @brief check if an interruption is pending ;:
-         if the same bit is 1 in IF and in IE
-*/
+// ==== Tool method ========================================
 uint8_t pending_interruptions(cpu_t* cpu){
     return (cpu_read_at_idx(cpu, REG_IF) & cpu_read_at_idx(cpu, REG_IE));
 }

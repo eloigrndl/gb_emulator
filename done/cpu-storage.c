@@ -42,7 +42,6 @@ int cpu_write_at_idx(cpu_t* cpu, addr_t addr, data_t data)
 {   
     M_REQUIRE_NON_NULL(cpu);
     M_REQUIRE_NON_NULL(cpu->bus);
-    //printf("writing a byte at %X\n", addr);
     
     M_REQUIRE_NO_ERR(bus_write(*(cpu->bus), addr, data));
     cpu->write_listener = addr; 
@@ -54,7 +53,7 @@ int cpu_write16_at_idx(cpu_t* cpu, addr_t addr, addr_t data16)
 {
     M_REQUIRE_NON_NULL(cpu);
     M_REQUIRE_NON_NULL(cpu->bus);
-    //printf("writing TWO BYTES at %X\n", addr);
+
     M_REQUIRE_NO_ERR(bus_write16(*(cpu->bus), addr, data16));
     cpu->write_listener = addr; 
     return ERR_NONE;
@@ -84,7 +83,6 @@ addr_t cpu_SP_pop(cpu_t* cpu)
 }
 
 // ==== see cpu-storage.h ========================================
-
 int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
 {
     M_REQUIRE_NON_NULL(cpu);
@@ -92,7 +90,7 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
 
     switch (lu->family) {
         case LD_A_BCR: 
-            set_A_from_bus(cpu, cpu_BC_get(cpu)); //TODO: simplify reading from bus with macros
+            set_A_from_bus(cpu, cpu_BC_get(cpu)); 
             break;
 
         case LD_A_CR:
@@ -109,7 +107,7 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
             break;
 
         case LD_A_N16R:
-            set_A_from_bus(cpu, cpu_read_addr_after_opcode(cpu));      // TODO: maybe define macro for this
+            set_A_from_bus(cpu, cpu_read_addr_after_opcode(cpu));
             break;
 
         case LD_A_N8R:
@@ -123,7 +121,7 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
             
         case LD_CR_A:
             M_REQUIRE_NO_ERR(cpu_write_at_idx(cpu, REGISTERS_START + cpu_C_get(cpu), cpu_A_get(cpu)));
-            break; //FIXME: need to add a break?
+            break;
 
         case LD_DER_A:
             M_REQUIRE_NO_ERR(cpu_write_at_idx(cpu, cpu_DE_get(cpu), cpu_A_get(cpu)));
@@ -167,7 +165,7 @@ int cpu_dispatch_storage(const instruction_t* lu, cpu_t* cpu)
             break;
 
         case LD_R8_R8: 
-            cpu_reg_set(cpu, extract_reg(lu->opcode, 3), cpu_reg_get(cpu, extract_reg(lu->opcode, 0))); //TODO: need to verify that r != s?
+            cpu_reg_set(cpu, extract_reg(lu->opcode, 3), cpu_reg_get(cpu, extract_reg(lu->opcode, 0)));
             break;
 
         case LD_SP_HL:

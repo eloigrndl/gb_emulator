@@ -122,7 +122,7 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
 
     // ADD
     case ADD_A_HLR: {
-        do_cpu_arithm(cpu, alu_add8, cpu_read_at_HL(cpu), ADD_FLAGS_SRC);      //TODO: make sure read at HL also used elsewheyr
+        do_cpu_arithm(cpu, alu_add8, cpu_read_at_HL(cpu), ADD_FLAGS_SRC);
     } break;
 
     
@@ -136,22 +136,21 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
     } break;
 
     case INC_HLR: {
-        alu_add8(&(cpu -> alu), cpu_read_at_HL(cpu), 1, 0);
-        cpu_write_at_HL(cpu, cpu -> alu.value);
-        cpu_combine_alu_flags(cpu, INC_FLAGS_SRC);
+        M_EXIT_IF_ERR(alu_add8(&(cpu -> alu), cpu_read_at_HL(cpu), 1, 0));
+        M_EXIT_IF_ERR(cpu_write_at_HL(cpu, cpu -> alu.value));
+        M_EXIT_IF_ERR(cpu_combine_alu_flags(cpu, INC_FLAGS_SRC));
     } break;
 
     case INC_R8: {
         M_EXIT_IF_ERR(alu_add8(&(cpu -> alu), cpu_reg_get(cpu, extract_reg(lu->opcode, 3)), 1, 0));
         cpu_reg_set(cpu, extract_reg(lu->opcode, 3), cpu -> alu.value);
-        cpu_combine_alu_flags(cpu, INC_FLAGS_SRC);
+        M_EXIT_IF_ERR(cpu_combine_alu_flags(cpu, INC_FLAGS_SRC));
     } break;
 
-    //FIXME check if okay
     case DEC_R8: {
         M_EXIT_IF_ERR(alu_sub8(&(cpu -> alu), cpu_reg_get(cpu, extract_reg(lu->opcode, 3)), 1, 0));
         cpu_reg_set(cpu, extract_reg(lu->opcode, 3), cpu -> alu.value);
-        cpu_combine_alu_flags(cpu, DEC_FLAGS_SRC);
+        M_EXIT_IF_ERR(cpu_combine_alu_flags(cpu, DEC_FLAGS_SRC));
     } break;
 
     case ADD_HL_R16SP: {
@@ -171,7 +170,6 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
         M_EXIT_IF_ERR(cpu_combine_alu_flags(cpu, SUB_FLAGS_SRC));
     } break;
 
-    //FIXME check if okay
     case CP_A_N8: {
         M_EXIT_IF_ERR(alu_sub8(&cpu->alu, cpu->A, cpu_read_data_after_opcode(cpu), 0));
         M_EXIT_IF_ERR(cpu_combine_alu_flags(cpu, SUB_FLAGS_SRC));
@@ -193,7 +191,7 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
 
     // BIT TESTS (and set)
     case BIT_U3_R8: {
-        cpu->alu.flags = 0; //TODO need to simplify in future
+        cpu->alu.flags = 0;
         
         if(bit_get(cpu_reg_get(cpu, extract_reg(lu->opcode, 0)), extract_n3(lu->opcode)) == 0)
             set_Z(&(cpu->alu.flags));
@@ -209,7 +207,6 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
     // ---------------------------------------------------------
     // All the others are handled elsewhere by provided library
     default:
-        // uncomment this line if you have the cs212gbcpuext library
         M_EXIT_IF_ERR(cpu_dispatch_alu_ext(lu, cpu));
         break;
     } // switch

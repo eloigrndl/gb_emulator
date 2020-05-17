@@ -19,6 +19,14 @@
 extern "C" {
 #endif
 
+
+    /**
+     * @brief Listens for writes on bus address used by blargg
+     * @param gameboy gameboy to listen at
+     * @param addr trigger address
+     * @return error code
+     * 
+     */
     #ifdef BLARGG
         int blargg_bus_listener(gameboy_t* gameboy, addr_t addr){
             M_REQUIRE_NON_NULL(gameboy);
@@ -51,7 +59,7 @@ extern "C" {
         ++gameboy->nb_connected;
 
         echo_ram->mem->size = MEM_SIZE(ECHO_RAM);
-        M_REQUIRE_NO_ERR(bus_plug(gameboy->bus, echo_ram, ECHO_RAM_START, ECHO_RAM_END));   //TODO intermediate gameboy
+        M_REQUIRE_NO_ERR(bus_plug(gameboy->bus, echo_ram, ECHO_RAM_START, ECHO_RAM_END));
         free(echo_ram);
 
         M_REQUIRE_NO_ERR(component_create(&(gameboy->components[1]), MEM_SIZE(REGISTERS)));  
@@ -124,13 +132,6 @@ extern "C" {
         M_REQUIRE_NON_NULL(gameboy);
         while(gameboy->cycles < cycle){
             
-            /*
-           printf("========================================\n"); fflush(stdout);
-           printf("Running cycle %ld \n", gameboy->cycles); fflush(stdout);
-           printf("Current byte: %X \n", *(gameboy->bus[gameboy->cycles]));
-           printf("PC = %d\n",gameboy->cpu.PC);   
-            */
-
            M_REQUIRE_NO_ERR(timer_cycle(&(gameboy->timer)));
            M_REQUIRE_NO_ERR(cpu_cycle(&(gameboy->cpu)));
 
@@ -145,7 +146,6 @@ extern "C" {
            #endif
            
            gameboy->cycles++;
-           //printf("PC: %d\n", gameboy->cpu.PC);
         }
         return ERR_NONE;
     } 

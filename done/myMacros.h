@@ -90,18 +90,21 @@ extern "C" {
     cpu_A_set(cpu,  cpu_read_at_idx(cpu, idx))
 
 
-/**
-* @brief verify if a certain conditiion (cc) is verified or not
-* @param  cpu cpu that stores the flags
-* @param lu instruction to extract the condition
-* @return the condition is verified or not
-*/
-int verify_cc(cpu_t* cpu, const instruction_t* lu);
 
-/**
-* @brief check if an interruption is pending if the same bit is 1 in IF and in IE
-*/
-uint8_t pending_interruptions(cpu_t* cpu);
+
+//returns the correct interruption address, see cpu.h
+#define ir_address(ir) \
+    0x40 + (ir << 3)
+
+//default structure of a conditional control structure, see cpu.h
+#define control_pc_and(cpu, lu,body) \
+    if(verify_cc(cpu, lu)){ \
+        body; \
+        cpu->idle_time += lu->xtra_cycles; \
+    } else{ \
+        cpu->PC += lu->bytes; \
+    }\
+
 
 #ifdef __cplusplus
 }
