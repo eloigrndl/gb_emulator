@@ -105,6 +105,19 @@ extern "C" {
         cpu->PC += lu->bytes; \
     }\
 
+#define BIT_MASK32(k) \
+  ((size_t) k % 32 == 0 ? 0xFFFFFFFF : ((1 << ((k  % 32))) - 1)) //FIXME
+
+#define BIT_MASK32_INV(k) \
+    ~BIT_MASK32(32 - k)
+
+#define LAST_FIELD32(pbv) \
+    (pbv->nb_fields -1)
+
+#define REMOVE_TAIL32(pbv) \
+    if(pbv->size % 32 != 0){ \
+         pbv->content[LAST_FIELD32(pbv)] &= BIT_MASK32(pbv->size); \
+    } \
 
 #ifdef __cplusplus
 }

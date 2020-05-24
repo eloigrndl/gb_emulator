@@ -23,7 +23,8 @@ extern "C" {
  */
 typedef struct{
     size_t size;
-    uint32_t content[];
+    size_t nb_fields;
+    uint32_t* content;
 } bit_vector_t;
 
 //=========================================================================

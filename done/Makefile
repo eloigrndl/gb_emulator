@@ -16,7 +16,7 @@ CFLAGS += -std=c11 -Wall -pedantic -g -fsanitize=address
  -Wconversion -Wunreachable-code
 
 # uncomment if you want to add DEBUG flag
-#CPPFLAGS += -DDEBUG
+CPPFLAGS += -DDEBUG
 CPPFLAGS += -DBLARGG
 
 # ----------------------------------------------------------------------
@@ -29,7 +29,7 @@ LDFLAGS += -L.
 all::
 
 TARGETS := 
-CHECK_TARGETS := unit-test-bit unit-test-alu unit-test-memory unit-test-component unit-test-bus unit-test-cpu unit-test-cpu-dispatch-week08 unit-test-cpu-dispatch-week09 unit-test-cartridge unit-test-timer  test-cpu-week08 unit-test-alu_ext unit-test-cpu-dispatch test-gameboy
+CHECK_TARGETS := unit-test-bit-vector #unit-test-bit unit-test-alu unit-test-memory unit-test-component unit-test-bus unit-test-cpu unit-test-cpu-dispatch-week08 unit-test-cpu-dispatch-week09 unit-test-cartridge unit-test-timer  test-cpu-week08 unit-test-alu_ext unit-test-cpu-dispatch unit-test-bit-vector # test-gameboy
 OBJS =
 OBJS_NO_STATIC_TESTS =
 OBJS_STATIC_TESTS = 
@@ -98,6 +98,7 @@ unit-test-cpu-dispatch-week09: unit-test-cpu-dispatch-week09.o cpu-registers.o c
 unit-test-cartridge: unit-test-cartridge.o cartridge.o component.o bus.o memory.o bit.o error.o
 unit-test-timer: unit-test-timer.o timer.o bit.o cpu-storage.o cpu.o cpu-registers.o opcode.o alu.o bus.o component.o memory.o cpu-alu.o alu.o error.o  
 test-cpu-week08: opcode.o error.o cpu.o util.o cpu-storage.o bus.o cpu-alu.o alu.o bit.o cpu-registers.o component.o memory.o
+unit-test-bit-vector: unit-test-bit-vector.o bit_vector.o error.o bit.o
 
 test-gameboy:test-gameboy.o gameboy.o component.o cartridge.o bus.o bootrom.o timer.o cpu.o alu.o bit.o opcode.o cpu-storage.o cpu-registers.o memory.o cpu-alu.o error.o
 unit-test-alu_ext: unit-test-alu_ext.o cpu-storage.o cpu-registers.o cpu-alu.o alu.o bus.o bit.o error.o
@@ -105,6 +106,7 @@ unit-test-cpu-dispatch: unit-test-cpu-dispatch.o cpu-storage.o cpu-registers.o c
 
 alu.o: alu.c alu.h bit.h error.h
 bit.o: bit.c bit.h
+bit_vector.o: bit_vector.c bit.h bit_vector.h error.h myMacros.h
 bootrom.o: bootrom.c bus.h memory.h component.h error.h gameboy.h \
  cartridge.h cpu.h alu.h bit.h timer.h bootrom.h
 bus.o: bus.c bus.h memory.h component.h error.h bit.h myMacros.h cpu.h \
@@ -162,4 +164,7 @@ unit-test-memory.o: unit-test-memory.c tests.h error.h bus.h memory.h \
  component.h
 unit-test-timer.o: unit-test-timer.c util.h tests.h error.h timer.h \
  component.h memory.h bit.h cpu.h alu.h bus.h
+unit-test-bit-vector.o: unit-test-bit-vector.c tests.h error.h \
+ bit_vector.h bit.h image.h cpu.h alu.h bus.h memory.h component.h
+ 
 util.o: util.c
