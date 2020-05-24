@@ -21,11 +21,10 @@ extern "C" {
 /**
  * @brief Type to represent image lines
  */
-/* TODO WEEK 12:
- * Définir ici proprement le type bit_vector_t
- * (et supprimer ces quatre lignes de commentaire).
- */
-typedef int bit_vector_t;
+typedef struct{
+    size_t size;
+    uint32_t content[];
+} bit_vector_t;
 
 //=========================================================================
 /**
