@@ -697,15 +697,15 @@ START_TEST(bit_vector_join_exec)
     bit_vector_t* pbv0 = NULL;
     bit_vector_t* pbvj = NULL;
 
-    //ck_assert_ptr_null(bit_vector_join(NULL, pbv1, 0));
-    //ck_assert_ptr_null(bit_vector_join(pbv0, NULL, 0));
+    ck_assert_ptr_null(bit_vector_join(NULL, pbv1, 0));
+    ck_assert_ptr_null(bit_vector_join(pbv0, NULL, 0));
     pbv1 = bit_vector_create(PV1_SIZE * IMAGE_LINE_WORD_BITS, 1);
     pbv0 = bit_vector_create(PV2_SIZE * IMAGE_LINE_WORD_BITS, 0);
-    //ck_assert_ptr_nonnull(pbv1);
-    //ck_assert_ptr_nonnull(pbv0);
-    //ck_assert_ptr_null(bit_vector_join(NULL, pbv1, 0));
-    //ck_assert_ptr_null(bit_vector_join(pbv1, NULL, 0));
-    //ck_assert_ptr_null(bit_vector_join(pbv1, pbv0, 0));
+    ck_assert_ptr_nonnull(pbv1);
+    ck_assert_ptr_nonnull(pbv0);
+    ck_assert_ptr_null(bit_vector_join(NULL, pbv1, 0));
+    ck_assert_ptr_null(bit_vector_join(pbv1, NULL, 0));
+    ck_assert_ptr_null(bit_vector_join(pbv1, pbv0, 0));
     ck_assert_ptr_nonnull(pbvj = bit_vector_join(pbv1, pbv1, IMAGE_LINE_WORD_BITS));
     bit_vector_free(&pbv0);
     bit_vector_free(&pbv1);
@@ -715,7 +715,7 @@ START_TEST(bit_vector_join_exec)
     const uint32_t pv2_5[] = PV2_5_VALUE;
     const uint32_t deadboss[] = PV1_DEADBOSS_VALUE;
 
-    pbv1 = bit_vector_create(PV1_SIZE * IMAGE_LINE_WORD_BITS, 1);
+   pbv1 = bit_vector_create(PV1_SIZE * IMAGE_LINE_WORD_BITS, 1);
     pbv0 = bit_vector_create(PV1_SIZE * IMAGE_LINE_WORD_BITS, 0);
     ck_assert_ptr_nonnull(pbv1);
     ck_assert_ptr_nonnull(pbv0);
@@ -921,9 +921,9 @@ Suite* cartridge_test_suite()
     tcase_add_test(tc1, bit_vector_extract_wrap_exec);
     tcase_add_test(tc1, bit_vector_shift_exec);
     tcase_add_test(tc1, bit_vector_join_exec);
-    /*tcase_add_test(tc1, bit_vector_various);
+    tcase_add_test(tc1, bit_vector_various);
     tcase_add_test(tc1, bit_vector_deadboss);
-*/
+
     return s;
 }
 

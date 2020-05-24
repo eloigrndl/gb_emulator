@@ -96,6 +96,7 @@ bit_vector_t* bit_vector_or(bit_vector_t* pbv1, const bit_vector_t* pbv2){
     if(pbv1 == NULL || pbv2 == NULL || pbv1->size != pbv2->size)
         return NULL;
 
+
     for(int i = 0; i < pbv1->nb_fields; ++i)
         pbv1->content[i] |= pbv2->content[i];
 
@@ -270,7 +271,20 @@ bit_vector_t* bit_vector_join(const bit_vector_t* pbv1, const bit_vector_t* pbv2
     if(pbv1 == NULL || pbv2 == NULL || pbv1->size != pbv2->size || shift < 0 || shift > pbv1->size ) {
         return NULL;
     }
-    return bit_vector_or(bit_vector_extract_zero_ext(pbv1, 0, shift), bit_vector_extract_zero_ext(pbv2, shift, pbv2->size - shift));
+
+        bit_vector_t* res = bit_vector_cpy(pbv1);
+        
+        if(shift == pbv1->size) 
+            return res;
+        
+        res->content[shift / 32] &= BIT_MASK32((shift % 32));
+        res->content[shift / 32] |= ((pbv2->content[shift / 32] & BIT_MASK32(32 - shift)) << shift);
+
+    for(int i = shift / 32 + 1; i < pbv1->nb_fields; i++){
+        res->content[i] = pbv2->content[i];
+    }
+
+    return res;
 }
 
 // ==== see bit_vector.h ========================================
