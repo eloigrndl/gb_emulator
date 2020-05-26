@@ -117,9 +117,13 @@ START_TEST(bit_vector_create_exec)
     vector_match_tab(pbv, pv1_5, PV1_SIZE);
     bit_vector_free(&pbv);
 
+    printf("HELLO THERE\n");
+
     pbv = bit_vector_create(PV2_SIZE * IMAGE_LINE_WORD_BITS / 4 * 3, 1);
     ck_assert_ptr_nonnull(pbv);
     vector_match_tab(pbv, pv2_5, PV2_SIZE);
+    printf("VERY END OF TEST\n");
+
     bit_vector_free(&pbv);
 #ifdef WITH_PRINT
     printf("=== END of %s\n", __func__);
@@ -782,7 +786,6 @@ START_TEST(bit_vector_various)
     uint32_t pv3e[] = PVV3_VALUE;
     vector_match_tab(pv3, pv3e, 2);
 
-
     bit_vector_free(&pv1);
     bit_vector_free(&pv2);
     bit_vector_free(&pv3);
@@ -805,14 +808,19 @@ START_TEST(bit_vector_deadboss)
     ck_assert_ptr_nonnull(pvb_1);
     bit_vector_t* pv1_8 = bit_vector_extract_zero_ext(pvb_1, -3, 4);
     ck_assert_ptr_nonnull(pv1_8);
+    bit_vector_println("pv1_8 : ", pv1_8);
+
     bit_vector_t* pv4_8888 = bit_vector_extract_wrap_ext(pv1_8, 0, 16);
     ck_assert_ptr_nonnull(pv4_8888);
+    bit_vector_println("pv4_8888 : ", pv4_8888);
+
     bit_vector_t* pv4_2222 = bit_vector_shift(pv4_8888, -2);
     ck_assert_ptr_nonnull(pv4_2222);
     bit_vector_t* pv4_AAAA = bit_vector_or(bit_vector_cpy(pv4_2222), pv4_8888);
     ck_assert_ptr_nonnull(pv4_AAAA);
     bit_vector_t* pv8_0000AAAA = bit_vector_extract_zero_ext(pv4_AAAA, 0, IMAGE_LINE_WORD_BITS);
     ck_assert_ptr_nonnull(pv8_0000AAAA);
+
 
     bit_vector_t* interm = NULL;
     bit_vector_t* interm2 = NULL;
@@ -871,6 +879,11 @@ START_TEST(bit_vector_deadboss)
 
     const uint32_t pve[] = PV_DEADBOSS_AAAA_VALUE;
     const bit_vector_t* pvr = pv12_AAAADEADBOSS;
+
+    
+
+    bit_vector_println("vec 1 : ", pvr);
+    
     vector_match_tab(pvr, pve, 2);
 
     bit_vector_free(&pv12_AAAADEADBOSS);

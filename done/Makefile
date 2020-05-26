@@ -17,7 +17,7 @@ CFLAGS += -std=c11 -Wall -pedantic -g -fsanitize=address
 
 # uncomment if you want to add DEBUG flag
 CPPFLAGS += -DDEBUG
-CPPFLAGS += -DBLARGG
+CPPFLAGS += -DBLARGG -DWITH_PRINT
 
 # ----------------------------------------------------------------------
 # feel free to update/modifiy this part as you wish

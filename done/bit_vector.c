@@ -123,6 +123,8 @@ bit_vector_t* bit_vector_extract_zero_ext(const bit_vector_t* pbv, int64_t index
     if(size == 0 || pbv == NULL) //FIXME: WHAT DO YOU WANT FROM US??????? 
         return NULL;
 
+    bit_vector_print(pbv);
+
     bit_vector_t* res = bit_vector_create(size, 0); 
     int to_extract = size;
 
@@ -170,57 +172,62 @@ bit_vector_t* bit_vector_extract_zero_ext(const bit_vector_t* pbv, int64_t index
             i++;
         }
     }
-    
-    
-
-    
-
-
     REMOVE_TAIL32(res);
-
-
-
     return res;    
 }
 
 // ==== see bit_vector.h ========================================
 bit_vector_t* bit_vector_extract_wrap_ext(const bit_vector_t* pbv, int64_t index, size_t size){
- if(size == 0 || pbv == NULL) //FIXME: WHAT DO YOU WANT FROM US??????? 
+    if(size == 0 || pbv == NULL) //FIXME: WHAT DO YOU WANT FROM US??????? 
         return NULL;
 
+    printf("starting to wrap ext\n");
 
     bit_vector_t* res = bit_vector_create(size, 0); 
     int to_extract = size;
     int originalField = (index % pbv->size) / 32;
 
+
+
     if(index < 0){
         int fieldId = 0;
         int j = index;
 
-        while(j <= -32){
-            res->content[fieldId] = pbv->content[originalField + fieldId];
+        printf("new vector created : nb fields : %d + index : %d\n", res->nb_fields, index);
+
+        while(fieldId < pbv->nb_fields && j <= -32 ){
+            printf("j : %d / fieldId : %d\n", j, fieldId);
+            res->content[fieldId] = pbv->content[(originalField + fieldId)];
+            printf("what is the thing : %u \n", pbv->content[(originalField + fieldId)]);
             fieldId++;
             to_extract -= 32;
             j += 32;
         }
+        printf("left to extract : %d \n", to_extract);
 
         int k = index % 32;
         if (k < 0)
             k += 32;
 
+        printf("starting to fill the content of the new vec \n");
+        bit_vector_print(res);
+        putchar('\n');
+        bit_vector_print(pbv);
+        putchar('\n');
 
         int i = 0;
         uint32_t rest = (pbv->content[i] & BIT_MASK32_INV(32-k)) >> (k);
 
         while (to_extract > 0){
             res->content[fieldId+i] = (pbv->content[(originalField + fieldId + i - 1) % pbv->nb_fields] << (32-k)) | rest;
-            rest = (pbv->content[i] & BIT_MASK32_INV(32-k)) >> (k);
+            rest = (pbv->content[i%(pbv->nb_fields)] & BIT_MASK32_INV(32-k)) >> (k);
 
             i++;
             to_extract -= 32;
         }
 
     } else {
+
         
         int k = index % 32;
         int fieldId =  (index % pbv->size) / 32;
@@ -231,14 +238,10 @@ bit_vector_t* bit_vector_extract_wrap_ext(const bit_vector_t* pbv, int64_t index
 
 
         while(i < res->nb_fields){
-            res->content[i-fieldId] = pbv->content[i] >> k | rest;
+            printf("%d < %d\n", i, res->nb_fields);
+            res->content[i-fieldId] = pbv->content[i%(pbv->nb_fields)] >> k | rest;
             ++i;
             rest = ((pbv->content[(fieldId+1) % pbv->nb_fields] & BIT_MASK32(k)) << (32-k));
-        }
-
-        while(i < size / 32){
-            res->content[i] = pbv->content[fieldId + i];
-            i++;
         }
     }
 
@@ -311,6 +314,7 @@ int bit_vector_println(const char* prefix, const bit_vector_t* pbv){
 
 // ==== see bit_vector.h ========================================
 void bit_vector_free(bit_vector_t** pbv){
+    printf("YOOOOOOOOOOO INT FREEEEEEEE \n");
     free((*pbv)->content);
     free(*pbv);
     return;
