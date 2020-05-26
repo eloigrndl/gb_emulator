@@ -91,6 +91,7 @@ START_TEST(bit_vector_create_exec)
     const uint32_t pv1_5[] = PV1_5_VALUE;
     const uint32_t pv2_5[] = PV2_5_VALUE;
 
+
     pbv = bit_vector_create(PV1_SIZE * IMAGE_LINE_WORD_BITS, 1);
     ck_assert_ptr_nonnull(pbv);
     ck_assert(pbv->size == PV1_SIZE * IMAGE_LINE_WORD_BITS);
@@ -114,15 +115,13 @@ START_TEST(bit_vector_create_exec)
 
     pbv = bit_vector_create(PV1_SIZE * IMAGE_LINE_WORD_BITS / 2, 1);
     ck_assert_ptr_nonnull(pbv);
+
     vector_match_tab(pbv, pv1_5, PV1_SIZE);
     bit_vector_free(&pbv);
-
-    printf("HELLO THERE\n");
 
     pbv = bit_vector_create(PV2_SIZE * IMAGE_LINE_WORD_BITS / 4 * 3, 1);
     ck_assert_ptr_nonnull(pbv);
     vector_match_tab(pbv, pv2_5, PV2_SIZE);
-    printf("VERY END OF TEST\n");
 
     bit_vector_free(&pbv);
 #ifdef WITH_PRINT
@@ -486,6 +485,8 @@ START_TEST(bit_vector_extract_zero_exec)
     ck_assert_ptr_nonnull(pbv2_0);   
     vector_match_tab(pbv2_0, pv2_0, PV2_SIZE);
 
+
+
     bit_vector_t* pbv1_1 = bit_vector_extract_zero_ext(pbv, 0, IMAGE_LINE_WORD_BITS);
     ck_assert_ptr_nonnull(pbv1_1);
     vector_match_tab(pbv1_1, pv1_1, PV1_SIZE);
@@ -494,8 +495,7 @@ START_TEST(bit_vector_extract_zero_exec)
     bit_vector_t* pbv1_0 = bit_vector_extract_zero_ext(pbv, -IMAGE_LINE_WORD_BITS, IMAGE_LINE_WORD_BITS);
     ck_assert_ptr_nonnull(pbv1_0);
     vector_match_tab(pbv1_0, pv1_0, PV1_SIZE);
-  
-  
+    
     bit_vector_t* pbv2_5 = bit_vector_extract_zero_ext(pbv, IMAGE_LINE_WORD_BITS / 2, 2 * IMAGE_LINE_WORD_BITS);
     vector_match_tab(pbv2_5, pv2_5, PV2_SIZE);
     ck_assert_ptr_nonnull(pbv2_5);
@@ -814,51 +814,86 @@ START_TEST(bit_vector_deadboss)
     ck_assert_ptr_nonnull(pv4_8888);
     bit_vector_println("pv4_8888 : ", pv4_8888);
 
+
+
+
     bit_vector_t* pv4_2222 = bit_vector_shift(pv4_8888, -2);
     ck_assert_ptr_nonnull(pv4_2222);
+    bit_vector_println("pv4_2222 : ", pv4_2222);
+
     bit_vector_t* pv4_AAAA = bit_vector_or(bit_vector_cpy(pv4_2222), pv4_8888);
     ck_assert_ptr_nonnull(pv4_AAAA);
+    bit_vector_println("pv4_AAAA : ", pv4_AAAA);
+
     bit_vector_t* pv8_0000AAAA = bit_vector_extract_zero_ext(pv4_AAAA, 0, IMAGE_LINE_WORD_BITS);
     ck_assert_ptr_nonnull(pv8_0000AAAA);
+    bit_vector_println("pv8_0000AAAA : ", pv8_0000AAAA);
+
 
 
     bit_vector_t* interm = NULL;
     bit_vector_t* interm2 = NULL;
-    bit_vector_t* pv1_D = bit_vector_or(bit_vector_cpy(pv1_8), bit_vector_or(interm  = bit_vector_shift(pv1_8, -1),
-                                        interm2 = bit_vector_shift(pv1_8, -3)));
+    interm  = bit_vector_shift(pv1_8, -1);
+    bit_vector_println("interm : ", interm);
+
+
+    interm2 = bit_vector_shift(pv1_8, -3);
+    bit_vector_println("interm2 : ", interm2);
+
+    bit_vector_t* pv1_D = bit_vector_or(bit_vector_cpy(pv1_8), bit_vector_or(interm,
+                                        interm2));
+    bit_vector_println("pv1_D : ", pv1_D);
+
+
     bit_vector_free(&interm);
     bit_vector_free(&interm2);
     ck_assert_ptr_nonnull(pv1_D);
     bit_vector_t* pv1_E = bit_vector_or(bit_vector_cpy(pv1_8), bit_vector_or(interm  = bit_vector_shift(pv1_8, -1),
                                         interm2 = bit_vector_shift(pv1_8, -2)));
+    bit_vector_println("pv1_E : ", pv1_E);
     bit_vector_free(&interm);
     bit_vector_free(&interm2);
     ck_assert_ptr_nonnull(pv1_E);
     bit_vector_t* pv1_A = bit_vector_or(bit_vector_cpy(pv1_8), interm = bit_vector_shift(pv1_8, -2));
+    bit_vector_println("pv1_A : ", pv1_A);
     bit_vector_free(&interm);
     ck_assert_ptr_nonnull(pv1_A);
     bit_vector_t* pv1_B = bit_vector_or(bit_vector_cpy(pv1_A), interm = bit_vector_shift(pv1_8, -3));
     bit_vector_free(&interm);
     ck_assert_ptr_nonnull(pv1_B);
+    bit_vector_println("pv1_B : ", pv1_B);
+
     bit_vector_t* pv1_5 = bit_vector_not(bit_vector_cpy(pv1_A));
     ck_assert_ptr_nonnull(pv1_5);
+    bit_vector_println("pv1_5 : ", pv1_5);
 
     bit_vector_t* pv4_D0A0 = bit_vector_or(bit_vector_and(bit_vector_extract_zero_ext(pv1_A, -4, 16), pv4_AAAA),
                                            interm = bit_vector_extract_zero_ext(pv1_D, -12, 16)) ;
     bit_vector_free(&interm);
     ck_assert_ptr_nonnull(pv4_D0A0);
+    bit_vector_println("pv4_D0A0 : ", pv4_D0A0);
+
+
     bit_vector_t* pv4_0E0D = bit_vector_or(bit_vector_extract_zero_ext(pv1_E, -8, 16),
                                            interm = bit_vector_extract_zero_ext(pv1_D, 0, 16)) ;
     bit_vector_free(&interm);
     ck_assert_ptr_nonnull(pv4_0E0D);
+    bit_vector_println("pv4_0E0D : ", pv4_0E0D);
+
     bit_vector_t* pv4_DEAD = bit_vector_or(pv4_D0A0, pv4_0E0D);
     ck_assert_ptr_nonnull(pv4_DEAD);
+    bit_vector_println("pv4_DEAD : ", pv4_DEAD);
 
     bit_vector_t* pv4_00SS = bit_vector_extract_zero_ext(interm = bit_vector_extract_wrap_ext(pv1_5, -64, 8), 0, 16);
     bit_vector_free(&interm);
     ck_assert_ptr_nonnull(pv4_00SS);
+    bit_vector_println("pv4_00SS : ", pv4_00SS);
+
+
     bit_vector_t* pv4_BOSS = bit_vector_or(bit_vector_extract_zero_ext(pv1_B, -12, 16), pv4_00SS);
     ck_assert_ptr_nonnull(pv4_BOSS);
+    bit_vector_println("pv4_BOSS : ", pv4_BOSS);
+
 
     bit_vector_t* interm3 = NULL;
     bit_vector_t* pv8_DEADBOSS = bit_vector_join(interm  = bit_vector_extract_wrap_ext(pv4_BOSS, 0, IMAGE_LINE_WORD_BITS),
@@ -866,11 +901,20 @@ START_TEST(bit_vector_deadboss)
     bit_vector_free(&interm);
     bit_vector_free(&interm2);
     ck_assert_ptr_nonnull(pv8_DEADBOSS);
+    bit_vector_println("pv8_DEADBOSS : ", pv8_DEADBOSS);
 
-    bit_vector_t* pv12_AAAADEADBOSS = bit_vector_extract_zero_ext(
-                                      interm = bit_vector_join(interm2 = bit_vector_extract_wrap_ext(pv8_DEADBOSS, -IMAGE_LINE_WORD_BITS, 2 * IMAGE_LINE_WORD_BITS),
-                                              interm3 = bit_vector_extract_wrap_ext(pv8_0000AAAA, IMAGE_LINE_WORD_BITS, 2 * IMAGE_LINE_WORD_BITS), IMAGE_LINE_WORD_BITS
-                                                              ), 0, 48);
+
+    interm2 = bit_vector_extract_wrap_ext(pv8_DEADBOSS, -IMAGE_LINE_WORD_BITS, 2 * IMAGE_LINE_WORD_BITS);
+    bit_vector_println("interm2      : ", interm2);
+
+    interm3 = bit_vector_extract_wrap_ext(pv8_0000AAAA,  IMAGE_LINE_WORD_BITS, 2 * IMAGE_LINE_WORD_BITS);
+    bit_vector_println("interm3      : ", interm3);
+
+    interm = bit_vector_join(interm2, interm3, IMAGE_LINE_WORD_BITS);
+    bit_vector_println("interm       : ", interm);
+
+
+    bit_vector_t* pv12_AAAADEADBOSS = bit_vector_extract_zero_ext(interm, 0, 48);
     bit_vector_free(&interm);
     bit_vector_free(&interm2);
     bit_vector_free(&interm3);
@@ -882,7 +926,7 @@ START_TEST(bit_vector_deadboss)
 
     
 
-    bit_vector_println("vec 1 : ", pvr);
+    bit_vector_println("vec 1        :                 ", pvr);
     
     vector_match_tab(pvr, pve, 2);
 
@@ -923,6 +967,8 @@ Suite* cartridge_test_suite()
     Suite* s = suite_create("bit_vector.c Tests");
 
     Add_Case(s, tc1, "BitVector Tests");
+    
+    
     tcase_add_test(tc1, bit_vector_create_exec);
     tcase_add_test(tc1, bit_vector_cpy_exec);
     tcase_add_test(tc1, bit_vector_get_exec);
@@ -930,13 +976,14 @@ Suite* cartridge_test_suite()
     tcase_add_test(tc1, bit_vector_and_exec);
     tcase_add_test(tc1, bit_vector_or_exec);
     tcase_add_test(tc1, bit_vector_xor_exec);
-    tcase_add_test(tc1, bit_vector_extract_zero_exec);
+    
     tcase_add_test(tc1, bit_vector_extract_wrap_exec);
-    tcase_add_test(tc1, bit_vector_shift_exec);
     tcase_add_test(tc1, bit_vector_join_exec);
+    tcase_add_test(tc1, bit_vector_shift_exec);
     tcase_add_test(tc1, bit_vector_various);
     tcase_add_test(tc1, bit_vector_deadboss);
-
+    
+    tcase_add_test(tc1, bit_vector_extract_zero_exec);
     return s;
 }
 
