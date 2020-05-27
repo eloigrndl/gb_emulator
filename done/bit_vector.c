@@ -120,53 +120,33 @@ bit_vector_t* bit_vector_xor(bit_vector_t* pbv1, const bit_vector_t* pbv2){
 
 // ==== see bit_vector.h ========================================
 bit_vector_t* bit_vector_extract_zero_ext(const bit_vector_t* pbv, int64_t index, size_t size){
-    if(size == 0 || pbv == NULL) //FIXME: WHAT DO YOU WANT FROM US??????? 
+    if(size == 0 || pbv == NULL)
         return NULL;
 
     bit_vector_t* res = bit_vector_create(size, 0); 
-    int to_extract = size;
 
-    if(index < 0){
+    int i = index < 0 ? -index : 0;
 
-        for(int i = -index; i < size; ++i){
-            if(i+index >= pbv->size){
-                continue;
-            } else {
-                if((pbv->content[(i+index)/32] & (1 << (i+index))) != 0)
-                    res->content[i/32] |= (1 << (i%32));
-            }
-
-            
+    for(; i < size; ++i){     
+        if(!(i+index >= pbv->size) && (pbv->content[(i + index)/32] & (1 << (i + index))) != 0){
+            res->content[i/32] |= (1 << (i%32)); 
         }
-    } else {
-        for(int i = 0; i < size; ++i){    
-            if(i+index >= pbv->size){
-                continue;       
-            } else {   
-                if((pbv->content[(i+index)/32] & (1 << (i+index))) != 0)
-                    res->content[i/32] |= (1 << (i%32)); 
-            }               
-        }         
-    }
+    }   
+
     REMOVE_TAIL32(res);
     return res;    
 }
 
 // ==== see bit_vector.h ========================================
 bit_vector_t* bit_vector_extract_wrap_ext(const bit_vector_t* pbv, int64_t index, size_t size){
-    if(size == 0 || pbv == NULL) //FIXME: WHAT DO YOU WANT FROM US??????? 
+    if(size == 0 || pbv == NULL)
         return NULL;
 
     bit_vector_t* res = bit_vector_create(size, 0); 
 
-    if(index < 0){
-
-        int64_t newIndex = index%pbv->size + pbv->size;
-    }
-
     for(int i = 0; i < size; ++i){
-        if((pbv->content[((i+index)%pbv->size)/32] & 1 << ((i+index)%pbv->size)) != 0){
-            res->content[i/32] |= (1 << (i%32));
+        if((pbv->content[((i + index) % pbv->size)/32] & 1 << ((i + index) % pbv->size)) != 0){
+            res->content[i / 32] |= (1 << (i % 32));
         }
     }
     
@@ -217,7 +197,6 @@ bit_vector_t* bit_vector_join(const bit_vector_t* pbv1, const bit_vector_t* pbv2
             }
         }
     }
-    bit_vector_println("res  : ", res);
 
     return res;
 }
