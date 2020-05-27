@@ -471,6 +471,10 @@ START_TEST(bit_vector_extract_zero_exec)
     const size_t size = 5+2*IMAGE_LINE_WORD_BITS;
     bit_vector_t* result   = bit_vector_extract_zero_ext(NULL, 0, size);
     bit_vector_t* expected = bit_vector_create(size, 0);
+    
+    ck_assert_ptr_nonnull(result);
+    ck_assert_ptr_nonnull(expected);
+    
     vector_match_vector(result, expected);
     bit_vector_free(&expected);
     bit_vector_free(&result);
@@ -925,4 +929,3 @@ Suite* cartridge_test_suite()
 }
 
 TEST_SUITE(cartridge_test_suite)
-

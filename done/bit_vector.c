@@ -120,10 +120,13 @@ bit_vector_t* bit_vector_xor(bit_vector_t* pbv1, const bit_vector_t* pbv2){
 
 // ==== see bit_vector.h ========================================
 bit_vector_t* bit_vector_extract_zero_ext(const bit_vector_t* pbv, int64_t index, size_t size){
-    if(size == 0 || pbv == NULL)
+    if(size == 0)
         return NULL;
 
     bit_vector_t* res = bit_vector_create(size, 0); 
+
+    if(pbv == NULL)
+        return res;
 
     int i = index < 0 ? -index : 0;
 
