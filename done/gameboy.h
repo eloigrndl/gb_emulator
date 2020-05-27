@@ -16,7 +16,8 @@
 #include "cartridge.h"
 #include "cpu.h"
 #include "timer.h"
-
+#include "lcdc.h"
+#include "joypad.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,21 +33,23 @@ extern "C" {
  *        Regroups everything needed to simulate the Game Boy.
  */
  
- typedef struct{
-    bus_t bus;
-    component_t components[GB_NB_COMPONENTS];
-    size_t nb_connected;
-    component_t bootrom;
-    bit_t boot;
-    cpu_t cpu;
-    uint64_t cycles;
-    cartridge_t cartridge;
-    gbtimer_t timer;
+ typedef struct gameboy_ {
+   bus_t bus;
+   cpu_t cpu;
+   uint64_t cycles;
+   gbtimer_t timer;
+   cartridge_t cartridge;
+   component_t components[GB_NB_COMPONENTS];
+   size_t nb_connected;
+   component_t bootrom;
+   bit_t boot;
+   lcdc_t screen;
+   joypad_t pad;
 
-    uint8_t DIV;
-    uint8_t TAC;
-    uint8_t TIMA;
-    uint8_t TMA;
+   uint8_t DIV;
+   uint8_t TAC;
+   uint8_t TIMA;
+   uint8_t TMA;
 
  } gameboy_t; 
 

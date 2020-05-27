@@ -31,7 +31,6 @@ extern "C" {
         int blargg_bus_listener(gameboy_t* gameboy, addr_t addr){
             M_REQUIRE_NON_NULL(gameboy);
 
-           // printf("Expected: %X, received: %x\n", BLARGG_REG, addr);
             if(BLARGG_REG == addr){
                 printf("%c", *(gameboy->bus[BLARGG_REG]));
             }
@@ -94,8 +93,10 @@ extern "C" {
         (*(gameboy->cpu.bus))[REG_TIMA] = &(gameboy->TIMA);
         (*(gameboy->cpu.bus))[REG_TMA] = &(gameboy->TMA);
         
+        M_REQUIRE_NO_ERR(lcdc_init(gameboy));
+        M_REQUIRE_NO_ERR(lcdc_plug(&(gameboy->screen), gameboy->bus));
 
-        M_REQUIRE_NO_ERR(timer_init(&(gameboy->timer),&(gameboy->cpu)));
+        M_REQUIRE_NO_ERR(timer_init(&(gameboy->timer), &(gameboy->cpu)));
         
         M_REQUIRE_NO_ERR(cartridge_init(&(gameboy->cartridge), filename));
         M_REQUIRE_NO_ERR(cartridge_plug(&(gameboy->cartridge), gameboy->bus));
@@ -104,6 +105,7 @@ extern "C" {
         M_REQUIRE_NO_ERR(bootrom_init(&(gameboy->bootrom)));
         M_REQUIRE_NO_ERR(bootrom_plug(&(gameboy->bootrom), gameboy->bus));
         gameboy->cpu.IME = 1;
+
 
         return ERR_NONE;
     }
@@ -123,29 +125,29 @@ extern "C" {
         gameboy->nb_connected = 0;
         cpu_free(&(gameboy->cpu));
         cartridge_free(&(gameboy->cartridge));
-        component_free(&(gameboy->bootrom));        
+        component_free(&(gameboy->bootrom)); 
+        lcdc_free(&(gameboy->screen));       
     }
 
 
     // ==== see gameboy.h ========================================
     int gameboy_run_until(gameboy_t* gameboy, uint64_t cycle){
         M_REQUIRE_NON_NULL(gameboy);
+        
         while(gameboy->cycles < cycle){
-            
+           M_REQUIRE_NO_ERR(lcdc_cycle(&(gameboy->screen), gameboy->cycles));
            M_REQUIRE_NO_ERR(timer_cycle(&(gameboy->timer)));
            M_REQUIRE_NO_ERR(cpu_cycle(&(gameboy->cpu)));
+           gameboy->cycles++;
 
+           M_REQUIRE_NO_ERR(lcdc_bus_listener(&(gameboy->screen), (gameboy->cpu).write_listener));
            M_REQUIRE_NO_ERR(timer_bus_listener(&(gameboy->timer), (gameboy->cpu).write_listener));
            M_REQUIRE_NO_ERR(bootrom_bus_listener(gameboy, (gameboy->cpu).write_listener));
-           
-           #ifdef BLARGG
+
+            #ifdef BLARGG
                 M_REQUIRE_NO_ERR(blargg_bus_listener(gameboy, (gameboy->cpu).write_listener));
-                if(gameboy->cycles%17556 == 0 && gameboy->cycles > 0){
-                    cpu_request_interrupt(&(gameboy->cpu), VBLANK);
-                }
            #endif
            
-           gameboy->cycles++;
         }
         return ERR_NONE;
     } 

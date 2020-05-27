@@ -118,7 +118,7 @@ static gboolean keyrelease_handler(guint keyval, gpointer data)
     case 'A':
     case 'a':
         do_key(A);
-        return TRUE;
+        return TRUE;x
     }
 
     return FALSE;
