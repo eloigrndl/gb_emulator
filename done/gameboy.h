@@ -40,7 +40,7 @@ extern "C" {
    gbtimer_t timer;
    cartridge_t cartridge;
    component_t components[GB_NB_COMPONENTS];
-   size_t nb_connected;
+   size_t nb_components;
    component_t bootrom;
    bit_t boot;
    lcdc_t screen;

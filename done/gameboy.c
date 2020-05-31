@@ -55,7 +55,7 @@ extern "C" {
         M_EXIT_IF_NULL(echo_ram = calloc(1, sizeof(component_t)), sizeof(component_t));
         M_REQUIRE_NO_ERR(component_create(echo_ram, 0));
         M_REQUIRE_NO_ERR(component_shared(echo_ram, &(gameboy->components[0])));
-        ++gameboy->nb_connected;
+        ++gameboy->nb_components;
 
         echo_ram->mem->size = MEM_SIZE(ECHO_RAM);
         M_REQUIRE_NO_ERR(bus_plug(gameboy->bus, echo_ram, ECHO_RAM_START, ECHO_RAM_END));
@@ -63,23 +63,23 @@ extern "C" {
 
         M_REQUIRE_NO_ERR(component_create(&(gameboy->components[1]), MEM_SIZE(REGISTERS)));  
         M_REQUIRE_NO_ERR(bus_plug(gameboy->bus, &(gameboy->components[1]), REGISTERS_START, REGISTERS_END));
-        ++gameboy->nb_connected;
+        ++gameboy->nb_components;
         
         M_REQUIRE_NO_ERR(component_create(&(gameboy->components[2]), MEM_SIZE(EXTERN_RAM)));  
         M_REQUIRE_NO_ERR(bus_plug(gameboy->bus, &(gameboy->components[2]), EXTERN_RAM_START, EXTERN_RAM_END));
-        ++gameboy->nb_connected;
+        ++gameboy->nb_components;
         
         M_REQUIRE_NO_ERR(component_create(&(gameboy->components[3]), MEM_SIZE(VIDEO_RAM)));  
         M_REQUIRE_NO_ERR(bus_plug(gameboy->bus, &(gameboy->components[3]), VIDEO_RAM_START, VIDEO_RAM_END));
-        ++gameboy->nb_connected;
+        ++gameboy->nb_components;
         
         M_REQUIRE_NO_ERR(component_create(&(gameboy->components[4]), MEM_SIZE(GRAPH_RAM)));  
         M_REQUIRE_NO_ERR(bus_plug(gameboy->bus, &(gameboy->components[4]), GRAPH_RAM_START, GRAPH_RAM_END));
-        ++gameboy->nb_connected;
+        ++gameboy->nb_components;
 
         M_REQUIRE_NO_ERR(component_create(&(gameboy->components[5]), MEM_SIZE(USELESS)));  
         M_REQUIRE_NO_ERR(bus_plug(gameboy->bus, &(gameboy->components[5]), USELESS_START, USELESS_END));
-        ++gameboy->nb_connected;
+        ++gameboy->nb_components;
 
         M_REQUIRE_NO_ERR(cpu_init(&(gameboy->cpu)));
         M_REQUIRE_NO_ERR(cpu_plug(&(gameboy->cpu), &(gameboy->bus)));
@@ -114,7 +114,7 @@ extern "C" {
     void gameboy_free(gameboy_t* gameboy){
         if(gameboy == NULL) return;
         
-        for(int i = 0; i < gameboy->nb_connected; ++i){
+        for(int i = 0; i < gameboy->nb_components; ++i){
             bus_unplug(gameboy->bus, &(gameboy->components[i]));
             component_free(&(gameboy->components[i]));
         }
@@ -122,7 +122,7 @@ extern "C" {
         for(int i = ECHO_RAM_START; i <= ECHO_RAM_END; ++i)
             gameboy->bus[i] = NULL;
         
-        gameboy->nb_connected = 0;
+        gameboy->nb_components = 0;
         cpu_free(&(gameboy->cpu));
         cartridge_free(&(gameboy->cartridge));
         component_free(&(gameboy->bootrom)); 
@@ -146,7 +146,7 @@ extern "C" {
 
             #ifdef BLARGG
                 M_REQUIRE_NO_ERR(blargg_bus_listener(gameboy, (gameboy->cpu).write_listener));
-           #endif
+            #endif
            
         }
         return ERR_NONE;

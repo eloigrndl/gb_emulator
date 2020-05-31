@@ -44,9 +44,9 @@ uint64_t get_time_in_GB_cycles_since(struct timeval* from){
 // ======================================================================
 static void generate_image(guchar* pixels, int height, int width)
 {   
+    //TODO: check for errors
     gameboy_run_until(&gb, get_time_in_GB_cycles_since(&start));
-    printf("drawing\n");
-    guchar pixelval = 0;
+    uint8_t pixelval = 0;
     for(int i = 0; i < width; ++i){
         for(int j = 0; j < height; ++j){
             image_get_pixel(&pixelval, &(gb.screen.display), i/SCALE_FACTOR, j/SCALE_FACTOR);
