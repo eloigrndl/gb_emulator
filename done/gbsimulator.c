@@ -117,6 +117,15 @@ static gboolean keypress_handler(guint keyval, gpointer data)
         do_key(SELECT);
         M_REQUIRE_NO_ERR(joypad_key_pressed(&(gb.pad), SELECT_KEY));
         return TRUE;
+    case GDK_KEY_space:
+        {
+            puts("PAUSE key pressed");
+            struct timeval now;
+            gettimeofday(&now, NULL);
+            timersub(&now, &paused, &paused);
+            timeradd(&start, &paused, &start);
+            timerclear(&paused);
+        }
     }
 
     return ds_simple_key_handler(keyval, data);
@@ -219,7 +228,7 @@ int main(int argc, char *argv[])
     }
 
     timerclear(&paused);
-    timerclear(&start);
+    //timerclear(&start); //FIXME: necessary?
     gettimeofday(&start, NULL);
 
     sd_launch(&argc, &argv, sd_init("Gameboy", LCD_WIDTH * SCALE_FACTOR, LCD_HEIGHT * SCALE_FACTOR, 40,
