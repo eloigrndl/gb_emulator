@@ -69,44 +69,53 @@ static void generate_image(guchar* pixels, int height, int width)
 
 static gboolean keypress_handler(guint keyval, gpointer data)
 {
+    //FIXME: need to remove the print?
     simple_image_displayer_t* const psd = data;
     if (psd == NULL) return FALSE;
 
     switch(keyval) {
     case GDK_KEY_Up:
         do_key(UP);
+        M_REQUIRE_NO_ERR(joypad_key_pressed(&(gb.pad), UP_KEY));
         return TRUE;
 
     case GDK_KEY_Down:
         do_key(DOWN);
+        M_REQUIRE_NO_ERR(joypad_key_pressed(&(gb.pad), DOWN_KEY));
         return TRUE;
 
     case GDK_KEY_Right:
         do_key(RIGHT);
+        M_REQUIRE_NO_ERR(joypad_key_pressed(&(gb.pad), RIGHT_KEY));
         return TRUE;
 
     case GDK_KEY_Left:
         do_key(LEFT);
+        M_REQUIRE_NO_ERR(joypad_key_pressed(&(gb.pad), LEFT_KEY));
         return TRUE;
 
     case 'A':
     case 'a':
         do_key(A);
+        M_REQUIRE_NO_ERR(joypad_key_pressed(&(gb.pad), A_KEY));
         return TRUE;
 
     case 'S':
     case 's':
         do_key(B);
+        M_REQUIRE_NO_ERR(joypad_key_pressed(&(gb.pad), B_KEY));
         return TRUE;
 
     case 'K':
     case 'k':
         do_key(START);
+        M_REQUIRE_NO_ERR(joypad_key_pressed(&(gb.pad), START_KEY));
         return TRUE;
     
     case 'L':
-    case 'l':
+    case 'l':            
         do_key(SELECT);
+        M_REQUIRE_NO_ERR(joypad_key_pressed(&(gb.pad), SELECT_KEY));
         return TRUE;
     }
 
@@ -133,38 +142,46 @@ static gboolean keyrelease_handler(guint keyval, gpointer data)
     switch(keyval) {
     case GDK_KEY_Up:
         do_key(UP);
+        M_REQUIRE_NO_ERR(joypad_key_released(&(gb.pad), UP_KEY));
         return TRUE;
 
     case GDK_KEY_Down:
         do_key(DOWN);
+        M_REQUIRE_NO_ERR(joypad_key_released(&(gb.pad), DOWN_KEY));
         return TRUE;
 
     case GDK_KEY_Right:
         do_key(RIGHT);
+        M_REQUIRE_NO_ERR(joypad_key_released(&(gb.pad), RIGHT_KEY));
         return TRUE;
 
     case GDK_KEY_Left:
         do_key(LEFT);
+        M_REQUIRE_NO_ERR(joypad_key_released(&(gb.pad), LEFT_KEY));
         return TRUE;
 
     case 'A':
     case 'a':
         do_key(A);
+        M_REQUIRE_NO_ERR(joypad_key_released(&(gb.pad), A_KEY));
         return TRUE;
 
     case 'S':
     case 's':
         do_key(B);
+        M_REQUIRE_NO_ERR(joypad_key_released(&(gb.pad), B_KEY));
         return TRUE;
 
     case 'K':
     case 'k':
         do_key(START);
+        M_REQUIRE_NO_ERR(joypad_key_released(&(gb.pad), START_KEY));
         return TRUE;
     
     case 'L':
-    case 'l':
+    case 'l':            
         do_key(SELECT);
+        M_REQUIRE_NO_ERR(joypad_key_released(&(gb.pad), SELECT_KEY));
         return TRUE;
     }
 
@@ -174,6 +191,7 @@ static gboolean keyrelease_handler(guint keyval, gpointer data)
 
 // ======================================================================
 
+//TODO: remove
 static void error(const char* pgm, const char* msg)
 {
     fputs("ERROR: ", stderr);
