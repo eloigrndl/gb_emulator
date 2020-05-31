@@ -6,11 +6,14 @@
 #include "util.h"
 #include <sys/time.h> 
 // Key press bits
-#define MY_KEY_UP_BIT    0x01
-#define MY_KEY_DOWN_BIT  0x02
-#define MY_KEY_RIGHT_BIT 0x04
-#define MY_KEY_LEFT_BIT  0x08
-#define MY_KEY_A_BIT     0x10
+#define MY_KEY_UP_BIT       0x01
+#define MY_KEY_DOWN_BIT     0x02
+#define MY_KEY_RIGHT_BIT    0x04
+#define MY_KEY_LEFT_BIT     0x08
+#define MY_KEY_A_BIT        0x10
+#define MY_KEY_B_BIT        0X20
+#define MY_KEY_START_BIT    0x30
+#define MY_KEY_SELECT_BIT   0x40
 
 #define SCALE_FACTOR     4
 gameboy_t gb;
@@ -53,7 +56,6 @@ static void generate_image(guchar* pixels, int height, int width)
             set_grey(pixels,  j, i, width, 255 - 85 * pixelval);
         }
     } 
-    
 }
 
 // ======================================================================
@@ -90,6 +92,21 @@ static gboolean keypress_handler(guint keyval, gpointer data)
     case 'A':
     case 'a':
         do_key(A);
+        return TRUE;
+
+    case 'S':
+    case 's':
+        do_key(B);
+        return TRUE;
+
+    case 'K':
+    case 'k':
+        do_key(START);
+        return TRUE;
+    
+    case 'L':
+    case 'l':
+        do_key(SELECT);
         return TRUE;
     }
 
@@ -133,6 +150,21 @@ static gboolean keyrelease_handler(guint keyval, gpointer data)
     case 'A':
     case 'a':
         do_key(A);
+        return TRUE;
+
+    case 'S':
+    case 's':
+        do_key(B);
+        return TRUE;
+
+    case 'K':
+    case 'k':
+        do_key(START);
+        return TRUE;
+    
+    case 'L':
+    case 'l':
+        do_key(SELECT);
         return TRUE;
     }
 

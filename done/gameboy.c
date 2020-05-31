@@ -96,6 +96,8 @@ extern "C" {
         M_REQUIRE_NO_ERR(lcdc_init(gameboy));
         M_REQUIRE_NO_ERR(lcdc_plug(&(gameboy->screen), gameboy->bus));
 
+        M_REQUIRE_NO_ERR(joypad_init_and_plug(&(gameboy->pad), &(gameboy->cpu)));
+
         M_REQUIRE_NO_ERR(timer_init(&(gameboy->timer), &(gameboy->cpu)));
         
         M_REQUIRE_NO_ERR(cartridge_init(&(gameboy->cartridge), filename));
@@ -140,9 +142,10 @@ extern "C" {
            M_REQUIRE_NO_ERR(cpu_cycle(&(gameboy->cpu)));
            gameboy->cycles++;
 
+           M_REQUIRE_NO_ERR(bootrom_bus_listener(gameboy, (gameboy->cpu).write_listener));
            M_REQUIRE_NO_ERR(lcdc_bus_listener(&(gameboy->screen), (gameboy->cpu).write_listener));
            M_REQUIRE_NO_ERR(timer_bus_listener(&(gameboy->timer), (gameboy->cpu).write_listener));
-           M_REQUIRE_NO_ERR(bootrom_bus_listener(gameboy, (gameboy->cpu).write_listener));
+           M_REQUIRE_NO_ERR(joypad_bus_listener(&(gameboy->pad), (gameboy->cpu).write_listener));
 
             #ifdef BLARGG
                 M_REQUIRE_NO_ERR(blargg_bus_listener(gameboy, (gameboy->cpu).write_listener));
