@@ -80,7 +80,11 @@ bit_t timer_state(gbtimer_t* timer){
     bit_t TAC_bit = bit_get(current_state, 2);
     uint8_t two_lsb = current_state & 0x3;
 
-    return TAC_bit & (two_lsb == 0 ? bit_get(msb8(timer->counter), 1) : bit_get(timer->counter, 2 * two_lsb + 1));
+    switch(two_lsb){
+        case 0: return TAC_bit & bit_get(msb8(timer->counter), 1);
+        default:
+                return TAC_bit & bit_get(timer->counter, 2 * two_lsb + 1);
+    }
 }
 
 // ==== see timer.h ========================================

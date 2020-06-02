@@ -25,9 +25,9 @@ int cartridge_init_from_file(component_t* c, const char* filename){
     FILE* file = fopen(filename, "rb");
     M_REQUIRE_NON_NULL_CUSTOM_ERR(file, ERR_IO);
     
-    M_EXIT_IF_ERR_DO_SOMETHING(c->mem->memory == NULL ? ERR_IO : ERR_NONE, fclose(file));
-    M_EXIT_IF_ERR_DO_SOMETHING((ferror(file) || fread(c->mem->memory, 1, BANK_ROM_SIZE, file) < BANK_ROM_SIZE) ? ERR_IO : ERR_NONE, fclose(file));
-    M_EXIT_IF_ERR_DO_SOMETHING((c->mem->memory[CARTRIDGE_TYPE_ADDR] != 0) ? ERR_NOT_IMPLEMENTED : ERR_NONE, fclose(file));
+    M_EXIT_IF_ERR_DO_SOMETHING(c->mem->memory == NULL ? ERR_IO : ERR_NONE, fclose(file); component_free(c));
+    M_EXIT_IF_ERR_DO_SOMETHING((ferror(file) || fread(c->mem->memory, 1, BANK_ROM_SIZE, file) < BANK_ROM_SIZE) ? ERR_IO : ERR_NONE, fclose(file); component_free(c));
+    M_EXIT_IF_ERR_DO_SOMETHING((c->mem->memory[CARTRIDGE_TYPE_ADDR] != 0) ? ERR_NOT_IMPLEMENTED : ERR_NONE, fclose(file); component_free(c));
 
     fclose(file);
 

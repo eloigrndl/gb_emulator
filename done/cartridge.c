@@ -43,8 +43,12 @@ int cartridge_init(cartridge_t* ct, const char* filename){
     M_REQUIRE_NON_NULL(filename);
 
     M_REQUIRE_NO_ERR(component_create(&(ct->c), BANK_ROM_SIZE));
-    M_REQUIRE_NO_ERR(cartridge_init_from_file(&(ct->c), filename));
-    return ERR_NONE;
+
+    error_code e = ERR_NONE;
+    if((e = cartridge_init_from_file(&(ct->c), filename)) != ERR_NONE){
+        component_free(&(ct->c));
+    }
+    return e;
 }
 
 

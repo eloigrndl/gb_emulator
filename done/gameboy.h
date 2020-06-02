@@ -46,11 +46,6 @@ extern "C" {
    lcdc_t screen;
    joypad_t pad;
 
-   uint8_t DIV;
-   uint8_t TAC;
-   uint8_t TIMA;
-   uint8_t TMA;
-
  } gameboy_t; 
 
  

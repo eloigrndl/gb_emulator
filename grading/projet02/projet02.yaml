@@ -1,5 +1,5 @@
 - id: group_a3e4a6
-- Makefile:           0 # max 5,
+- Makefile:           0 # max 5,        //FIXME: envoyer mail
 - bit.h: # NE PAS REMPLIR CETTE LIGNE
       typedef rot_dir_t: 1                   # max 1,
 - bit.c: # NE PAS REMPLIR CETTE LIGNE
@@ -17,7 +17,7 @@
 - alu.h: # NE PAS REMPLIR CETTE LIGNE
       alu_output_t_t:    3               # max 3,
 - alu.c: # NE PAS REMPLIR CETTE LIGNE
-  - get_flag():          5               # max 6, Pas de vérification que le flag est valide
+  - get_flag():          5               # max 6, Pas de vérification que le flag est valide // FIXME: check if correct
   - set_flag():          5               # max 6, Pas de vérification que le flag est valide
   - alu_add8(): # NE PAS REMPLIR CETTE LIGNE
       vérification d'usage:  1        # max 1,
@@ -62,7 +62,7 @@
       component_t:                   5        # max 5,
 - component.c: # NE PAS REMPLIR CETTE LIGNE
   - component_create():              6 # max 6,
-  - component_shared():              3 # max 3.5, Pas de vérification de la mémoire de c_old
+  - component_shared():              3 # max 3.5, Pas de vérification de la mémoire de c_old //FIXME why is our solution not sufficient?
   - component_free():                5 # max 5,
 - memory.h: # NE PAS REMPLIR CETTE LIGNE
       addr_t:        1 # max 1,
@@ -79,7 +79,7 @@
       init de base:               2    # max 2,
       plug work-ram:              5    # max 5,
       plug echo-ram:              2.5  # max 2.5,
-  - gameboy_free():               4    # max 5, copier-coller pour l'echo ram unplug
+  - gameboy_free():               4    # max 5, copier-coller pour l'echo ram unplug //FIXME: ????
 - cpu.h: # NE PAS REMPLIR CETTE LIGNE
       typedef:           1 # max 1,
       une reg-pair:      5 # max 5,
@@ -110,9 +110,9 @@
   - cartridge_init_from_file(): # NE PAS REMPLIR CETTE LIGNE
       vérifications d'usage:           1       # max 1,
       open:                            2       # max 2,
-      size:                            4       # max 5, Il aurait ètè plus adapté d'utiliser la taille de la structure qu'une constante
+      size:                            4       # max 5, Il aurait ètè plus adapté d'utiliser la taille de la structure qu'une constante //FIXME: ????
       read:                            5       # max 5,
-  - cartridge_init():                  5       # max 6, Le componenet n'est pas free en cas d'erreur de lecture du fichier
+  - cartridge_init():                  5       # max 6, Le componenet n'est pas free en cas d'erreur de lecture du fichier // Fixed
   - cartridge_plug():                  2       # max 2,
   - cartridge_free():                  2       # max 2,
 - gameboy.h (2e partie): # NE PAS REMPLIR CETTE LIGNE
@@ -135,7 +135,7 @@
       cpu:                                  2   # max 2,
   - blargg_bus_listener():                  5   # max 5,
   - gameboy_bus_listener(():                6   # max 6,
-  - gameboy_run_until():                    7   # max 8, L'interruption doit être levée même dans l'absence de BLARGG
+  - gameboy_run_until():                    7   # max 8, L'interruption doit être levée même dans l'absence de BLARGG //FIXME: still the case?
 - opcode.h: # NE PAS REMPLIR CETTE LIGNE
       instruction_t:          4          # max 4,
 - cpu.h (2e partie): # NE PAS REMPLIR CETTE LIGNE
@@ -145,7 +145,7 @@
   - cpu_plug():            6   # max 6,
   - cpu_free():            5   # max 5,
   - cpu_dispatch():  # NE PAS REMPLIR CETTE LIGNE
-      modularisation:             1   # max 3, Le changement des PC peut être factorisé et trop de magic numbers
+      modularisation:             1   # max 3, Le changement des PC peut être factorisé et trop de magic numbers //FIXME: why?
       initialisations:            4   # max 4,
       timing:                     3   # max 3,
       PC:                         3   # max 3,
@@ -154,8 +154,8 @@
       JP_HL:                      3   # max 3,
       JP_N16:                     3   # max 3,
       JR_E8:                      3   # max 3,
-      CALL_CC_N16:                4   # max 5, Erreur de push non remontée
-      CALL_N16:                   2   # max 3, Erreur de push non remontée
+      CALL_CC_N16:                4   # max 5, Erreur de push non remontée //Fixed
+      CALL_N16:                   2   # max 3, Erreur de push non remontée //fixed
       RET:                        3   # max 3,
       RET_CC:                     5   # max 5,
       RST_U3:                     5   # max 5,
@@ -163,11 +163,11 @@
       RETI:                       3   # max 3,
       HALT:                       1   # max 1,
   - cpu_do_cycle():  # NE PAS REMPLIR CETTE LIGNE
-      gestion des interruptions:  11     # max 15, Une erreur lors du push n'est pas remontée et des magic numbers
+      gestion des interruptions:  11     # max 15, Une erreur lors du push n'est pas remontée //Fixed et des magic numbers 
       boucle usuelle:             5      # max 5,
   - cpu_cycle():  # NE PAS REMPLIR CETTE LIGNE
       reset write_listener:       2   # max 2,
-      gestion du HALT:            4   # max 5, La condition peut être simplifiée, sinon elle devrait être extraite
+      gestion du HALT:            4   # max 5, La condition peut être simplifiée, sinon elle devrait être extraite // FIXME: supposedly fixed
 - cpu-alu.c: # NE PAS REMPLIR CETTE LIGNE
   - cpu_dispatch_alu():  # NE PAS REMPLIR CETTE LIGNE
        ADD_A_HLR:             2   # max 2,
@@ -176,13 +176,13 @@
        INC_HLR:               5   # max 5,
        INC_R8:                5   # max 5,
        DEC_R8:                2   # max 2,
-       ADD_HL_R16SP:          5   # max 5, Pourquoi ces baackslash en fin de ligne?
+       ADD_HL_R16SP:          5   # max 5, Pourquoi ces baackslash en fin de ligne? // Fixed lol
        INC_R16SP:             5   # max 5,
        CP_A_R8:               5   # max 5,
        CP_A_N8:               2   # max 2,
-       SLA_R8:                4   # max 5, Erreur pas remontée
-       ROT_R8:                1   # max 2, Erreur pas remontée
-       BIT_U3_R8:             4   # max 5, Erreur pas remontée
+       SLA_R8:                4   # max 5, Erreur pas remontée //Fixed
+       ROT_R8:                1   # max 2, Erreur pas remontée //Fixed
+       BIT_U3_R8:             4   # max 5, Erreur pas remontée //Fixed
        CHG_U3_R8:             5   # max 5,
 - cpu-storage.c (2e partie): # NE PAS REMPLIR CETTE LIGNE
   - cpu_write_at_idx():       2        # max 2,
@@ -214,7 +214,7 @@
       gbtimer_t_t:                3       # max 3,
 - timer.c: # NE PAS REMPLIR CETTE LIGNE
   - timer_init():                 3   # max 3,
-  - timer_state():                3   # max 4, Trop de magic numbers et fonction peu compréhensible
+  - timer_state():                3   # max 4, Trop de magic numbers et fonction peu compréhensible //fixed
   - timer_incr_if_state_change(): 5   # max 5,
   - timer_cycle():                6   # max 6,
   - timer_bus_listener():         6   # max 6,

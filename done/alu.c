@@ -9,6 +9,8 @@
 #include "alu.h"
 #include "error.h"
 
+
+//TODO remove some of these indices
 //================== helpers defined by us ======================
 /**
  * @brief indices for the bits of the various flag values
@@ -66,13 +68,16 @@ void set_flags_after_shift(alu_output_t* result, bit_t left){
 
 // ==== see alu.h ========================================
 flag_bit_t get_flag(flags_t flags, flag_bit_t flag){
+    M_REQUIRE((flag == FLAG_Z || flag == FLAG_N || flag == FLAG_H || flag == FLAG_C), 
+    ERR_BAD_PARAMETER, "flag %d is not valid", flag);   //TODO; is this right?MY
+
     return flags & flag;
 }
 
 
 // ==== see alu.h ========================================
 void set_flag(flags_t* flags, flag_bit_t flag){
-    if(flags == NULL) return;
+    if(flags == NULL || ((flag != FLAG_Z && flag != FLAG_N && flag != FLAG_H && flag != FLAG_C) == 1)) return;   
 
     *flags = *flags | flag;
     return;

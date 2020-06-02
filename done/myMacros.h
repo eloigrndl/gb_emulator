@@ -119,6 +119,11 @@ extern "C" {
          pbv->content[LAST_FIELD32(pbv)] &= BIT_MASK32(pbv->size); \
     } \
 
+
+
+#define INIT_AND_PLUG(gb, X) \
+    M_REQUIRE_NO_ERR(component_create(&(gameboy->components[gb->nb_components]), MEM_SIZE(X))); \
+    M_REQUIRE_NO_ERR(bus_plug(gameboy->bus, &(gameboy->components[gb->nb_components++]), X ## _START, X ## _END)); \
+
 #ifdef __cplusplus
-}
 #endif

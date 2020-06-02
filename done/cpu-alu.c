@@ -154,11 +154,11 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
     } break;
 
     case ADD_HL_R16SP: {
-        M_EXIT_IF_ERR(alu_add16_high(&cpu->alu, cpu_HL_get(cpu), cpu_reg_pair_SP_get(cpu, extract_reg_pair(lu->opcode)))); \
+        M_EXIT_IF_ERR(alu_add16_high(&cpu->alu, cpu_HL_get(cpu), cpu_reg_pair_SP_get(cpu, extract_reg_pair(lu->opcode))));
         combine_flags_set_pair(cpu, REG_HL_CODE, R16SP_FLAGS); 
     } break;
     case INC_R16SP: {
-        M_EXIT_IF_ERR(alu_add16_high(&cpu->alu, cpu_reg_pair_SP_get(cpu, extract_reg_pair(lu->opcode)), 1)); \
+        M_EXIT_IF_ERR(alu_add16_high(&cpu->alu, cpu_reg_pair_SP_get(cpu, extract_reg_pair(lu->opcode)), 1));
         combine_flags_set_pair(cpu, extract_reg_pair(lu->opcode), UNCHANGED_FLAGS); 
         
     } break;
@@ -179,13 +179,13 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
     case SLA_R8: {
         M_EXIT_IF_ERR(alu_shift(&cpu->alu, cpu_reg_get(cpu, extract_reg(lu->opcode, 0)), LEFT));
         cpu_reg_set(cpu, extract_reg(lu->opcode, 0), cpu -> alu.value);
-        cpu_combine_alu_flags(cpu, SHIFT_FLAGS_SRC);
+        M_EXIT_IF_ERR(cpu_combine_alu_flags(cpu, SHIFT_FLAGS_SRC));
     } break;
 
     case ROT_R8: {
         M_EXIT_IF_ERR(alu_carry_rotate(&(cpu->alu), cpu_reg_get(cpu, extract_reg(lu->opcode, 0)), extract_rot_dir(lu->opcode), cpu->F));
         cpu_reg_set(cpu, extract_reg(lu->opcode, 0), cpu -> alu.value);
-        cpu_combine_alu_flags(cpu, SHIFT_FLAGS_SRC);
+        M_EXIT_IF_ERR(cpu_combine_alu_flags(cpu, SHIFT_FLAGS_SRC));
     } break;
 
 
@@ -195,7 +195,7 @@ int cpu_dispatch_alu(const instruction_t* lu, cpu_t* cpu)
         
         if(bit_get(cpu_reg_get(cpu, extract_reg(lu->opcode, 0)), extract_n3(lu->opcode)) == 0)
             set_Z(&(cpu->alu.flags));
-        cpu_combine_alu_flags(cpu, BIT_TEST_SRC);
+        M_EXIT_IF_ERR(cpu_combine_alu_flags(cpu, BIT_TEST_SRC));
     } break;
 
     case CHG_U3_R8: {
