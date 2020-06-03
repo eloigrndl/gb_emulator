@@ -27,10 +27,10 @@ int cartridge_init_from_file(component_t* c, const char* filename){
     M_REQUIRE_NON_NULL_CUSTOM_ERR(file, ERR_IO);
 
     //getting size of the fil
-    M_REQUIRE(fseek(file, 0, SEEK_END) != 0, ERR_IO,"Unable to get size of the file", fclose(file)); //looking for the end of the file
+    if(fseek(file, 0, SEEK_END) != 0) return ERR_IO ; //looking for the end of the file
     int size = ftell(file); // get the size
     M_REQUIRE( size >= 0, ERR_IO, "Unable to get size of the file", fclose(file));
-    M_REQUIRE(fseek(file, 0, SEEK_SET) != 0, ERR_IO,"Unable to get size of the file", fclose(file)); //reset file pointer to the beginning
+    if(fseek(file, 0, SEEK_SET) != 0) return ERR_IO; //reset file pointer to the beginning
     
     M_EXIT_IF_ERR_DO_SOMETHING(c->mem->memory == NULL ? ERR_IO : ERR_NONE, fclose(file));
     M_EXIT_IF_ERR_DO_SOMETHING((ferror(file) || fread(c->mem->memory, 1, size, file) < size) ? ERR_IO : ERR_NONE, fclose(file));
