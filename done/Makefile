@@ -16,7 +16,7 @@ CFLAGS += -Wall -pedantic -g -fsanitize=address
  -Wconversion -Wunreachable-code
 
 # uncomment if you want to add DEBUG flag
-#CPPFLAGS += -DDEBUG
+CPPFLAGS += -DDEBUG
 #CPPFLAGS += -DBLARGG 
 #CPPFLAGS += -D_DEFAULT_SOURCE
 #CPPFLAGS += -DWITH_PRINT

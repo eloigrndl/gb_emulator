@@ -51,7 +51,7 @@ int bus_plug(bus_t bus, component_t* c, addr_t start, addr_t end){
 
 
     for(int i = start; i <= end; i++){
-        M_REQUIRE(bus[i] == NULL, ERR_ADDRESS, "Part of area already occupied: %d", i);
+        M_REQUIRE(bus[i] == NULL, ERR_ADDRESS, "Part of area already occupied: %X", i);
     }
 
     return bus_forced_plug(bus, c, start, end, 0);
@@ -77,7 +77,7 @@ int bus_unplug(bus_t bus, component_t* c){
 int bus_read(const bus_t bus, addr_t address, data_t* data){
     M_REQUIRE_NON_NULL(bus);
     M_REQUIRE_NON_NULL(data);
-    M_REQUIRE(address < BUS_SIZE, ERR_ADDRESS, "Address %d too big", address);
+    M_REQUIRE(address < BUS_SIZE, ERR_ADDRESS, "Address %X too big", address);
 
     *data = bus[address] == NULL ? DEFAULT_READ_VALUE : *(bus)[address];
     return ERR_NONE;
@@ -108,7 +108,7 @@ int bus_write16(bus_t bus, addr_t address, addr_t data16){
     M_REQUIRE_NON_NULL(bus);
     M_REQUIRE_NON_NULL(bus[address]);
     M_REQUIRE_NON_NULL(bus[address+1]);
-    M_REQUIRE(address < 0xFFFF, ERR_ADDRESS, "Address %d out of bounds", address);
+    M_REQUIRE(address < 0xFFFF, ERR_ADDRESS, "Address %X out of bounds", address);
 
     bus_write(bus, address,  lsb8(data16));         
     bus_write(bus, address+1, msb8(data16));

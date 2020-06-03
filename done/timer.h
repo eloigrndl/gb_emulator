@@ -37,11 +37,6 @@ extern "C" {
     cpu_t* cpu;
     uint16_t counter;
 
-   data_t DIV;
-   data_t TIMA;
-   data_t TMA;
-   data_t TAC;
-
  }gbtimer_t;
 
 /**

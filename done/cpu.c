@@ -97,7 +97,7 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
 
 
     cpu->idle_time += lu->cycles - 1;
-    cpu->alu.value = 0;
+    cpu->alu.value = 0; 
     cpu->alu.flags = 0;
 
     switch (lu->family) {
@@ -214,13 +214,13 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
     // CALLS
     case CALL_CC_N16:
         control_pc_and(cpu, lu, 
-            M_REQUIRE_NO_ERR(cpu_SP_push(cpu, cpu->PC + lu->bytes));  
+            cpu_SP_push(cpu, cpu->PC +lu->bytes);  
             cpu->PC = cpu_read_addr_after_opcode(cpu)
         );
         break;
 
     case CALL_N16:
-        M_REQUIRE_NO_ERR(cpu_SP_push(cpu, cpu->PC + lu->bytes));
+        cpu_SP_push(cpu, cpu->PC + lu->bytes);
         cpu->PC = cpu_read_addr_after_opcode(cpu);
         break;
 
@@ -235,7 +235,7 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
 
     case RST_U3:
         cpu_SP_push(cpu, cpu->PC + lu->bytes);
-        cpu->PC = (extract_n3(lu->opcode) << N3_IDX);
+        cpu->PC = (extract_n3(lu->opcode) << 3);
         break;
 
 
@@ -246,7 +246,7 @@ static int cpu_dispatch(const instruction_t* lu, cpu_t* cpu)
         break;
 
     case RETI:
-        cpu->IME = 1;
+        bit_set(&(cpu->IME), 0);
         cpu->PC = cpu_SP_pop(cpu);
         break;
 
@@ -292,6 +292,7 @@ static int cpu_do_cycle(cpu_t* cpu)
 
         //get the index of rightmost set bit of pending interruptions
         interrupt_t ir = VBLANK;
+
         while(bit_get(pending, ir) != 1){
             ++ir;
         }
@@ -300,15 +301,14 @@ static int cpu_do_cycle(cpu_t* cpu)
         bit_unset(&(cpu->IF), ir);
 
         //push current PC address
-        M_REQUIRE_NO_ERR(cpu_SP_push(cpu, cpu->PC));
+        cpu_SP_push(cpu, cpu->PC);
 
         //setting the address of instruction handler in PC
         cpu->PC = ir_address(ir);
     
         //adding 5 cycles to idle_time
-        cpu->idle_time += HANDLING_INTERRUPT;
+        cpu->idle_time += 5;
 
-        //enable IME
         cpu->IME = 1;
         return ERR_NONE;
     } else {
@@ -336,7 +336,7 @@ int cpu_cycle(cpu_t* cpu)
     
     cpu->write_listener = 0;
 
-    if(cpu->idle_time == 0 && (pending_interruptions(cpu) != 0 || cpu->HALT == 0)){
+    if((cpu->HALT == 1 && pending_interruptions(cpu) != 0 && cpu->idle_time == 0) || (cpu->HALT == 0 && cpu->idle_time == 0)){
         cpu->HALT = 0;
         return cpu_do_cycle(cpu);
     } 

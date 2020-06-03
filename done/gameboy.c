@@ -47,22 +47,18 @@ extern "C" {
         zero_init_ptr(gameboy);
         zero_init_var(gameboy->bus);
         
-        for(int i = 0; i < BUS_SIZE; i++)
-            if(gameboy->bus[i] != NULL)
-                printf("Yoooooooooooooooo\n");
-
 
         INIT_AND_PLUG(gameboy, WORK_RAM);
 
-        component_t* echo_ram = NULL;
-        M_EXIT_IF_NULL(echo_ram = calloc(1, sizeof(component_t)), sizeof(component_t));
-        M_REQUIRE_NO_ERR(component_create(echo_ram, 0));
-        M_REQUIRE_NO_ERR(component_shared(echo_ram, &(gameboy->components[0])));
-        echo_ram->mem->size = MEM_SIZE(ECHO_RAM);
-        M_REQUIRE_NO_ERR(bus_plug(gameboy->bus, echo_ram, ECHO_RAM_START, ECHO_RAM_END));
-        free(echo_ram);
+        component_t echo_ram;
+        M_REQUIRE_NO_ERR(component_create(&echo_ram, 0));
+        M_REQUIRE_NO_ERR(component_shared(&echo_ram, &(gameboy->components[0])));
+        echo_ram.mem->size = MEM_SIZE(ECHO_RAM); // FIXME
+        M_REQUIRE_NO_ERR(bus_forced_plug(gameboy->bus, &echo_ram, ECHO_RAM_START, ECHO_RAM_END, 0));
+        
 
         INIT_AND_PLUG(gameboy, REGISTERS);
+
         INIT_AND_PLUG(gameboy, EXTERN_RAM);
         INIT_AND_PLUG(gameboy, VIDEO_RAM);
         INIT_AND_PLUG(gameboy, GRAPH_RAM);
@@ -78,12 +74,6 @@ extern "C" {
         M_REQUIRE_NO_ERR(joypad_init_and_plug(&(gameboy->pad), &(gameboy->cpu)));
 
         M_REQUIRE_NO_ERR(timer_init(&(gameboy->timer), &(gameboy->cpu)));
-
-        //TODO need to free these
-        (*(gameboy->cpu.bus))[REG_DIV] = &(gameboy->timer.DIV);
-        (*(gameboy->cpu.bus))[REG_TAC] = &(gameboy->timer.TAC);
-        (*(gameboy->cpu.bus))[REG_TIMA] = &(gameboy->timer.TIMA);
-        (*(gameboy->cpu.bus))[REG_TMA] = &(gameboy->timer.TMA);
 
         M_REQUIRE_NO_ERR(cartridge_init(&(gameboy->cartridge), filename));
         M_REQUIRE_NO_ERR(cartridge_plug(&(gameboy->cartridge), gameboy->bus));

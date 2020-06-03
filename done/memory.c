@@ -19,7 +19,7 @@ extern "C" {
 // ==== see memory.h ========================================
 int mem_create(memory_t* mem, size_t size){
     M_REQUIRE_NON_NULL(mem);
-    M_REQUIRE(size > 0, ERR_BAD_PARAMETER, "Size too small", size);
+    M_REQUIRE(size > 0, ERR_BAD_PARAMETER, "Size too small : %lu", size);
     M_EXIT_IF_NULL(mem->memory = calloc(size, sizeof(data_t)), sizeof(data_t));
 
     mem->size = size;
