@@ -34,6 +34,7 @@ int component_shared(component_t* c, component_t* c_old){
     M_REQUIRE_NON_NULL(c);
     M_REQUIRE_NON_NULL(c_old);
     M_REQUIRE_NON_NULL(c_old->mem);
+    M_REQUIRE_NON_NULL(c_old->mem->memory);
 
     c->mem = c_old->mem;
     c->start = 0;

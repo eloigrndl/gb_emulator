@@ -306,7 +306,7 @@ static int cpu_do_cycle(cpu_t* cpu)
         cpu->PC = ir_address(ir);
     
         //adding 5 cycles to idle_time
-        cpu->idle_time += 5;
+        cpu->idle_time += HANDLING_INTERRUPT;
 
         //enable IME
         cpu->IME = 1;

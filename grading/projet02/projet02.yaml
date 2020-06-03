@@ -1,5 +1,5 @@
 - id: group_a3e4a6
-- Makefile:           0 # max 5,        //FIXME: envoyer mail
+- Makefile:           0 # max 5,        
 - bit.h: # NE PAS REMPLIR CETTE LIGNE
       typedef rot_dir_t: 1                   # max 1,
 - bit.c: # NE PAS REMPLIR CETTE LIGNE
@@ -17,8 +17,8 @@
 - alu.h: # NE PAS REMPLIR CETTE LIGNE
       alu_output_t_t:    3               # max 3,
 - alu.c: # NE PAS REMPLIR CETTE LIGNE
-  - get_flag():          5               # max 6, Pas de vérification que le flag est valide // FIXME: check if correct
-  - set_flag():          5               # max 6, Pas de vérification que le flag est valide
+  - get_flag():          5               # max 6, Pas de vérification que le flag est valide // fixed
+  - set_flag():          5               # max 6, Pas de vérification que le flag est valide // fixed
   - alu_add8(): # NE PAS REMPLIR CETTE LIGNE
       vérification d'usage:  1        # max 1,
       modularisation:        5        # max 5,
@@ -62,7 +62,7 @@
       component_t:                   5        # max 5,
 - component.c: # NE PAS REMPLIR CETTE LIGNE
   - component_create():              6 # max 6,
-  - component_shared():              3 # max 3.5, Pas de vérification de la mémoire de c_old //FIXME why is our solution not sufficient?
+  - component_shared():              3 # max 3.5, Pas de vérification de la mémoire de c_old // fixed
   - component_free():                5 # max 5,
 - memory.h: # NE PAS REMPLIR CETTE LIGNE
       addr_t:        1 # max 1,
@@ -79,7 +79,7 @@
       init de base:               2    # max 2,
       plug work-ram:              5    # max 5,
       plug echo-ram:              2.5  # max 2.5,
-  - gameboy_free():               4    # max 5, copier-coller pour l'echo ram unplug //FIXME: ????
+  - gameboy_free():               4    # max 5, copier-coller pour l'echo ram unplug // fixed
 - cpu.h: # NE PAS REMPLIR CETTE LIGNE
       typedef:           1 # max 1,
       une reg-pair:      5 # max 5,
@@ -124,7 +124,7 @@
 - gameboy.c (2e partie): # NE PAS REMPLIR CETTE LIGNE
   - gameboy_create():  # NE PAS REMPLIR CETTE LIGNE
       init. boot:                           2   # max 2,
-      init + plug components:               0   # max 9, Pas de modularisation dans la mise des composants
+      init + plug components:               0   # max 9, Pas de modularisation dans la mise des composants // fixed
       cpu init + plug:                      3   # max 3,
       cartridge init + plug:                3   # max 3,
       timer init:                           2   # max 2,
@@ -135,7 +135,7 @@
       cpu:                                  2   # max 2,
   - blargg_bus_listener():                  5   # max 5,
   - gameboy_bus_listener(():                6   # max 6,
-  - gameboy_run_until():                    7   # max 8, L'interruption doit être levée même dans l'absence de BLARGG //FIXME: still the case?
+  - gameboy_run_until():                    7   # max 8, L'interruption doit être levée même dans l'absence de BLARGG // fixed
 - opcode.h: # NE PAS REMPLIR CETTE LIGNE
       instruction_t:          4          # max 4,
 - cpu.h (2e partie): # NE PAS REMPLIR CETTE LIGNE
@@ -163,11 +163,11 @@
       RETI:                       3   # max 3,
       HALT:                       1   # max 1,
   - cpu_do_cycle():  # NE PAS REMPLIR CETTE LIGNE
-      gestion des interruptions:  11     # max 15, Une erreur lors du push n'est pas remontée //Fixed et des magic numbers 
+      gestion des interruptions:  11     # max 15, Une erreur lors du push n'est pas remontée // fixed
       boucle usuelle:             5      # max 5,
   - cpu_cycle():  # NE PAS REMPLIR CETTE LIGNE
       reset write_listener:       2   # max 2,
-      gestion du HALT:            4   # max 5, La condition peut être simplifiée, sinon elle devrait être extraite // FIXME: supposedly fixed
+      gestion du HALT:            4   # max 5, La condition peut être simplifiée, sinon elle devrait être extraite // fixed
 - cpu-alu.c: # NE PAS REMPLIR CETTE LIGNE
   - cpu_dispatch_alu():  # NE PAS REMPLIR CETTE LIGNE
        ADD_A_HLR:             2   # max 2,

@@ -46,6 +46,10 @@ extern "C" {
         
         zero_init_ptr(gameboy);
         zero_init_var(gameboy->bus);
+        
+        for(int i = 0; i < BUS_SIZE; i++)
+            if(gameboy->bus[i] != NULL)
+                printf("Yoooooooooooooooo\n");
 
 
         INIT_AND_PLUG(gameboy, WORK_RAM);
@@ -67,10 +71,6 @@ extern "C" {
         M_REQUIRE_NO_ERR(cpu_init(&(gameboy->cpu)));
         M_REQUIRE_NO_ERR(cpu_plug(&(gameboy->cpu), &(gameboy->bus)));
         
-        M_EXIT_IF_NULL((*(gameboy->cpu.bus))[REG_TMA] = calloc(1, sizeof(data_t)), sizeof(data_t));
-        M_EXIT_IF_NULL((*(gameboy->cpu.bus))[REG_TIMA] = calloc(1, sizeof(data_t)), sizeof(data_t));
-        M_EXIT_IF_NULL((*(gameboy->cpu.bus))[REG_TAC] = calloc(1, sizeof(data_t)), sizeof(data_t));
-        M_EXIT_IF_NULL((*(gameboy->cpu.bus))[REG_DIV] = calloc(1, sizeof(data_t)), sizeof(data_t));
 
         M_REQUIRE_NO_ERR(lcdc_init(gameboy));
         M_REQUIRE_NO_ERR(lcdc_plug(&(gameboy->screen), gameboy->bus));
@@ -78,7 +78,13 @@ extern "C" {
         M_REQUIRE_NO_ERR(joypad_init_and_plug(&(gameboy->pad), &(gameboy->cpu)));
 
         M_REQUIRE_NO_ERR(timer_init(&(gameboy->timer), &(gameboy->cpu)));
-        
+
+        //TODO need to free these
+        (*(gameboy->cpu.bus))[REG_DIV] = &(gameboy->timer.DIV);
+        (*(gameboy->cpu.bus))[REG_TAC] = &(gameboy->timer.TAC);
+        (*(gameboy->cpu.bus))[REG_TIMA] = &(gameboy->timer.TIMA);
+        (*(gameboy->cpu.bus))[REG_TMA] = &(gameboy->timer.TMA);
+
         M_REQUIRE_NO_ERR(cartridge_init(&(gameboy->cartridge), filename));
         M_REQUIRE_NO_ERR(cartridge_plug(&(gameboy->cartridge), gameboy->bus));
 
@@ -99,8 +105,12 @@ extern "C" {
             component_free(&(gameboy->components[i]));
         }
 
-        for(int i = ECHO_RAM_START; i <= ECHO_RAM_END; ++i)
-            gameboy->bus[i] = NULL;
+        component_t c;
+        component_create(&c, 0);
+        c.start = ECHO_RAM_START;
+        c.end = ECHO_RAM_END;
+        bus_unplug(gameboy->bus, &c);
+
         
         gameboy->nb_components = 0;
         cpu_free(&(gameboy->cpu));

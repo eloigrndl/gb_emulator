@@ -38,6 +38,9 @@ extern "C" {
 // size of a word in a GB, see cpu.h
 #define WORD_SIZE 2
 
+// number of cycles needed to handle an interruption
+#define HANDLING_INTERRUPT 5
+
 
 // additional getters and setters for single registers, see cpu-registers.h
 #define cpu_A_get(cpu) \

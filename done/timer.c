@@ -50,6 +50,12 @@ int timer_init(gbtimer_t* timer, cpu_t* cpu){
     timer->cpu = cpu;
     timer->counter = 0;
 
+    timer->TAC = 0;
+    timer->TIMA = 0;
+    timer->DIV = 0;
+    timer->TMA = 0;
+
+
     return ERR_NONE;
 }
 
