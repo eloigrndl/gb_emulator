@@ -1,7 +1,7 @@
 /**
  * @file bootrom.c
  * @brief Game Boy Boot ROM
- * @author Eloi Garandel, Erik Wengle EPFL
+ * @author E. Garandel, E. Wengle EPFL
  * @date 2020
  */
 

@@ -2,7 +2,7 @@
  * @file cartridge.c
  * @brief Game Boy Cartridge simulation header
  *
- * @author Eloi Garandel, Erik Wengle EPFL
+ * @author E. Garandel, E. Wengle EPFL
  * @date 2020
  */
 

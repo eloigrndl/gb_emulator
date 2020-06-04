@@ -8,29 +8,14 @@
 
 #include "alu.h"
 #include "error.h"
+#include "myMacros.h"
 
-
-//TODO remove some of these indices
 //================== helpers defined by us ======================
-/**
- * @brief indices for the bits of the various flag values
- */
-#define INDEX_FLAG_Z 7
-#define INDEX_FLAG_N 6
-#define INDEX_FLAG_H 5
-#define INDEX_FLAG_C 4
-
 /**
  * @brief resets the flags
  */
  #define reset_flags(result) \
     result->flags = 0;
-
- /**
- * @brief checks whether or not the result is null : if so, sets the Z-flag
- */   
-#define edit_zero_flag(result) \
-    set_flag_if(FLAG_Z, result->value == 0, result);
 
 /**
  * @brief sets a flag if the corresponding condition is true

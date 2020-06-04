@@ -108,25 +108,41 @@ extern "C" {
         cpu->PC += lu->bytes; \
     }\
 
+
+//returns a 32-bit mask starting from index 0  (LSB to MSB) of size k, see bit-vector.h
 #define BIT_MASK32(k) \
   ((size_t) k % 32 == 0 ? 0xFFFFFFFF : ((1 << ((k  % 32))) - 1))
 
+
+//returns a 32-bit mask starting from index 31 (MSB to RSB) of size k, see bit-vector.h
 #define BIT_MASK32_INV(k) \
     ~BIT_MASK32(32 - k)
 
+//computes the index of a last valid field in a bit_vector, see bit-vector.h
 #define LAST_FIELD32(pbv) \
     (pbv->nb_fields -1)
 
+//chops of erroneously computed bits of a bit vector based on its actual size, see bit-vector.h
 #define REMOVE_TAIL32(pbv) \
     if(pbv->size % 32 != 0){ \
          pbv->content[LAST_FIELD32(pbv)] &= BIT_MASK32(pbv->size); \
     } \
 
-
-
+//initializes a component and plugs it into the bus, see gameboy.h
 #define INIT_AND_PLUG(gb, X) \
     M_REQUIRE_NO_ERR(component_create(&(gameboy->components[gb->nb_components]), MEM_SIZE(X))); \
     M_REQUIRE_NO_ERR(bus_plug(gameboy->bus, &(gameboy->components[gb->nb_components++]), X ## _START, X ## _END)); \
+
+//indices for the exsiting gb flags, see alu.h
+#define INDEX_FLAG_Z 7
+#define INDEX_FLAG_N 6
+#define INDEX_FLAG_H 5
+#define INDEX_FLAG_C 4
+
+//checks whether an alu result gives 0, sets flag accordingly, see alu,h
+#define edit_zero_flag(result) \
+    set_flag_if(FLAG_Z, result->value == 0, result);
+
 
 #ifdef __cplusplus
 #endif

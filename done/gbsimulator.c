@@ -20,16 +20,30 @@ gameboy_t gb;
 struct timeval start;
 struct timeval paused;
 
-// ======================================================================
+/**
+ * @brief Sets a pixel from a two-dimensional set of pixels with an indicated grey value
+ *
+ * @param pixels Set of pixels
+ * @param row row index
+ * @param col column index
+ * @param width with of a single row
+ * @param grey indiccated grey value
+ */
 static void set_grey(guchar* pixels, int row, int col, int width, guchar grey)
 {
     if(pixels == NULL) 
         return;
+
     const size_t i = (size_t) (3 * (row * width + col)); // 3 = RGB
     pixels[i+2] = pixels[i+1] = pixels[i] = grey;
 }
 
-// ======================================================================
+/**
+ * @brief Computes how many gameboy cycles have elapsed since the given period
+ *
+ * @param from Original period
+ * @return Number of gameboy cycles that have elapsed
+ */
 uint64_t get_time_in_GB_cycles_since(struct timeval* from)
 {
     if(from == NULL)
@@ -48,8 +62,13 @@ uint64_t get_time_in_GB_cycles_since(struct timeval* from)
     return v;
 }
 
-
-// ======================================================================
+/**
+ * @brief Generates an image for the gameboys screen
+ *
+ * @param pixels set of pixels to be set
+ * @param height height of the window to be displayed
+ * @param width width of the window to be displayed
+ */
 static void generate_image(guchar* pixels, int height, int width)
 {   
     if(pixels == NULL)
@@ -67,7 +86,7 @@ static void generate_image(guchar* pixels, int height, int width)
     } 
 }
 
-// ======================================================================
+// registers a key-press
 #define do_key(X) \
     do { \
         if (! (psd->key_status & MY_KEY_ ## X ##_BIT)) { \
@@ -76,6 +95,13 @@ static void generate_image(guchar* pixels, int height, int width)
         } \
     } while(0)
 
+/**
+ * @brief Handles pressed keyboard keys
+ *
+ * @param keyval key that has been pressed
+ * @param data pointer of datahandler
+ * @return whether a keypress has been detected or not
+ */
 static gboolean keypress_handler(guint keyval, gpointer data)
 {
     simple_image_displayer_t* const psd = data;
@@ -142,7 +168,7 @@ static gboolean keypress_handler(guint keyval, gpointer data)
 
 
 
-// ======================================================================
+// registers a key-release
 #define do_key(X) \
     do { \
         if (psd->key_status & MY_KEY_ ## X ##_BIT) { \
@@ -151,6 +177,14 @@ static gboolean keypress_handler(guint keyval, gpointer data)
         } \
     } while(0)
 
+
+/**
+ * @brief Handles released keyboard keys
+ *
+ * @param keyval key that has been pressed
+ * @param data pointer of datahandler
+ * @return whether a keypress has been detected or not
+ */
 static gboolean keyrelease_handler(guint keyval, gpointer data)
 {
     simple_image_displayer_t* const psd = data;
@@ -206,7 +240,12 @@ static gboolean keyrelease_handler(guint keyval, gpointer data)
 }
 #undef do_key
 
-// ======================================================================
+/**
+ * @brief Prints a message in case of an error at launch
+ *
+ * @param pgm launched program
+ * @param msg error message to be displayed
+ */
 static void error(const char* pgm, const char* msg)
 {
     fputs("ERROR: ", stderr);
@@ -215,6 +254,14 @@ static void error(const char* pgm, const char* msg)
     fprintf(stderr, "example: %s rom.gb\n", pgm);
 }
 
+
+/**
+ * @brief Main method of the gameboy emulator
+ *
+ * @param argc argument count
+ * @param argv argument values
+ * @return error code
+ */
 int main(int argc, char *argv[])
 {
 

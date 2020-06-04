@@ -1,7 +1,7 @@
 /**
  * @file bit_vector.c
  * @brief Bit vectors for PPS projects
- * @author Eloi Garandel, Erik Wengle EPFL
+ * @author E. Garandel, E. Wengle EPFL
  * @date 2020
  */
 
