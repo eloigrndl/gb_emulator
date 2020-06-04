@@ -207,7 +207,6 @@ static gboolean keyrelease_handler(guint keyval, gpointer data)
 #undef do_key
 
 // ======================================================================
-
 static void error(const char* pgm, const char* msg)
 {
     fputs("ERROR: ", stderr);
