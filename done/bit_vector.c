@@ -39,13 +39,8 @@ bit_vector_t* bit_vector_create(size_t size, bit_t value){
 
     size_t fill = (value != 0) ? 0xFFFFFFFF : 0;
     
-    //for(int i = 0; i < res->nb_fields; ++i){
-      //  res->content[i] = fill;
-    //}  //FIXME
-
     res->content = memset(res->content, fill, sizeof(uint32_t) * res->nb_fields);
-    res->content[res->nb_fields - 1] = (BIT_MASK32(size) & fill);
-
+    REMOVE_TAIL32(res);
     return res;
 }
 
@@ -136,14 +131,13 @@ bit_vector_t* bit_vector_extract_zero_ext(const bit_vector_t* pbv, int64_t index
     int i = index < 0 ? -index : 0;
 
 
-    for(int j = i ; j < size; ++j){     
+    for(int j = i; j < size; ++j){     
         if(!(j+index >= pbv->size) && (pbv->content[(j + index)/32] & (1 << (j + index))) != 0){
             res->content[j/32] |= (1 << (j%32)); 
         }
     }   
 
     REMOVE_TAIL32(res);
-
     return res;    
 }
 

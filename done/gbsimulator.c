@@ -47,8 +47,7 @@ uint64_t get_time_in_GB_cycles_since(struct timeval* from){
 // ======================================================================
 static void generate_image(guchar* pixels, int height, int width)
 {   
-    //TODO: check for errors
-    gameboy_run_until(&gb, get_time_in_GB_cycles_since(&start));
+    M_EXIT_IF_ERR(gameboy_run_until(&gb, get_time_in_GB_cycles_since(&start)));
 
 
 
@@ -232,6 +231,7 @@ int main(int argc, char *argv[])
 
     timerclear(&paused);
     gettimeofday(&start, NULL);
+
 
     sd_launch(&argc, &argv, sd_init("Gameboy", LCD_WIDTH * SCALE_FACTOR, LCD_HEIGHT * SCALE_FACTOR, 40,
                         generate_image, keypress_handler, keyrelease_handler));
