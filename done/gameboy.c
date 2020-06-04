@@ -53,7 +53,7 @@ extern "C" {
         component_t echo_ram;
         M_REQUIRE_NO_ERR(component_create(&echo_ram, 0));
         M_REQUIRE_NO_ERR(component_shared(&echo_ram, &(gameboy->components[0])));
-        echo_ram.mem->size = MEM_SIZE(ECHO_RAM); // FIXME
+        echo_ram.mem->size = MEM_SIZE(ECHO_RAM);
         M_REQUIRE_NO_ERR(bus_forced_plug(gameboy->bus, &echo_ram, ECHO_RAM_START, ECHO_RAM_END, 0));
         
 

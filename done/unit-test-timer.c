@@ -166,7 +166,6 @@ START_TEST(timer_listener_exec)
 
     ck_assert_err_none(timer_bus_listener(&timer, REG_TAC));
 
-    //TODO: check also timer_incr_if_state_change
 
 #ifdef WITH_PRINT
     printf("=== END of %s\n", __func__);

@@ -69,7 +69,7 @@ void set_flags_after_shift(alu_output_t* result, bit_t left){
 // ==== see alu.h ========================================
 flag_bit_t get_flag(flags_t flags, flag_bit_t flag){
     M_REQUIRE((flag == FLAG_Z || flag == FLAG_N || flag == FLAG_H || flag == FLAG_C), 
-    ERR_BAD_PARAMETER, "flag %d is not valid", flag);   //TODO; is this right?MY
+    ERR_BAD_PARAMETER, "flag %d is not valid", flag);
 
     return flags & flag;
 }

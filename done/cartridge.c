@@ -21,7 +21,6 @@ extern "C" {
 // ==== see cartridge.h ========================================
 int cartridge_init_from_file(component_t* c, const char* filename){
     M_REQUIRE_NON_NULL(c);
-    //TODO add more verify
     M_REQUIRE_NON_NULL(filename);
 
     FILE* file = fopen(filename, "rb");

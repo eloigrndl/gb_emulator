@@ -109,7 +109,7 @@ extern "C" {
     }\
 
 #define BIT_MASK32(k) \
-  ((size_t) k % 32 == 0 ? 0xFFFFFFFF : ((1 << ((k  % 32))) - 1)) //FIXME
+  ((size_t) k % 32 == 0 ? 0xFFFFFFFF : ((1 << ((k  % 32))) - 1))
 
 #define BIT_MASK32_INV(k) \
     ~BIT_MASK32(32 - k)

@@ -23,12 +23,17 @@ struct timeval paused;
 // ======================================================================
 static void set_grey(guchar* pixels, int row, int col, int width, guchar grey)
 {
+    if(pixels == NULL) 
+        return;
     const size_t i = (size_t) (3 * (row * width + col)); // 3 = RGB
     pixels[i+2] = pixels[i+1] = pixels[i] = grey;
 }
 
 // ======================================================================
-uint64_t get_time_in_GB_cycles_since(struct timeval* from){
+uint64_t get_time_in_GB_cycles_since(struct timeval* from)
+{
+    if(from == NULL)
+        return 0;
 
     struct timeval now;
     gettimeofday(&now, NULL);
@@ -47,9 +52,11 @@ uint64_t get_time_in_GB_cycles_since(struct timeval* from){
 // ======================================================================
 static void generate_image(guchar* pixels, int height, int width)
 {   
-    M_EXIT_IF_ERR(gameboy_run_until(&gb, get_time_in_GB_cycles_since(&start)));
-
-
+    if(pixels == NULL)
+        return;
+    
+    if(gameboy_run_until(&gb, get_time_in_GB_cycles_since(&start)) != ERR_NONE)
+        return;
 
     uint8_t pixelval = 0;
     for(int i = 0; i < width; ++i){
@@ -71,7 +78,6 @@ static void generate_image(guchar* pixels, int height, int width)
 
 static gboolean keypress_handler(guint keyval, gpointer data)
 {
-    //FIXME: need to remove the print?
     simple_image_displayer_t* const psd = data;
     if (psd == NULL) return FALSE;
 
@@ -202,14 +208,12 @@ static gboolean keyrelease_handler(guint keyval, gpointer data)
 
 // ======================================================================
 
-//TODO: remove
 static void error(const char* pgm, const char* msg)
 {
     fputs("ERROR: ", stderr);
     if (msg != NULL) fputs(msg, stderr);
-    fprintf(stderr, "\nusage:    %s input_file [iterations]\n", pgm);
-    fprintf(stderr, "examples: %s rom.gb 1000\n", pgm);
-    fprintf(stderr, "          %s game.gb\n", pgm);
+    fprintf(stderr, "\nusage:    %s input_file\n", pgm);
+    fprintf(stderr, "example: %s rom.gb\n", pgm);
 }
 
 int main(int argc, char *argv[])

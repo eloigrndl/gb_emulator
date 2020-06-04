@@ -20,7 +20,7 @@ extern "C" {
 
 // ==== see bit_vector.h ========================================
 bit_vector_t* bit_vector_create(size_t size, bit_t value){
-    if(size == 0 || size > UINT32_MAX)  //FIXME what is max value??
+    if(size == 0 || size >= (size_t) (-1))
         return NULL;
 
     size_t rounded_size = size;
@@ -29,10 +29,12 @@ bit_vector_t* bit_vector_create(size_t size, bit_t value){
 
     bit_vector_t* res = malloc(sizeof(bit_vector_t));
     
-    if(res == NULL) return NULL;
+    if(res == NULL) 
+        return NULL;
 
     res->content = calloc(rounded_size / 32 , sizeof(uint32_t));
-    if(res->content == NULL) return NULL;
+    if(res->content == NULL) 
+        return NULL;
 
     res->size = size;
     res->nb_fields = rounded_size / 32;
@@ -46,10 +48,12 @@ bit_vector_t* bit_vector_create(size_t size, bit_t value){
 
 // ==== see bit_vector.h ========================================
 bit_vector_t* bit_vector_cpy(const bit_vector_t* pbv){
-    if(pbv == NULL) 
+    if(pbv == NULL || pbv->content == NULL) 
         return NULL;
     
     bit_vector_t* res = bit_vector_create(pbv->size, 0);
+    if(res == NULL)
+        return NULL;
     
     for(int i = 0; i < pbv->nb_fields; ++i){
         res->content[i] = pbv->content[i];
@@ -61,12 +65,12 @@ bit_vector_t* bit_vector_cpy(const bit_vector_t* pbv){
 
 // ==== see bit_vector.h ========================================
 bit_t bit_vector_get(const bit_vector_t* pbv, size_t index){
-    return (pbv == NULL || index >= pbv->size || index < 0) ? 0 : bit_get(pbv->content[index/32] >> ((index % 32 / 8) * 8), index % 8);
+    return (pbv == NULL || pbv->content == NULL || index >= pbv->size || index < 0) ? 0 : bit_get(pbv->content[index/32] >> ((index % 32 / 8) * 8), index % 8);
 }
 
 // ==== see bit_vector.h ========================================
 bit_vector_t* bit_vector_not(bit_vector_t* pbv){
-    if(pbv == NULL) return NULL;
+    if(pbv == NULL || pbv->content == NULL) return NULL;
 
     for(int i = 0; i < pbv->nb_fields; ++i){
         pbv->content[i] = ~(pbv->content[i]);
@@ -79,7 +83,7 @@ bit_vector_t* bit_vector_not(bit_vector_t* pbv){
 
 // ==== see bit_vector.h ========================================
 bit_vector_t* bit_vector_and(bit_vector_t* pbv1, const bit_vector_t* pbv2){
-    if(pbv1 == NULL || pbv2 == NULL || pbv1->size != pbv2->size) 
+    if(pbv1 == NULL || pbv1->content == NULL || pbv2 == NULL || pbv2->content == NULL || pbv1->size != pbv2->size) 
         return NULL;
 
     for(int i = 0; i < pbv1->nb_fields; ++i)
@@ -92,7 +96,7 @@ bit_vector_t* bit_vector_and(bit_vector_t* pbv1, const bit_vector_t* pbv2){
 
 // ==== see bit_vector.h ========================================
 bit_vector_t* bit_vector_or(bit_vector_t* pbv1, const bit_vector_t* pbv2){
-    if(pbv1 == NULL || pbv2 == NULL || pbv1->size != pbv2->size)
+    if(pbv1 == NULL || pbv1->content == NULL || pbv2 == NULL || pbv2->content == NULL || pbv1->size != pbv2->size)
         return NULL;
 
 
@@ -106,7 +110,7 @@ bit_vector_t* bit_vector_or(bit_vector_t* pbv1, const bit_vector_t* pbv2){
 
 // ==== see bit_vector.h ========================================
 bit_vector_t* bit_vector_xor(bit_vector_t* pbv1, const bit_vector_t* pbv2){
-   if(pbv1 == NULL || pbv2 == NULL || pbv1->size != pbv2->size)
+   if(pbv1 == NULL || pbv1->content == NULL || pbv2 == NULL || pbv2->content == NULL || pbv1->size != pbv2->size)
         return NULL;
 
     for(int i = 0; i < pbv1->nb_fields; ++i)
@@ -122,10 +126,9 @@ bit_vector_t* bit_vector_extract_zero_ext(const bit_vector_t* pbv, int64_t index
     if(size == 0)
         return NULL;
 
-
     bit_vector_t* res = bit_vector_create(size, 0); 
 
-    if(pbv == NULL)
+    if(res == NULL ||pbv == NULL || pbv->content == NULL)
         return res;
 
     int i = index < 0 ? -index : 0;
@@ -143,10 +146,11 @@ bit_vector_t* bit_vector_extract_zero_ext(const bit_vector_t* pbv, int64_t index
 
 // ==== see bit_vector.h ========================================
 bit_vector_t* bit_vector_extract_wrap_ext(const bit_vector_t* pbv, int64_t index, size_t size){
-    if(size == 0 || pbv == NULL)
+    if(size == 0 || pbv == NULL || pbv->content == NULL)
         return NULL;
 
     bit_vector_t* res = bit_vector_create(size, 0); 
+    if(res == NULL) return NULL;
 
     for(int i = 0; i < size; ++i){
         if((pbv->content[((i + index) % pbv->size)/32] & 1 << ((i + index) % pbv->size)) != 0){
@@ -159,18 +163,20 @@ bit_vector_t* bit_vector_extract_wrap_ext(const bit_vector_t* pbv, int64_t index
 
 // ==== see bit_vector.h ========================================
 bit_vector_t* bit_vector_shift(const bit_vector_t* pbv, int64_t shift){
-    if(pbv == NULL) return NULL;
+    if(pbv == NULL || pbv->content == NULL) return NULL;
     
     return bit_vector_extract_zero_ext(pbv, -shift, pbv->size);
 }
 
 // ==== see bit_vector.h ========================================
 bit_vector_t* bit_vector_join(const bit_vector_t* pbv1, const bit_vector_t* pbv2, int64_t shift){
-    if(pbv1 == NULL || pbv2 == NULL || pbv1->size != pbv2->size || shift < 0 || shift > pbv1->size ) {
+    if(pbv1 == NULL || pbv1->content == NULL || pbv2 == NULL || pbv2->content == NULL || pbv1->size != pbv2->size || shift < 0 || shift > pbv1->size ) {
         return NULL;
     }
 
     bit_vector_t* res = bit_vector_create(pbv1->size, 0);
+    if(res == NULL) 
+        return NULL;
 
     for(int i = 0; i < pbv1->size; i++){
         uint32_t index = i%32;
@@ -193,7 +199,7 @@ bit_vector_t* bit_vector_join(const bit_vector_t* pbv1, const bit_vector_t* pbv2
 
 // ==== see bit_vector.h ========================================
 int bit_vector_print(const bit_vector_t* pbv){
-    if(pbv == NULL) 
+    if(pbv == NULL || pbv->content == NULL) 
         return 0;
 
     for(int i = pbv->size - 1; i >= 0; i--){
@@ -202,9 +208,10 @@ int bit_vector_print(const bit_vector_t* pbv){
 
     return pbv->size;
 }
+
 // ==== see bit_vector.h ========================================
 int bit_vector_println(const char* prefix, const bit_vector_t* pbv){
-    if(pbv == NULL || prefix == NULL) 
+    if(pbv == NULL || pbv->content == NULL || prefix == NULL) 
         return 0;
     
     printf("%s ", prefix);
@@ -215,7 +222,12 @@ int bit_vector_println(const char* prefix, const bit_vector_t* pbv){
 
 // ==== see bit_vector.h ========================================
 void bit_vector_free(bit_vector_t** pbv){
-    free((*pbv)->content);
+    if(pbv == NULL || (*pbv) == NULL) 
+        return;
+        
+    if((*pbv)->content != NULL)
+        free((*pbv)->content);
+
     free(*pbv);
     return;
 }
