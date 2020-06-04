@@ -28,7 +28,7 @@ CPPFLAGS += -DDEBUG
 LDLIBS += -lcheck -lm -lrt -pthread -lsubunit -fsanitize=address
 LDFLAGS += -L.
 
-all::
+all:: gbsimulator
 
 TARGETS := 
 CHECK_TARGETS := unit-test-bit-vector unit-test-bit unit-test-alu unit-test-memory unit-test-component unit-test-bus unit-test-cpu unit-test-cpu-dispatch-week08 unit-test-cpu-dispatch-week09 unit-test-cartridge unit-test-timer  test-cpu-week08 unit-test-alu_ext unit-test-cpu-dispatch unit-test-bit-vector #s test-image test-gameboy
@@ -82,6 +82,8 @@ submit:
 libsid.so: sidlib.c
 	$(CC) -fPIC -shared $(CPPFLAGS) $(CFLAGS) $(GTK_INCLUDE) $^ -o $@
 
+
+all-tests : unit-test-bit unit-test-alu unit-test-bus unit-test-memory unit-test-component unit-test-cpu unit-test-cpu-dispatch unit-test-cpu-dispatch-week08 unit-test-cpu-dispatch-week09 unit-test-cartridge unit-test-alu_ext unit-test-cpu-dispatch unit-test-bit-vector test-gameboy test-image test-cpu-week08
 
 libsid_demo.o: CFLAGS += $(GTK_INCLUDE)
 
