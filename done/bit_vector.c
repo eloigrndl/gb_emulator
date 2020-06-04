@@ -39,9 +39,11 @@ bit_vector_t* bit_vector_create(size_t size, bit_t value){
 
     size_t fill = (value != 0) ? 0xFFFFFFFF : 0;
     
-    for(int i = 0; i < res->nb_fields; ++i){
-        res->content[i] = fill;
-    }
+    //for(int i = 0; i < res->nb_fields; ++i){
+      //  res->content[i] = fill;
+    //}  //FIXME
+
+    res->content = memset(res->content, fill, sizeof(uint32_t) * res->nb_fields);
     res->content[res->nb_fields - 1] = (BIT_MASK32(size) & fill);
 
     return res;
@@ -57,6 +59,8 @@ bit_vector_t* bit_vector_cpy(const bit_vector_t* pbv){
     for(int i = 0; i < pbv->nb_fields; ++i){
         res->content[i] = pbv->content[i];
     }
+
+
     return res;
 }
 
@@ -123,6 +127,7 @@ bit_vector_t* bit_vector_extract_zero_ext(const bit_vector_t* pbv, int64_t index
     if(size == 0)
         return NULL;
 
+
     bit_vector_t* res = bit_vector_create(size, 0); 
 
     if(pbv == NULL)
@@ -130,13 +135,15 @@ bit_vector_t* bit_vector_extract_zero_ext(const bit_vector_t* pbv, int64_t index
 
     int i = index < 0 ? -index : 0;
 
-    for(; i < size; ++i){     
-        if(!(i+index >= pbv->size) && (pbv->content[(i + index)/32] & (1 << (i + index))) != 0){
-            res->content[i/32] |= (1 << (i%32)); 
+
+    for(int j = i ; j < size; ++j){     
+        if(!(j+index >= pbv->size) && (pbv->content[(j + index)/32] & (1 << (j + index))) != 0){
+            res->content[j/32] |= (1 << (j%32)); 
         }
     }   
 
     REMOVE_TAIL32(res);
+
     return res;    
 }
 
@@ -152,23 +159,9 @@ bit_vector_t* bit_vector_extract_wrap_ext(const bit_vector_t* pbv, int64_t index
             res->content[i / 32] |= (1 << (i % 32));
         }
     }
-    
 
     return res;
 }
-
-
-/*
-m5:
-{0xD5B60ABB, 0xD5B60ABB}
-orig: 1101 1110 1010 1101 1011 0000 0101 0101, 1101 1110 1010 1101 1011 0000 0101 0101
-need: 1101 0101 1011 0110 0000 1010 1011 1011, 1101 0101 1011 0110 0000 1010 1011 1011
-have: 1101 0101 1011 0110 0000 1010 1011 1011, 1101 0101 1011 0110 0000 1010 1011 0101
-m10:
-orig: 1101 1110 1010 1101 1011 0000 0101 0101, 1101 1110 1010 1101 1011 0000 0101 0101
-need: 1011 0110 1100 0001 0101 0111 0111 1010, 1011 0110 1100 0001 0101 0111 0111 1010
-have: 
-*/
 
 // ==== see bit_vector.h ========================================
 bit_vector_t* bit_vector_shift(const bit_vector_t* pbv, int64_t shift){
@@ -185,7 +178,7 @@ bit_vector_t* bit_vector_join(const bit_vector_t* pbv1, const bit_vector_t* pbv2
 
     bit_vector_t* res = bit_vector_create(pbv1->size, 0);
 
-  ;  for(int i = 0; i < pbv1->size; i++){
+    for(int i = 0; i < pbv1->size; i++){
         uint32_t index = i%32;
 
         //pbv1 values
