@@ -1,5 +1,5 @@
 
-# EPFL CS212 - Projet
+# GameBoy Emulator
 
 Second year project @ EPFL ([CS_212 course](https://edu.epfl.ch/coursebook/en/system-programming-project-CS-212)) : GameBoy Emulator
 
